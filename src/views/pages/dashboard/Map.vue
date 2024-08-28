@@ -1,47 +1,93 @@
 <script setup>
-import "leaflet/dist/leaflet.css"
-import { LMap, LTileLayer, LMarker } from "@vue-leaflet/vue-leaflet"
+import { ref, onMounted, watch } from "vue";
+import { LongdoMap, LongdoMapLoad } from "longdo-map-vue";
 
-import arcades from "@/assets/Map/arcades.json"
+// ใช้ API key จาก .env file
+const apiKey = import.meta.env.VITE_LONGDO_MAP_API_KEY;
 
-let zoom = ref(6)
-let center = ref([38, 139.69])
-let my_Coordinates = ref([0, 0])
+// โหลด Longdo Map ด้วย API key
+LongdoMapLoad({
+    apiKey: apiKey,
+});
 
+const zoom = ref(15);
+const center = ref([13.7563, 100.5018]); // กรุงเทพมหานคร
+const myCoordinates = ref(null);
+const mapInstance = ref(null);
+const marker = ref(null);
 
-let getmyLocation = () => {
-  navigator.geolocation.getCurrentPosition((position) => {
-    my_Coordinates.value = [position.coords.latitude, position.coords.longitude];
-    center.value = [position.coords.latitude, position.coords.longitude];
-
-  }, (error) => {
-    console.error("Error getting location: ", error);
-  });
+const updateMarkerAndMap = () => {
+    if (mapInstance.value && myCoordinates.value) {
+        if (!marker.value) {
+            marker.value = new window.longdo.Marker(myCoordinates.value, {
+                title: "ตำแหน่งของฉัน",
+                icon: {
+                    url: "https://map.longdo.com/mmmap/images/pin_mark.png",
+                    offset: { x: 12, y: 45 },
+                },
+            });
+            mapInstance.value.Overlays.add(marker.value);
+        } else {
+            marker.value.setLocation(myCoordinates.value);
+        }
+        mapInstance.value.location(myCoordinates.value, true);
+        mapInstance.value.zoom(15, true);
+    }
 };
+
+const getMyLocation = () => {
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            myCoordinates.value = [
+                position.coords.latitude,
+                position.coords.longitude,
+            ];
+            center.value = myCoordinates.value;
+            updateMarkerAndMap();
+        },
+        (error) => {
+            console.error("Error getting location: ", error);
+        }
+    );
+};
+
+const onMapReady = (map) => {
+    mapInstance.value = map;
+    getMyLocation();
+};
+
+watch(myCoordinates, updateMarkerAndMap);
+
+onMounted(() => {
+    if (typeof window.longdo === "undefined") {
+        window.addEventListener("longdomapready", getMyLocation);
+    } else {
+        getMyLocation();
+    }
+});
 </script>
 
 <template>
-  <main>
-    <l-map ref="map" v-model:zoom="zoom" v-model:center="center" :useGlobalLeaflet="false">
-      <l-tile-layer url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png"
-                    layer-type="base"
-                    name="Stadia Maps Basemap"></l-tile-layer>
-      <l-marker :lat-lng="my_Coordinates"  draggable></l-marker>
-    </l-map>
+    <longdo-map
+        :zoom="zoom"
+        :center="center"
+        @ready="onMapReady"
+        class="map-container"
+    >
+        <longdo-map-marker
+            :location="{ lon: 99, lat: 14 }"
+            :title="'Home'"
+            :detail="'My home'"
+        />
+    </longdo-map>
 
-  </main>
-  <VBtn  @click="getmyLocation">home</VBtn>
-  {{center}}
+    <VBtn @click="getMyLocation">ตำแหน่งของฉัน</VBtn>
+    {{ myCoordinates }} {{ center }}
 </template>
 
-<style scoped lang="scss">
-html, body {
-  margin: 0;
-  padding: 0;
-}
-
-main {
-  height: 100vh;
-  width: 100vw;
+<style scoped>
+.map-container {
+    height: 500px;
+    width: 100%;
 }
 </style>

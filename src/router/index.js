@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import AboutMe from '@/pages/AboutMe.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -53,6 +54,10 @@ const router = createRouter({
           path: 'form-layouts',
           component: () => import('../pages/form-layouts.vue'),
         },
+        {
+          path: 'about-me',
+          component: () => import('../pages/AboutMe.vue'),
+        }
       ],
     },
     {
@@ -77,6 +82,7 @@ const router = createRouter({
         },
       ],
     },
+    
   ],
 })
 

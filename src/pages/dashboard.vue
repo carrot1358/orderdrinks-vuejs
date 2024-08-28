@@ -65,6 +65,7 @@ import Map from "@/views/pages/dashboard/Map.vue";
     <VCol
       cols="12"
       md="12"
+      class="map-column"
     >
       <Map/>
     </VCol>
@@ -163,3 +164,9 @@ import Map from "@/views/pages/dashboard/Map.vue";
 
   </VRow>
 </template>
+
+<style scoped>
+.map-column {
+  height: 600px;
+}
+</style>

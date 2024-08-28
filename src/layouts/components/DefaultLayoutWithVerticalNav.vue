@@ -139,6 +139,13 @@ let userinfo = localStorage.getItem('userInfo') ? localStorage.getItem('userInfo
           to: '/no-existence',
         }"
       />
+      <VerticalNavLink
+        :item="{
+          title:'About me',
+          icon:'mdi-account',
+          to:'/about-me',
+        }"
+      />
 
 <!--       👉 User Interface
             <VerticalNavSectionTitle
@@ -181,6 +188,7 @@ let userinfo = localStorage.getItem('userInfo') ? localStorage.getItem('userInfo
                 to: '/form-layouts',
               }"
             />-->
+      
     </template>
 
 
