@@ -1,2 +1,4 @@
-export const Websocket_URL_Device = "ws://localhost:8080/ws/deviceStatus?type=device"
-export const Websocket_URL_Frontend = "ws://localhost:8080/ws/deviceStatus?type=frontend"
+const websocket_url = import.meta.env.VITE_WEBSOCKET_URL
+
+export const Websocket_URL_Device = websocket_url+"/ws/device/" // :deviceId
+export const Websocket_URL_Frontend = websocket_url+"/ws/frontend/" // :userId
