@@ -1,57 +1,117 @@
 <script setup>
+import { ref, computed } from 'vue';
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/svg/logo.svg?raw'
-import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
+import { User_ENDPOINTS } from "@/assets/config/api/api_endPoints";
 import axios from "axios";
 import router from "@/router";
-import {Alert} from "@/assets/sweetalert2/sweetalert2.js";
-import {nextTick} from 'vue';
+import { inject } from 'vue';
+import { useRouter } from 'vue-router';
 
-
-const form = ref({
-  username: '',
-  password: '',
-})
 const isPasswordVisible = ref(false)
 const remember = ref(false)
+const form = ref({
+  phone: '',
+  password: '',
+})
 
-const login = async () => {
-  try{
-    const response = await axios.post(User_ENDPOINTS.LOGIN, form.value);
-    if(response.status === 200){
-      if(remember.value){
-        localStorage.setItem('userInfo', JSON.stringify(response.data.data));
-      }else{
-        sessionStorage.setItem('userInfo', JSON.stringify(response.data.data));
+const $swal = inject('$swal')
+
+// เพิ่ม computed property นี้
+const isFormValid = computed(() => {
+  return form.value.phone.trim() !== '' && form.value.password.trim() !== '';
+})
+
+const Login = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('phone', form.value.phone);
+    formData.append('password', form.value.password);
+    await axios.post(User_ENDPOINTS.loginUser, formData).then((response) => {
+      if (response.status === 200) {
+        const data = response.data.data
+        if (remember.value) {
+          localStorage.setItem('jwtToken', data.accessToken);
+        } else {
+          sessionStorage.setItem('jwtToken', data.accessToken);
+        }
+        console.log(data.accessToken)
+        $swal({
+          title: 'เข้าสู่ระบบสำเร็จ!',
+          text: 'กำลังนำคุณไปยังหน้าหลัก...',
+          icon: 'success',
+          timer: 2000,
+          showConfirmButton: false
+        }).then(() => {
+          router.push('/').then(() => {
+            window.location.reload();
+          });
+        });
+      } else {
+        $swal({
+          title: 'เกิดข้อผิดพลาด',
+          text: 'ไม่สามารถเข้าสู่ระบบได้',
+          icon: 'error',
+          confirmButtonText: 'ลองอีกครั้ง'
+        })
       }
-      console.log(response.data)
-      await nextTick()
-      await router.push('/').then(() => {
-        // window.location.reload();
+    }).catch((error) => {
+      $swal({
+        title: 'เกิดข้อผิดพลาด',
+        text: error.response.data.message,
+        icon: 'error',
+        confirmButtonText: 'ตกลง'
       })
-    }else {
-      console.log(response.data)
-    }
-  }catch (e){
-    console.log(e)
+    })
+  } catch (error) {
+    $swal({
+      title: 'เกิดข้อผิดพลาด',
+      text: error,
+      icon: 'error',
+      confirmButtonText: 'ตกลง'
+    })
+  }
+};
+
+const handleJwtLogin = async (jwtToken) => {
+  sessionStorage.setItem('jwtToken', jwtToken)
+  $swal({
+    title: 'เข้าสู่ระบบสำเร็จ!',
+    text: 'กำลังนำคุณไปยังหน้าหลัก...',
+    icon: 'success',
+    timer: 2000,
+    showConfirmButton: false
+  }).then(() => {
+    router.push('/').then(() => {
+      window.location.reload()
+    })
+  })
+}
+
+
+
+
+const checkJwtToken = () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const jwtToken = urlParams.get('jwtToken')
+  if (jwtToken) {
+    handleJwtLogin(jwtToken)
   }
 }
+
+onMounted(() => {
+  checkJwtToken()
+})
 
 </script>
 
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <VCard
-      class="auth-card pa-4 pt-7"
-      max-width="448"
-    >
+    <VCard class="auth-card pa-4 pt-7" max-width="448">
       <VCardItem class="justify-center">
         <template #prepend>
           <div class="d-flex">
-            <div
-              class="d-flex text-primary"
-              v-html="logo"
-            />
+            <div class="d-flex text-primary" v-html="logo" />
           </div>
         </template>
 
@@ -62,7 +122,7 @@ const login = async () => {
 
       <VCardText class="pt-2">
         <h5 class="text-h5 mb-1">
-          ยินดีต้องรับเข้าสู่  Order Drinks! 👋🏻
+          ยินดีต้องรับเข้าสู่ Order Drinks! 👋🏻
         </h5>
         <p class="mb-0">
           กรุณากรอกข้อมูลเพื่อเข้าสู่ระบบ
@@ -70,82 +130,51 @@ const login = async () => {
       </VCardText>
 
       <VCardText>
-        <VForm @submit.prevent="login">
+        <VForm @submit.prevent="Login">
           <VRow>
             <!-- username -->
             <VCol cols="12">
-              <VTextField
-                v-model="form.username"
-                autofocus
-                placeholder="johndoe"
-                label="ชื่อผู้ใช้"
-                type="username"
-              />
+              <VTextField v-model="form.phone" autofocus placeholder="094575****" label="เบอร์โทรศัพท์" type="phone" />
             </VCol>
 
             <!-- password -->
             <VCol cols="12">
-              <VTextField
-                v-model="form.password"
-                label="รหัสผ่าน"
-                placeholder="············"
+              <VTextField v-model="form.password" label="รหัสผ่าน" placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
-                @click:append-inner="isPasswordVisible = !isPasswordVisible"
-              />
+                @click:append-inner="isPasswordVisible = !isPasswordVisible" />
 
               <!-- remember me checkbox -->
               <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
-                <VCheckbox
-                  v-model="remember"
-                  label="จำฉัน"
-                />
+                <VCheckbox v-model="remember" label="จำฉัน" />
 
-                <RouterLink
-                  class="text-primary ms-2 mb-1"
-                  to="javascript:void(0)"
-                >
+                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)">
                   ลืมรหัสผ่าน?
                 </RouterLink>
               </div>
 
               <!-- login button -->
-              <VBtn
-                block
-                type="submit"
-              >
+              <VBtn block type="submit" :disabled="!isFormValid">
                 Login
               </VBtn>
             </VCol>
 
             <!-- create account -->
-            <VCol
-              cols="12"
-              class="text-center text-base"
-            >
+            <VCol cols="12" class="text-center text-base">
               <span>ยังไม่มีบัญชีหรือเปล่า?</span>
-              <RouterLink
-                class="text-primary ms-2"
-                to="/register"
-              >
+              <RouterLink class="text-primary ms-2" to="/register">
                 สร้างบัญชี
               </RouterLink>
             </VCol>
 
-            <VCol
-              cols="12"
-              class="d-flex align-center"
-            >
+            <VCol cols="12" class="d-flex align-center">
               <VDivider />
               <span class="mx-4">or</span>
               <VDivider />
             </VCol>
 
             <!-- auth providers -->
-            <VCol
-              cols="12"
-              class="text-center"
-            >
+            <VCol cols="12" class="text-center">
               <AuthProvider />
             </VCol>
           </VRow>

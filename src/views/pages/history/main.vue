@@ -1,7 +1,7 @@
 <script setup>
 import {onMounted, ref, watch, computed} from 'vue';
 import axios from 'axios';
-import {API_ENDPOINTS} from "@/assets/config/api/api_endPoints";
+// import {API_ENDPOINTS} from "@/assets/config/api/api_endPoints";
 import LottieAnimation from "@/assets/lottie/lottieanimetion.vue";
 import WebSocketService from '@/assets/config/websocket/websocket.js';
 import {Websocket_URL_Frontend} from '@/assets/config/api/websocket_endPoints.js';

@@ -2,7 +2,7 @@
 import {onMounted, ref} from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
-import {API_ENDPOINTS, Statistics_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
+// import {API_ENDPOINTS, Statistics_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
 
 const allStatistics = ref([])
 const allData = ref([])

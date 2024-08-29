@@ -1,7 +1,7 @@
 <script setup>
 import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/svg/logo.svg?raw'
-import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
+// import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
 import axios from "axios";
 import router from "@/router";
 import {Alert} from "@/assets/sweetalert2/sweetalert2.js";

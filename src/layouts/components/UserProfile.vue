@@ -3,39 +3,75 @@ import avatar1 from '@images/avatars/avatar-1.png'
 import router from "@/router";
 import axios from "axios";
 import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
-import {onMounted} from "vue";
-const avatarProfile = ref();
+import { onMounted, ref, computed } from "vue";
+import { inject } from 'vue';
 
-const userinfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : JSON.parse(sessionStorage.getItem('userInfo'));
+const $swal = inject('$swal')
+
+const userinfo = ref([])
+// สร้าง computed property สำหรับ jwtToken
+const jwtToken = computed(() => {
+  return localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+});
 
 onMounted(() => {
-  getAvatarProfile()
+  getProfile()
 })
 
+const props = defineProps({
+  isLogin: Boolean,
+});
+
 const logout = () => {
-  if(localStorage.getItem('userInfo')){
-    localStorage.removeItem('userInfo');
+  if(localStorage.getItem('jwtToken')){
+    localStorage.removeItem('jwtToken');
   }else{
-    sessionStorage.removeItem('userInfo');
+    sessionStorage.removeItem('jwtToken');
   }
-  userinfo.value = null;
-  /*
-  router.push('/').then(() => {
-    window.location.reload();
-  });*/
+  $swal({
+    title: 'ออกจากระบบสำเร็จ!',
+    text: 'กำลังนำคุณไปยังหน้าหลัก...',
+    icon: 'success',
+    timer: 2000,
+    showConfirmButton: false
+  }).then(() => {
+    userinfo.value = null;
+    jwtToken = null;
+    props.isLogin = false;
+  })
+  
 };
 
-const getAvatarProfile = async () => {
-    const res = await axios.get(`${User_ENDPOINTS.GET_AVATAR}?userId=${userinfo.id}`)
-    // console.log(res.data)
-    if (res.data.status === 200) {
-      avatarProfile.value = 'data:image/jpeg;base64,'+res.data.data
-    }else if(res.data.status === 400){
-      if(res.data.message === 'Error: Image profile not found!'){
-        avatarProfile.value = avatar1
+const getProfile = async () => {
+    axios.get(User_ENDPOINTS.getProfile, {
+      headers: {
+        'authorization': `Bearer ${jwtToken.value}` // ใช้ jwtToken.value
       }
-    }
+    }).then((response) => {
+      userinfo.value = response.data.data
+    }).catch((error) => {
+      console.log(error)
+    })
 }
+
+// รูปภาพของผู้ใช้จากฐานข้อมูล
+const avatarUrl = computed(() => {
+  return userinfo.value && userinfo.value.avatar 
+    ? `${import.meta.env.VITE_API_URL}${userinfo.value.avatar}` 
+    : null;
+});
+
+// รูปภาพของผู้ใช้จาก line
+const lineAvatar = computed(() => {
+  return userinfo.value && userinfo.value.lineAvatar
+    ? userinfo.value.lineAvatar
+    : avatar1; 
+});
+
+// เลือกรูปภาพของผู้ใช้
+const displayAvatar = computed(() => {
+  return avatarUrl.value == null ? lineAvatar.value : avatarUrl.value;
+});
 </script>
 
 <template>
@@ -52,7 +88,7 @@ const getAvatarProfile = async () => {
       color="primary"
       variant="tonal"
     >
-      <VImg :src="avatarProfile" />
+      <VImg :src="displayAvatar" />
 
       <!-- SECTION Menu -->
       <VMenu
@@ -77,17 +113,17 @@ const getAvatarProfile = async () => {
                     color="primary"
                     variant="tonal"
                   >
-                    <VImg :src="avatarProfile" />
+                    <VImg :src="displayAvatar" />
                   </VAvatar>
                 </VBadge>
               </VListItemAction>
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              {{ userinfo.username }}
+              {{ userinfo.name }}
             </VListItemTitle>
             <VListItemSubtitle>
-              {{ userinfo.roles[0].name }}
+              {{ userinfo.role }}
             </VListItemSubtitle>
           </VListItem>
           <VDivider class="my-2" />

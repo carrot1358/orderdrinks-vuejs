@@ -1,6 +1,5 @@
 <script setup>
 import AnalyticsCongratulations from '@/views/pages/dashboard/AnalyticsCongratulations.vue'
-import StatisticsDefect from "@/views/pages/dashboard/StatisticsDefect.vue";
 import Map from "@/views/pages/dashboard/Map.vue";
 
 
@@ -52,23 +51,6 @@ import Map from "@/views/pages/dashboard/Map.vue";
         </VCol>
       </VRow>
     </VCol>-->
-
-    <!--    Statistics   -->
-    <VCol
-      cols="12"
-      md="12"
-    >
-      <StatisticsDefect/>
-    </VCol>
-
-    <!--    Map  -->
-    <VCol
-      cols="12"
-      md="12"
-      class="map-column"
-    >
-      <Map/>
-    </VCol>
 
 
 

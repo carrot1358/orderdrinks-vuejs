@@ -1,5 +1,5 @@
 <script setup>
-import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
+// import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
 import axios from "axios";
 import {Alert} from "@/assets/sweetalert2/sweetalert2";
 const alert = new Alert();

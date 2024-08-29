@@ -12,7 +12,15 @@ import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import UserProfile from '@/layouts/components/UserProfile.vue'
 
 const vuetifyTheme = useTheme()
-let userinfo = localStorage.getItem('userInfo') ? localStorage.getItem('userInfo') : sessionStorage.getItem('userInfo');
+
+const jwtToken = localStorage.getItem('jwtToken') ? localStorage.getItem('jwtToken') : sessionStorage.getItem('jwtToken');
+const isLogin = computed(() => {
+  if (jwtToken) {
+    return true;
+  } else {
+    return false;
+  }
+});
 
 </script>
 
@@ -44,8 +52,8 @@ let userinfo = localStorage.getItem('userInfo') ? localStorage.getItem('userInfo
         </IconBtn>
 
         <NavbarThemeSwitcher class="me-2" />
-        <div v-if="userinfo">
-          <UserProfile />
+        <div v-if="isLogin">
+          <UserProfile :isLogin="isLogin"/>
         </div>
         <div v-else>
           <RouterLink to="/login">

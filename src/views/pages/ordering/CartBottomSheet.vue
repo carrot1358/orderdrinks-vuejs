@@ -28,7 +28,7 @@ const closeDetailDeliver = () => {
 </script>
 
 <template>
-    <v-bottom-sheet v-model="props.cartVisible" max-width="100%" persistent>
+    <v-bottom-sheet v-model="props.cartVisible" max-width="100%" persistent :class="props.class">
         <v-container class="fill-height d-flex align-center justify-center">
             <v-card max-width="800" min-width="300" class="text-center align-content-center justify-center">
                 <v-card-title>ตะกร้าสินค้า</v-card-title>

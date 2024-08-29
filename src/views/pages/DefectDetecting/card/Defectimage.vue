@@ -3,7 +3,7 @@ import {onMounted, onUnmounted, ref} from 'vue';
 import axios from 'axios';
 import '@fortawesome/fontawesome-free/css/all.css'
 import WebSocketService from '@/assets/config/websocket/websocket.js';
-import {API_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
+// import {API_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
 import {Websocket_URL_Frontend} from '@/assets/config/api/websocket_endPoints.js';
 import LottieAnimation from "@/assets/lottie/lottieanimetion.vue";
 import {Alert} from "@/assets/sweetalert2/sweetalert2.js";

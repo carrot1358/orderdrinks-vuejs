@@ -2,8 +2,8 @@
 import {ref, computed,onMounted} from 'vue'
 import axios from 'axios'
 import VueApexCharts from 'vue3-apexcharts'
-import {Statistics_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
-import{API_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
+// import {Statistics_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
+// import{API_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
 import {
   useDisplay,
   useTheme,

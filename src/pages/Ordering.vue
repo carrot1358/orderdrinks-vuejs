@@ -2,12 +2,13 @@
 import { ref, computed, onMounted } from 'vue';
 import OrderDialog from '@/views/pages/ordering/OrderDialog.vue';
 import CartBottomSheet from '@/views/pages/ordering/CartBottomSheet.vue';
-import { Alert } from '@/assets/sweetalert2/sweetalert2.js';
 import promptpay from 'promptpay-qr';
 import qrcode from 'qrcode';
+import { inject } from 'vue';
 
-const jwtToken = localStorage.getItem('jwtToken');
-const alert = new Alert();
+const $swal = inject('$swal')
+
+const jwtToken = localStorage.getItem('jwtToken') ? localStorage.getItem('jwtToken') : sessionStorage.getItem('jwtToken');
 
 const qrCodePayment = ref('');
 const adminPaymentPhone = ref('0945756665');

@@ -2,9 +2,11 @@
 import {ref, computed} from 'vue';
 import axios from 'axios';
 import LottieAnimation from "@/assets/lottie/lottieanimetion.vue";
-import { Alert } from '@/assets/sweetalert2/sweetalert2.js';
-import {Ordering_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
-import {getPaymentAdmin} from '@/assets/config/api/api_endPoints.js';
+import { inject } from 'vue';
+
+const $swal = inject('$swal')
+// import {Ordering_ENDPOINTS} from '@/assets/config/api/api_endPoints.js';
+// import {getPaymentAdmin} from '@/assets/config/api/api_endPoints.js';
 
 const props = defineProps({
     qrCodePayment: String,
@@ -18,8 +20,6 @@ const userDetail = ref({
     phone: '0945756665',
     address: '159/199',
 });
-
-const alert = new Alert();
 
 const paymentItems = ['โอนเงิน (QR พร้อมเพย์)', 'เงินสด (ปลายทาง)'];
 const payment = ref(paymentItems[0]);
@@ -52,7 +52,15 @@ const placeOrder =async () =>{
     paymentSlipReader.value = null;
     props.cartList = [];
     props.closeDetailDeliver();
-    alert.showAlert('สำเร็จ', 'ส่งคำสั่งซื้อเรียบร้อยแล้ว', 'success', '1000');
+    $swal.fire({
+        title: 'สั่งซื้อสำเร็จ',
+        text: 'กำลังนำคุณไปยังหน้าหลัก...',
+        icon: 'success',
+        timer: 2000,
+        showConfirmButton: false
+    }).then(() => {
+        
+    })
 }
 
 const handleFileChange = async () => {
