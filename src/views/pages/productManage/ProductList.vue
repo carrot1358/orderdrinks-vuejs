@@ -99,33 +99,43 @@ const updateProduct = async () => {
 
 const deleteProduct = async (productId) => {
     try {
-        const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-        await axios.delete(`${Product_ENDPOINTS.deleteProduct}${productId}`, {
-            headers: {
-                'Authorization': `Bearer ${jwtToken}`
-            }
-        }).then((response) => {
-            fetchProducts();
-            if(response.status === 200){
+        const result = await $swal.fire({
+            title: 'คุณแน่ใจหรือไม่?',
+            text: "คุณจะไม่สามารถกู้คืนสินค้านี้ได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (result.isConfirmed) {
+            const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+            const response = await axios.delete(`${Product_ENDPOINTS.deleteProduct}${productId}`, {
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            });
+
+            if (response.status === 200) {
+                await fetchProducts();
                 $swal.fire({
+                    title: 'ลบแล้ว!',
+                    text: 'สินค้าของคุณถูกลบเรียบร้อยแล้ว',
                     icon: 'success',
-                    title: 'ลบสินค้าเรียบร้อย',
-                    text: 'สินค้าได้รับการลบสำเร็จ',
                     timer: 1500,
                     timerProgressBar: true,
                 });
             }
-
-        }).catch((error) => {
-            $swal.fire({
-                icon: 'error',
-                title: 'ลบสินค้าผิดพลาด',
-                text: error.response?.data?.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
-            });
-        });
-        
+        }
     } catch (error) {
         console.error('เกิดข้อผิดพลาดในการลบสินค้า:', error);
+        $swal.fire({
+            icon: 'error',
+            title: 'ลบสินค้าผิดพลาด',
+            text: error.response?.data?.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
+        });
     }
 };
 </script>
