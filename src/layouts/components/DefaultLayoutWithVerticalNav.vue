@@ -122,6 +122,11 @@ const isUser = computed(() => {
         icon: 'bx-package',
         to: '/product-manage',
       }" />
+      <VerticalNavLink v-if="isAdmin" :item="{
+        title: 'จัดการการชำระเงิน',
+        icon: 'bx-credit-card',
+        to: '/payment-manage',
+      }" />
 
       <!-- 👉 Pages -->
       <VerticalNavSectionTitle :item="{

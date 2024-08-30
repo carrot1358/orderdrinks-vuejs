@@ -62,6 +62,10 @@ const router = createRouter({
           path: 'product-manage',
           component: () => import('../pages/productManage.vue'),
         },
+        {
+          path: 'payment-manage',
+          component: () => import('../pages/paymentManage.vue'),
+        },
       ],
     },
     {

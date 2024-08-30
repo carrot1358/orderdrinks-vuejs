@@ -27,3 +27,8 @@ export const Order_ENDPOINTS = {
   cancelOrder: backend_url+"/api/v1/orders/cancel", // PUT :id
   checkSlip: backend_url+"/api/v1/orders/check_slip", // POST
 }
+
+export const Payment_ENDPOINTS = {
+  getPayments: backend_url+"/api/v1/payments/", // GET
+  updatePayment: backend_url+"/api/v1/payments/", // PUT
+}
