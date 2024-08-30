@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -8,10 +9,10 @@ const router = createRouter({
       path: '/',
       component: () => import('../layouts/default.vue'),
       children: [
-        /* {
+        {
           path: 'dashboard',
           component: () => import('../pages/dashboard.vue'),
-        }, */
+        },
 
         /*{
           path: 'DefectDetection',
@@ -56,7 +57,11 @@ const router = createRouter({
         {
           path: 'about-me',
           component: () => import('../pages/AboutMe.vue'),
-        }
+        },
+        {
+          path: 'product-manage',
+          component: () => import('../pages/productManage.vue'),
+        },
       ],
     },
     {
