@@ -25,8 +25,10 @@ const props = defineProps({
 const logout = () => {
   if(localStorage.getItem('jwtToken')){
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('userinfo');
   }else{
     sessionStorage.removeItem('jwtToken');
+    sessionStorage.removeItem('userinfo');
   }
   $swal({
     title: 'ออกจากระบบสำเร็จ!',
