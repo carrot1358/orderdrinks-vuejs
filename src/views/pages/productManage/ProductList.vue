@@ -186,7 +186,7 @@ const deleteProduct = async (productId) => {
                     <VFileInput class="mb-2" label="รูปภาพสินค้า" accept="image/*" @change="handleFileChange"></VFileInput>
                     <VRow justify="center" align="center">
                         <VCol cols="auto">
-                            <VImg v-if="imagePreview" :src="imagePreview"  width="200" height="200" class="rounded-lg"></VImg>
+                            <VImg v-if="imagePreview" :src="imagePreview"  width="200" height="200" rounded="xl"></VImg>
                         </VCol>
                     </VRow>
                     <VRow justify="center" class="mt-4">

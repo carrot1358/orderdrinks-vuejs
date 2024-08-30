@@ -35,7 +35,7 @@ const fetchProducts = () => {
   <VCard>
     <VCardTitle>จัดการสินค้า</VCardTitle>
     <VCardText>
-      <VBtn color="primary" @click="openAddProductDialog">เพิ่มสินค้า</VBtn>
+      <VBtn color="primary" @click="openAddProductDialog" class="mb-4">เพิ่มสินค้า</VBtn>
 
       <VDialog v-model="showAddProductDialog" max-width="500px">
         <AddProduct 
