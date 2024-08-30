@@ -11,6 +11,7 @@ export const User_ENDPOINTS = {
 }
 
 export const Product_ENDPOINTS = {
+  addProduct: backend_url+"/api/v1/products/", // POST
   getProducts: backend_url+"/api/v1/products/", // GET
   getProductById: backend_url+"/api/v1/products/", // GET :id
   createProduct: backend_url+"/api/v1/products/", // POST
