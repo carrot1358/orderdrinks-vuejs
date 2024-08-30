@@ -14,8 +14,35 @@ import UserProfile from '@/layouts/components/UserProfile.vue'
 const vuetifyTheme = useTheme()
 
 const jwtToken = localStorage.getItem('jwtToken') ? localStorage.getItem('jwtToken') : sessionStorage.getItem('jwtToken');
+const userinfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
+
 const isLogin = computed(() => {
   if (jwtToken) {
+    return true;
+  } else {
+    return false;
+  }
+});
+
+const isAdmin = computed(() => {
+  if (userinfo.value.role === 'admin') {
+    return true;
+  } else {
+    return false;
+  }
+});
+
+const isEmployee = computed(() => {
+  if(isLogin.value){
+    if (userinfo.value.role !== 'user') {
+      return true;
+  }} else {
+    return false;
+  }
+});
+
+const isUser = computed(() => {
+  if (userinfo.value.role === 'user') {
     return true;
   } else {
     return false;
@@ -30,20 +57,13 @@ const isLogin = computed(() => {
     <template #navbar="{ toggleVerticalOverlayNavActive }">
       <div class="d-flex h-100 align-center">
         <!-- 👉 Vertical nav toggle in overlay mode -->
-        <IconBtn
-          class="ms-n3 d-lg-none"
-          @click="toggleVerticalOverlayNavActive(true)"
-        >
+        <IconBtn class="ms-n3 d-lg-none" @click="toggleVerticalOverlayNavActive(true)">
           <VIcon icon="bx-menu" />
         </IconBtn>
         <VSpacer />
 
-        <IconBtn
-          class="me-2"
-          href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <IconBtn class="me-2" href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
+          target="_blank" rel="noopener noreferrer">
           <VIcon icon="bxl-github" />
         </IconBtn>
 
@@ -53,109 +73,67 @@ const isLogin = computed(() => {
 
         <NavbarThemeSwitcher class="me-2" />
         <div v-if="isLogin">
-          <UserProfile :isLogin="isLogin"/>
+          <UserProfile :isLogin="isLogin" />
         </div>
         <div v-else>
           <RouterLink to="/login">
-            <VBtn
-              class="text-capitalize"
-              color="primary"
-              size="small"
-              outlined
-            >
+            <VBtn class="text-capitalize" color="primary" size="small" outlined>
               <VIcon icon="bx-log-in" />
-               Login
+              Login
             </VBtn>
           </RouterLink>
         </div>
-
       </div>
     </template>
 
     <template #vertical-nav-content>
-      <VerticalNavLink
-        :item="{
-          title: 'Dashboard',
-          icon: 'bx-home',
-          to: '/dashboard',
-        }"
-      />
-<!--      <VerticalNavLink
+      <!--      <VerticalNavLink
         :item="{
           title:'Defect Detection',
           icon:'bx-bug',
           to:'/DefectDetection',
         }"
       />-->
-      <VerticalNavLink
-        :item="{
-          title:'สั่งซื้อสินค้า',
-          icon:'bx-cart',
-          to:'/Ordering',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title:'History',
-          icon:'bx-history',
-          to:'/history',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Account Settings',
-          icon: 'mdi-account-cog-outline',
-          to: '/account-settings',
-        }"
-      />
-        <VerticalNavSectionTitle :item="{
-            heading: 'พนักงาน',
-        }"/>
-            <VerticalNavLink
-                :item="{
-                    title: 'รายการคำสั่งซื้อ',
-                    icon: 'bx-list-ul',
-                    to: '/OrderList',
-                }"
-            />
-
+      <VerticalNavLink :item="{
+        title: 'สั่งซื้อสินค้า',
+        icon: 'bx-cart',
+        to: '/Ordering',
+      }" />
+      <VerticalNavLink v-if="isUser" :item="{
+        title: 'ประวัติการสั่งซื้อ',
+        icon: 'bx-history',
+        to: '/history',
+      }" />
+      <VerticalNavLink v-if="isLogin" :item="{
+        title: 'ตั้งค่าบัญชี',
+        icon: 'mdi-account-cog-outline',
+        to: '/account-settings',
+      }"  />
+      <VerticalNavSectionTitle v-if="isEmployee" :item="{
+        heading: 'พนักงาน',
+      }" />
+      <VerticalNavLink v-if="isEmployee" :item="{
+        title: 'รายการคำสั่งซื้อ',
+        icon: 'bx-list-ul',
+        to: '/OrderList',
+      }" />
+      <VerticalNavLink v-if="isEmployee" :item="{
+        title: 'จัดการสินค้า',
+        icon: 'bx-package',
+        to: '/product-manage',
+      }" />
 
       <!-- 👉 Pages -->
-      <VerticalNavSectionTitle
-        :item="{
-          heading: 'Pages',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Login',
-          icon: 'bx-log-in',
-          to: '/login',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Register',
-          icon: 'bx-user-plus',
-          to: '/register',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Error',
-          icon: 'bx-info-circle',
-          to: '/no-existence',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title:'About me',
-          icon:'mdi-account',
-          to:'/about-me',
-        }"
-      />
+      <VerticalNavSectionTitle :item="{
+        heading: 'Pages',
+      }" />
+      <VerticalNavLink :item="{
+        title: 'เกี่ยวกับเรา',
+        icon: 'mdi-account',
+        to: '/about-me',
+      }" />
 
-<!--       👉 User Interface
+      <!--       👉 User Interface
             <VerticalNavSectionTitle
               :item="{
                 heading: 'User Interface',
@@ -196,7 +174,7 @@ const isLogin = computed(() => {
                 to: '/form-layouts',
               }"
             />-->
-      
+
     </template>
 
 
@@ -205,7 +183,7 @@ const isLogin = computed(() => {
 
     <!-- 👉 Footer -->
     <template #footer>
-<!--      <Footer />-->
+      <!--      <Footer />-->
     </template>
   </VerticalNavLayout>
 </template>
