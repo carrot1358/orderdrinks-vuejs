@@ -35,7 +35,19 @@ const Login = async () => {
         } else {
           sessionStorage.setItem('jwtToken', data.accessToken);
         }
-        console.log(data.accessToken)
+        axios.get(User_ENDPOINTS.getProfile, {
+          headers: {
+            'Authorization': `Bearer ${data.accessToken}`
+          }
+        }).then((response) => {
+          if (remember.value) {
+            localStorage.setItem('userinfo', JSON.stringify(response.data.data))
+          } else {
+            sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
+          }
+        }).catch((error) => {
+          console.log(error)
+        })
         $swal({
           title: 'เข้าสู่ระบบสำเร็จ!',
           text: 'กำลังนำคุณไปยังหน้าหลัก...',
@@ -75,6 +87,15 @@ const Login = async () => {
 
 const handleJwtLogin = async (jwtToken) => {
   sessionStorage.setItem('jwtToken', jwtToken)
+  await axios.get(User_ENDPOINTS.getProfile, {
+    headers: {
+      'Authorization': `Bearer ${jwtToken}`
+    }
+  }).then((response) => {
+    sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
+  }).catch((error) => {
+    console.log(error)
+  })
   $swal({
     title: 'เข้าสู่ระบบสำเร็จ!',
     text: 'กำลังนำคุณไปยังหน้าหลัก...',
