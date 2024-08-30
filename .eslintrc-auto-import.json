@@ -311,7 +311,6 @@
     "watchThrottled": true,
     "watchTriggerable": true,
     "watchWithFilter": true,
-    "whenever": true,
-    "Alert": true
+    "whenever": true
   }
 }
