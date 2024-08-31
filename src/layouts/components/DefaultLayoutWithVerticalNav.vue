@@ -99,7 +99,7 @@ const isUser = computed(() => {
         icon: 'bx-cart',
         to: '/Ordering',
       }" />
-      <VerticalNavLink v-if="isUser" :item="{
+      <VerticalNavLink v-if="isUser || isEmployee || isAdmin" :item="{
         title: 'ประวัติการสั่งซื้อ',
         icon: 'bx-history',
         to: '/history',
