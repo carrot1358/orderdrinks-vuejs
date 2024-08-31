@@ -22,6 +22,7 @@ export const Product_ENDPOINTS = {
 export const Order_ENDPOINTS = {
   getOrders: backend_url+"/api/v1/orders/", // GET
   getOrderById: backend_url+"/api/v1/orders/", // GET :id
+  getOrderByUser: backend_url+"/api/v1/orders/my_order", // GET
   createOrder: backend_url+"/api/v1/orders/", // POST
   completeOrder: backend_url+"/api/v1/orders/complete", // PUT :id
   cancelOrder: backend_url+"/api/v1/orders/cancel", // PUT :id
