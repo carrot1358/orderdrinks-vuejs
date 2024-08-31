@@ -1,14 +1,33 @@
 <script setup>
 import { ref } from 'vue';
+const VITE_API_URL = import.meta.env.VITE_API_URL;
 
 const props = defineProps({
   lookingOrdering: Boolean,
   lookingProduct: Object,
-  increaseQuantity: Function,
-  decreaseQuantity: Function,
   addToCart: Function,
   closeDialog: Function,
 });
+
+const quantity = ref(1);
+
+const increaseQuantity = () => {
+  quantity.value++;
+};
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) {
+    quantity.value--;
+  }
+};
+
+const handleAddToCart = () => {
+  props.addToCart({ ...props.lookingProduct, quantity: quantity.value });
+  props.closeDialog();
+  setTimeout(() => {
+    quantity.value = 1;
+  }, 1000); // 1000 มิลลิวินาที = 1 วินาที
+};
 </script>
 
 <template>
@@ -17,18 +36,17 @@ const props = defineProps({
       <v-card-title>
         <h1>สั่งซื้อ : {{ props.lookingProduct.name }}</h1>
       </v-card-title>
-      <v-img :src="props.lookingProduct.image" alt="Placeholder" class="mb-4" height="200" max-width="100%"></v-img>
+      <v-img :src="VITE_API_URL + props.lookingProduct.imagePath" :alt="props.lookingProduct.name" class="mb-4" height="200" max-width="100%"></v-img>
       <v-row class="pt-3 text-center align-content-center justify-center">
-        <v-btn @click="props.decreaseQuantity">-</v-btn>
-        <span class="border px-10 text-center justify-center align-content-center mx-1">{{ props.lookingProduct.quantity }}</span>
-        <v-btn @click="props.increaseQuantity">+</v-btn>
+        <v-btn @click="decreaseQuantity">-</v-btn>
+        <span class="border px-10 text-center justify-center align-content-center mx-1">{{ quantity }}</span>
+        <v-btn @click="increaseQuantity">+</v-btn>
       </v-row>
       <v-card-text>
-        <p>ราคา: {{ props.lookingProduct.price * props.lookingProduct.quantity }} บาท</p>
+        <p>ราคา: {{ props.lookingProduct.price * quantity }} บาท</p>
       </v-card-text>
       <v-card-actions class="text-center justify-center">
-        <v-btn color="primary">สั่งซื้อ</v-btn>
-        <v-btn color="warning" @click="props.addToCart(props.lookingProduct)">เพิ่มเข้าตะกร้า</v-btn>
+        <v-btn color="primary" @click="handleAddToCart">เพิ่มเข้าตะกร้า</v-btn>
         <v-btn color="error" @click="props.closeDialog">ยกเลิก</v-btn>
       </v-card-actions>
     </v-card>
