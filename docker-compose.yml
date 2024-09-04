@@ -1,0 +1,18 @@
+version: '3'
+services:
+  orderdrinks-vuejs:
+    build: .
+    container_name: orderdrinks-vuejs
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - My-Orderdrinks
+
+networks:
+  My-Orderdrinks:
+    name: My-Orderdrinks

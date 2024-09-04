@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Copy the build-icons.js file to ensure it exists before npm install
-COPY src/@iconify/build-icons.js src/@iconify/build-icons.js
+COPY src/@iconify src/@iconify/
 
 # Install dependencies
 RUN npm install
