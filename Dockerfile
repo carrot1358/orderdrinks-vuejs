@@ -11,7 +11,7 @@ COPY package.json package-lock.json ./
 COPY src/@iconify src/@iconify/
 
 # Install dependencies
-RUN npm install
+RUN npm cache clean --force && npm install --verbose
 
 # Copy the rest of the application code to the working directory
 COPY . .
