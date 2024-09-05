@@ -13,11 +13,6 @@ const router = createRouter({
           path: 'dashboard',
           component: () => import('../pages/dashboard.vue'),
         },
-
-        /*{
-          path: 'DefectDetection',
-          component: () => import('../pages/DefectDetection.vue'),
-        },*/
         {
           path: 'OrderList',
           component: () => import('../pages/OrderList.vue'),
@@ -75,10 +70,6 @@ const router = createRouter({
         {
           path: 'login',
           component: () => import('../pages/login.vue'),
-        },
-        {
-          path: 'DefectDetection',
-          component: () => import('../pages/DefectDetection.vue'),
         },
         {
           path: 'register',

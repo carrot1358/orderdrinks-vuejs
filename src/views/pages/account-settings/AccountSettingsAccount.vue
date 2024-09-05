@@ -3,7 +3,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
 import axios from 'axios'
 import {onMounted, ref} from 'vue'
 // import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
-import {Alert} from "@/assets/sweetalert2/sweetalert2";
+//import {Alert} from "@/assets/sweetalert2/sweetalert2";
 
 const alert = new Alert()
 const userinfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : JSON.parse(sessionStorage.getItem('userInfo'))

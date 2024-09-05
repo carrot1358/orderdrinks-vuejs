@@ -1,7 +1,8 @@
 <script setup>
-// import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
-import axios from "axios";
-import {Alert} from "@/assets/sweetalert2/sweetalert2";
+import { ref } from 'vue';
+//import { Alert } from "@/assets/sweetalert2/sweetalert2.js"; // ถ้า Alert ถูก import จากที่นี่
+// import other necessary modules here
+
 const alert = new Alert();
 const isCurrentPasswordVisible = ref(false)
 const isNewPasswordVisible = ref(false)

@@ -2,7 +2,7 @@
 import withLink from '@/assets/images/lineNotify/withlink.png'
 // import {Notification_ENDPOINTS} from "@/assets/config/api/api_endPoints";
 import axios from "axios";
-import {Alert} from "@/assets/sweetalert2/sweetalert2";
+//import {Alert} from "@/assets/sweetalert2/sweetalert2";
 import {ref, reactive, onMounted} from 'vue';
 import {propsToCopy} from "@iconify/utils/lib/icon-set/get-icons";
 import Swal from "sweetalert2";

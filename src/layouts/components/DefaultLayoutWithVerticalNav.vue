@@ -87,13 +87,6 @@ const isUser = computed(() => {
     </template>
 
     <template #vertical-nav-content>
-      <!--      <VerticalNavLink
-        :item="{
-          title:'Defect Detection',
-          icon:'bx-bug',
-          to:'/DefectDetection',
-        }"
-      />-->
       <VerticalNavLink :item="{
         title: 'สั่งซื้อสินค้า',
         icon: 'bx-cart',
