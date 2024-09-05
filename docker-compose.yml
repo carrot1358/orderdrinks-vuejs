@@ -6,8 +6,8 @@ services:
     ports:
       - "80:3000"
     volumes:
-      - .:/app/vue
-      - /app/vue/node_modules
+      - .:/app
+      - /app/node_modules
     environment:
       - NODE_ENV=production
     networks:
