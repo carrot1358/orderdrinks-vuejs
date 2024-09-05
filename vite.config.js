@@ -63,7 +63,7 @@ export default defineConfig({
     ],
   },
   server: {
-    port: 3000,
+    port: 5050,
     host: '0.0.0.0',
   },
 })

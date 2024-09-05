@@ -1,23 +1,27 @@
-# Use an official Node.js runtime as a parent image
-FROM node:22
+# ใช้ Node.js เวอร์ชันล่าสุดเป็นฐาน
+FROM node:latest
 
-# Set the working directory in the container
-WORKDIR /app/
+# ตั้งค่าไดเรกทอรีทำงาน
+WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package.json package-lock.json ./
+# คัดลอกไฟล์ package.json และ package-lock.json (ถ้ามี)
+COPY package*.json ./
 
-# Copy the build-icons.js file to ensure it exists before npm install
 COPY src/@iconify src/@iconify/
 
-# Install dependencies
+# ติดตั้ง dependencies
 RUN npm install
 
-# Copy the rest of the application code to the working directory
+
+
+# คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+# สร้าง production build
+RUN npm run build
 
-# Define the command to run the app
-CMD ["npm", "run", "dev"]
+# เปิดพอร์ต 3000 สำหรับการเข้าถึงแอพ
+EXPOSE 5050
+
+# รันคำสั่งเพื่อเริ่มต้นแอพ
+CMD ["npm", "run", "preview"]
