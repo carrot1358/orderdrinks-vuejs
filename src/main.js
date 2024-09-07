@@ -11,6 +11,7 @@ import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import VueSweetalert2 from 'vue-sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
+import Vue3Lottie from 'vue3-lottie'
 
 loadFonts()
 
@@ -24,6 +25,7 @@ app.use(vuetify)
 app.use(createPinia())
 app.use(router)
 app.use(VueSweetalert2)
+app.use(Vue3Lottie)
 
 // Mount vue app
 app.mount('#app')
