@@ -17,6 +17,7 @@
     "@casl/vue": "^2.2.0",
     "@floating-ui/dom": "1.2.8",
     "@fortawesome/fontawesome-free": "^6.5.2",
+    "@lottiefiles/dotlottie-vue": "^0.4.14",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.1.2",
     "@vueuse/math": "^10.1.2",
