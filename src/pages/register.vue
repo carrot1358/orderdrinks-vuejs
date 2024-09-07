@@ -139,8 +139,6 @@ const registerUser = async () => {
                 ลงชื่อเข้าใช้
               </RouterLink>
             </VCol>
-
-            </VCol>
           </VRow>
         </VForm>
       </VCardText>
