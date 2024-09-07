@@ -26,6 +26,7 @@ export const Order_ENDPOINTS = {
   createOrder: backend_url+"/api/v1/orders/", // POST
   completeOrder: backend_url+"/api/v1/orders/complete", // PUT :id
   cancelOrder: backend_url+"/api/v1/orders/cancel", // PUT :id
+  updateOrder: backend_url+"/api/v1/orders/update", // PUT :id
   checkSlip: backend_url+"/api/v1/orders/check_slip", // POST
 }
 
