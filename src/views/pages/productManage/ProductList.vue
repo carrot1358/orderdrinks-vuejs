@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted, nextTick } from 'vue';
+import { ref, onMounted, nextTick, inject } from 'vue';
 import axios from 'axios';
 import { Product_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import { VChip, VDivider, VTooltip } from 'vuetify/components'
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -144,37 +145,68 @@ const deleteProduct = async (productId) => {
         });
     }
 };
+
+const getStockColor = (stock) => {
+    if (stock === -1) return 'info'
+    if (stock > 50) return 'success'
+    if (stock > 20) return 'warning'
+    return 'error'
+}
 </script>
 
 <template>
-    <VCard>
-        <VCardTitle>รายการสินค้า</VCardTitle>
+    <VCard class="product-list-card">
+        <VCardTitle class="text-h5 font-weight-bold pa-6 d-flex align-center">
+            <v-icon large left class="mr-2">mdi-format-list-bulleted</v-icon>
+            รายการสินค้า
+        </VCardTitle>
+        <VDivider></VDivider>
         <VCardText>
-            <VTable>
+            <VTable hover class="product-table">
                 <thead>
                     <tr>
-                        <th>ชื่อ</th>
-                        <th>ราคา</th>
-                        <th>สต็อก</th>
-                        <th class="d-none d-sm-table-cell">รูปภาพ</th>
-                        <th>การดำเนินการ</th>
+                        <th class="text-left">ชื่อ</th>
+                        <th class="text-center">ราคา</th>
+                        <th class="text-center">สต็อก</th>
+                        <th class="text-center d-none d-sm-table-cell">รูปภาพ</th>
+                        <th class="text-center">การดำเนินการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in products" :key="product.productId" class="text-center item-center">
+                    <tr v-for="product in products" :key="product.productId">
                         <td>{{ product.name }}</td>
-                        <td>{{ product.price }}</td>
-                        <td>{{ product.stock }}</td>
-                        <td class="d-none d-sm-table-cell ">
-                            <div class="d-flex justify-center align-center" style="height: 100%;">
-                                <VImg :src="`${VITE_API_URL}${product.imagePath}`" width="50" height="45"></VImg>
-                            </div>
+                        <td class="text-center">
+                            <VChip color="primary" label>{{ product.price }} บาท</VChip>
                         </td>
-                        <td>
-                            <VBtn color="primary" size="small" class="mx-1 my-1" @click="openEditDialog(product)">แก้ไข
+                        <td class="text-center">
+                            <VChip v-if="product.stock !== -1" :color="getStockColor(product.stock)" label>
+                                {{ product.stock }}
+                            </VChip>
+                            <VChip v-else color="info" label>
+                                <v-icon left class="mr-1">mdi-infinity</v-icon>
+                                ไม่จำกัด
+                            </VChip>
+                        </td>
+                        <td class="text-center d-none d-sm-table-cell">
+                            <VTooltip>
+                                <template v-slot:activator="{ props }">
+                                    <VAvatar size="45" v-bind="props">
+                                        <VImg :src="`${VITE_API_URL}${product.imagePath}`" cover></VImg>
+                                    </VAvatar>
+                                </template>
+                                <span>{{ product.name }}</span>
+                            </VTooltip>
+                        </td>
+                        <td class="text-center">
+                            <VBtn color="primary" variant="tonal" size="small" class="mr-2 my-1"
+                                @click="openEditDialog(product)">
+                                <VIcon color="primary" icon="mdi-pencil"></VIcon>
+                                <VTooltip activator="parent" location="top">แก้ไข</VTooltip>
                             </VBtn>
-                            <VBtn color="error" size="small" class="mx-1 my-1"
-                                @click="deleteProduct(product.productId)">ลบ</VBtn>
+                            <VBtn color="error" variant="tonal" size="small" class="my-1" @click="deleteProduct(product.productId)">
+                                <VIcon color="error" icon="mdi-delete"></VIcon>
+                                <VTooltip activator="parent" location="top">ลบ</VTooltip>
+                            </VBtn>
                         </td>
                     </tr>
                 </tbody>
@@ -184,24 +216,30 @@ const deleteProduct = async (productId) => {
 
     <VDialog v-model="showEditDialog" max-width="500px">
         <VCard>
-            <VCardTitle>แก้ไขสินค้า</VCardTitle>
+            <VCardTitle class="text-h6 font-weight-bold pa-4">
+                แก้ไขสินค้า
+            </VCardTitle>
+            <VDivider></VDivider>
             <VCardText>
-                <VForm @submit.prevent="updateProduct">
-                    <VTextField class="mb-2" v-model="editingProduct.name" label="ชื่อสินค้า" required></VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.description" label="รายละเอียดสินค้า" required>
+                <VForm @submit.prevent="updateProduct" class="pa-4">
+                    <VTextField v-model="editingProduct.name" label="ชื่อสินค้า" required outlined dense class="mb-4">
                     </VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.price" label="ราคา" type="number" required>
-                    </VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.stock" label="จำนวนในสต็อก" type="number" required>
-                    </VTextField>
-                    <VFileInput class="mb-2" label="รูปภาพสินค้า" accept="image/*" @change="handleFileChange">
-                    </VFileInput>
-                    <VRow justify="center" align="center">
+                    <VTextField v-model="editingProduct.description" label="รายละเอียดสินค้า" required outlined dense
+                        class="mb-4"></VTextField>
+                    <VTextField v-model="editingProduct.price" label="ราคา" type="number" required outlined dense
+                        class="mb-4"></VTextField>
+                    <VTextField v-model="editingProduct.stock" label="จำนวนในสต็อก" type="number" required outlined
+                        dense class="mb-4"></VTextField>
+                    <VFileInput label="รูปภาพสินค้า" accept="image/*" @change="handleFileChange" outlined dense
+                        class="mb-4"></VFileInput>
+                    <VRow justify="center" align="center" class="mb-4">
                         <VCol cols="auto">
-                            <VImg v-if="imagePreview" :src="imagePreview" width="200" height="200" rounded="xl"></VImg>
+                            <VAvatar size="200" v-if="imagePreview">
+                                <VImg :src="imagePreview" cover></VImg>
+                            </VAvatar>
                         </VCol>
                     </VRow>
-                    <VRow justify="center" class="mt-4">
+                    <VRow justify="center">
                         <VCol cols="auto">
                             <VBtn type="submit" color="primary" class="mr-2">บันทึก</VBtn>
                             <VBtn @click="showEditDialog = false" color="error">ยกเลิก</VBtn>
@@ -214,23 +252,28 @@ const deleteProduct = async (productId) => {
 </template>
 
 <style scoped>
+.product-list-card {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-table {
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.product-table tbody tr {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.product-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 .swal-on-top {
     z-index: 9999 !important;
-}
-
-.v-table td {
-    height: 70px;
-    /* ปรับความสูงตามต้องการ */
-}
-
-@media (max-width: 600px) {
-    .v-table {
-        font-size: 0.8rem;
-    }
-
-    .v-btn {
-        font-size: 0.7rem;
-        padding: 0 8px;
-    }
 }
 </style>
