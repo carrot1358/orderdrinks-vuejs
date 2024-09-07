@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 import { inject } from 'vue';
 import EditUser from '@/views/pages/UserManage/EditUser.vue';
 import CreateUser from '@/views/pages/UserManage/CreateUser.vue';
+import { DotLottieVue } from '@lottiefiles/dotlottie-vue'
 
 const $swal = inject('$swal');
 const router = useRouter();
@@ -171,12 +172,12 @@ const getRoleIcon = (role) => {
                     <v-card-text>
                         <v-row align="center">
                             <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="searchUsername" prepend-inner-icon="mdi-account-search" label="ค้นหาชื่อผู้ใช้"
-                                    single-line hide-details outlined dense></v-text-field>
+                                <v-text-field v-model="searchUsername" prepend-inner-icon="mdi-account-search"
+                                    label="ค้นหาชื่อผู้ใช้" single-line hide-details outlined dense></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="searchPhone" prepend-inner-icon="mdi-phone" label="ค้นหาเบอร์โทรศัพท์"
-                                    single-line hide-details outlined dense></v-text-field>
+                                <v-text-field v-model="searchPhone" prepend-inner-icon="mdi-phone"
+                                    label="ค้นหาเบอร์โทรศัพท์" single-line hide-details outlined dense></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
                                 <v-select v-model="roleFilter"
@@ -233,8 +234,12 @@ const getRoleIcon = (role) => {
             </v-col>
         </v-row>
         <v-row v-else>
-            <v-col>
-                
+            <v-col style="height: 500px; position: relative;">
+                <div class="d-flex justify-center align-center" style="height: 100%;">
+                    <DotLottieVue style="height: 500px; width: 500px;" autoplay loop
+                        src="https://lottie.host/47a41b03-c713-49bf-b695-389f6fb679bd/WSEOYKZcRX.json" />
+                </div>
+                <h1 class="text-h4 font-weight-bold primary--text text-center overlay-text">ไม่พบผู้ใช้</h1>
             </v-col>
         </v-row>
 
@@ -251,6 +256,16 @@ const getRoleIcon = (role) => {
 </template>
 
 <style scoped>
+.overlay-text {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    z-index: 1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 .user-card {
     transition: all 0.3s;
     height: 100%;
@@ -264,4 +279,5 @@ const getRoleIcon = (role) => {
 .swal-on-top {
     z-index: 9999 !important;
 }
+
 </style>
