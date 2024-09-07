@@ -1,0 +1,124 @@
+<script setup>
+import { ref, computed } from 'vue';
+import axios from 'axios';
+import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+
+const props = defineProps({
+    user: Object,
+    jwtToken: String,
+    onClose: Function,
+    onUpdate: Function,
+    swal: Object,
+});
+
+const editingUser = ref({ ...props.user });
+const avatarPreview = ref(null);
+
+const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        editingUser.value.avatar = file;
+        avatarPreview.value = URL.createObjectURL(file);
+    }
+};
+
+const currentAvatarUrl = computed(() => {
+    if (avatarPreview.value) {
+        return avatarPreview.value;
+    } else if (editingUser.value && editingUser.value.avatar) {
+        return `${import.meta.env.VITE_API_URL}${editingUser.value.avatar}`;
+    }
+    return null;
+});
+
+const updateUser = async () => {
+    try {
+        const formData = new FormData();
+        Object.keys(editingUser.value).forEach(key => {
+            if (editingUser.value[key] !== null && editingUser.value[key] !== undefined) {
+                if (key === 'avatar' && editingUser.value[key] instanceof File) {
+                    formData.append('avatar', editingUser.value[key]);
+                } else {
+                    formData.append(key, editingUser.value[key]);
+                }
+            }
+        });
+
+        console.log('Updating user data:', Object.fromEntries(formData));
+
+        const response = await axios.put(`${User_ENDPOINTS.updateUser}${editingUser.value.userId}`, formData, {
+            headers: {
+                'Authorization': `Bearer ${props.jwtToken}`,
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        if (response.data && response.data.success) {
+            props.swal.fire({
+                icon: 'success',
+                title: 'อัปเดตข้อมูลผู้ใช้สำเร็จ',
+                showConfirmButton: false,
+                timer: 1500,
+                customClass: {
+                    container: 'swal-on-top'
+                }
+            });
+
+            props.onUpdate();
+            props.onClose();
+        } else {
+            throw new Error(response.data.message || 'เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ใช้');
+        }
+    } catch (err) {
+        console.error('Error updating user:', err);
+        props.swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล',
+            text: err.response?.data?.message || err.message || 'กรุณาลองใหม่อีกครั้ง',
+            customClass: {
+                container: 'swal-on-top'
+            }
+        });
+        props.onClose();
+    }
+};
+</script>
+
+<template>
+    <v-card>
+        <v-card-title>แก้ไขข้อมูลผู้ใช้</v-card-title>
+        <v-card-text>
+            <v-form @submit.prevent="updateUser">
+                <v-avatar size="150" class="mb-4">
+                    <v-img v-if="currentAvatarUrl" :src="currentAvatarUrl" alt="Avatar Preview"></v-img>
+                    <v-icon v-else size="150" color="grey lighten-1">mdi-account-circle</v-icon>
+                </v-avatar>
+
+                <v-file-input label="รูปโปรไฟล์" @change="handleFileChange" accept="image/*"
+                    prepend-icon="mdi-camera"></v-file-input>
+
+                <v-text-field v-model="editingUser.name" label="ชื่อ" required></v-text-field>
+                <v-text-field v-model="editingUser.email" label="อีเมล" required></v-text-field>
+                <v-text-field v-model="editingUser.phone" label="เบอร์โทร" required></v-text-field>
+                <v-text-field v-model="editingUser.address" label="ที่อยู่"></v-text-field>
+                <v-text-field v-model="editingUser.password" label="รหัสผ่าน" type="password"></v-text-field>
+                <v-select v-model="editingUser.role" :items="['admin', 'driver', 'manager', 'user']" label="บทบาท"
+                    required></v-select>
+                <v-checkbox v-model="editingUser.isAdmin" label="เป็นผู้ดูแลระบบ"></v-checkbox>
+                <v-text-field v-model="editingUser.lng" label="ลองจิจูด"></v-text-field>
+                <v-text-field v-model="editingUser.lat" label="ละติจูด"></v-text-field>
+            </v-form>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="props.onClose">ยกเลิก</v-btn>
+            <v-btn color="blue darken-1" text @click="updateUser">บันทึก</v-btn>
+        </v-card-actions>
+    </v-card>
+</template>
+
+<style scoped>
+.swal-on-top {
+    z-index: 9999 !important;
+}
+</style>

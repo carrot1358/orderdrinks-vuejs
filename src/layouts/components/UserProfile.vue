@@ -10,7 +10,7 @@ const $swal = inject('$swal')
 
 const userinfo = ref([])
 // สร้าง computed property สำหรับ jwtToken
-const jwtToken = computed(() => {
+let jwtToken = computed(() => {
   return localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 });
 

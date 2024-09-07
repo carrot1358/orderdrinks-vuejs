@@ -61,6 +61,10 @@ const router = createRouter({
           path: 'payment-manage',
           component: () => import('../pages/paymentManage.vue'),
         },
+        {
+          path: 'user-manage',
+          component: () => import('../pages/UserManage.vue'),
+        },
       ],
     },
     {
