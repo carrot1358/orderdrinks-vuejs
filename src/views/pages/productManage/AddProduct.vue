@@ -51,6 +51,9 @@ const addProduct = async () => {
           confirmButtonText: 'ตกลง',
           timer: 1500,
           timerProgressBar: true,
+          customClass: {
+            container: 'swal-on-top'
+          }
         });
         props.onProductAdded();
         props.onClose();
@@ -62,7 +65,10 @@ const addProduct = async () => {
       title: 'ข้อผิดพลาด',
       text: error.response?.data?.message || 'เกิดข้อผิดพลาดในการเพิ่มสินค้า',
       icon: 'error',
-      confirmButtonText: 'ตกลง'
+      confirmButtonText: 'ตกลง',
+      customClass: {
+        container: 'swal-on-top'
+      }
     });
   }
 };
@@ -94,3 +100,9 @@ const addProduct = async () => {
     </VCardText>
   </VCard>
 </template>
+
+<style scoped>
+.swal-on-top {
+  z-index: 9999 !important;
+}
+</style>

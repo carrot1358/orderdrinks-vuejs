@@ -12,7 +12,7 @@ const imagePreview = ref(null);
 const $swal = inject('$swal');
 
 const props = defineProps({
-  fetchProducts: Function
+    fetchProducts: Function
 });
 
 onMounted(async () => {
@@ -67,8 +67,8 @@ const updateProduct = async () => {
             }
         });
 
-        if(response.status === 200){
-            showEditDialog.value = false; 
+        if (response.status === 200) {
+            showEditDialog.value = false;
             $swal.fire({
                 icon: 'success',
                 title: 'อัปเดตสินค้าเรียบร้อย',
@@ -78,8 +78,8 @@ const updateProduct = async () => {
             }).then(() => {
                 window.location.reload();
             });
-            
-            
+
+
         } else {
             $swal.fire({
                 icon: 'error',
@@ -126,6 +126,9 @@ const deleteProduct = async (productId) => {
                     icon: 'success',
                     timer: 1500,
                     timerProgressBar: true,
+                    customClass: {
+                        container: 'swal-on-top'
+                    }
                 });
             }
         }
@@ -135,6 +138,9 @@ const deleteProduct = async (productId) => {
             icon: 'error',
             title: 'ลบสินค้าผิดพลาด',
             text: error.response?.data?.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ',
+            customClass: {
+                container: 'swal-on-top'
+            }
         });
     }
 };
@@ -165,8 +171,10 @@ const deleteProduct = async (productId) => {
                             </div>
                         </td>
                         <td>
-                            <VBtn color="primary" size="small" class="mx-1 my-1" @click="openEditDialog(product)">แก้ไข</VBtn>
-                            <VBtn color="error" size="small" class="mx-1 my-1" @click="deleteProduct(product.productId)">ลบ</VBtn>
+                            <VBtn color="primary" size="small" class="mx-1 my-1" @click="openEditDialog(product)">แก้ไข
+                            </VBtn>
+                            <VBtn color="error" size="small" class="mx-1 my-1"
+                                @click="deleteProduct(product.productId)">ลบ</VBtn>
                         </td>
                     </tr>
                 </tbody>
@@ -180,13 +188,17 @@ const deleteProduct = async (productId) => {
             <VCardText>
                 <VForm @submit.prevent="updateProduct">
                     <VTextField class="mb-2" v-model="editingProduct.name" label="ชื่อสินค้า" required></VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.description" label="รายละเอียดสินค้า" required></VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.price" label="ราคา" type="number" required></VTextField>
-                    <VTextField class="mb-2" v-model="editingProduct.stock" label="จำนวนในสต็อก" type="number" required></VTextField>
-                    <VFileInput class="mb-2" label="รูปภาพสินค้า" accept="image/*" @change="handleFileChange"></VFileInput>
+                    <VTextField class="mb-2" v-model="editingProduct.description" label="รายละเอียดสินค้า" required>
+                    </VTextField>
+                    <VTextField class="mb-2" v-model="editingProduct.price" label="ราคา" type="number" required>
+                    </VTextField>
+                    <VTextField class="mb-2" v-model="editingProduct.stock" label="จำนวนในสต็อก" type="number" required>
+                    </VTextField>
+                    <VFileInput class="mb-2" label="รูปภาพสินค้า" accept="image/*" @change="handleFileChange">
+                    </VFileInput>
                     <VRow justify="center" align="center">
                         <VCol cols="auto">
-                            <VImg v-if="imagePreview" :src="imagePreview"  width="200" height="200" rounded="xl"></VImg>
+                            <VImg v-if="imagePreview" :src="imagePreview" width="200" height="200" rounded="xl"></VImg>
                         </VCol>
                     </VRow>
                     <VRow justify="center" class="mt-4">
@@ -202,8 +214,13 @@ const deleteProduct = async (productId) => {
 </template>
 
 <style scoped>
+.swal-on-top {
+    z-index: 9999 !important;
+}
+
 .v-table td {
-    height: 70px; /* ปรับความสูงตามต้องการ */
+    height: 70px;
+    /* ปรับความสูงตามต้องการ */
 }
 
 @media (max-width: 600px) {

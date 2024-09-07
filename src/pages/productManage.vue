@@ -49,3 +49,9 @@ const fetchProducts = () => {
     </VCardText>
   </VCard>
 </template>
+
+<style scoped>
+.swal-on-top {
+  z-index: 9999 !important;
+}
+</style>
