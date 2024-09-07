@@ -175,7 +175,7 @@ const getRoleIcon = (role) => {
                                     single-line hide-details outlined dense></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
-                                <v-text-field v-model="searchPhone" prepend-inner-icon="mdi-phone-search" label="ค้นหาเบอร์โทรศัพท์"
+                                <v-text-field v-model="searchPhone" prepend-inner-icon="mdi-phone" label="ค้นหาเบอร์โทรศัพท์"
                                     single-line hide-details outlined dense></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
