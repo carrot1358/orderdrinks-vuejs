@@ -1,5 +1,4 @@
 <script setup>
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/svg/logo.svg?raw'
 // import {User_ENDPOINTS} from "@/assets/config/api/api_endPoints";
 import axios from "axios";
@@ -141,21 +140,6 @@ const registerUser = async () => {
               </RouterLink>
             </VCol>
 
-            <VCol
-              cols="12"
-              class="d-flex align-center"
-            >
-              <VDivider/>
-              <span class="mx-4">or</span>
-              <VDivider/>
-            </VCol>
-
-            <!-- auth providers -->
-            <VCol
-              cols="12"
-              class="text-center"
-            >
-              <AuthProvider/>
             </VCol>
           </VRow>
         </VForm>
