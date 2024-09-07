@@ -5,6 +5,7 @@ import CartBottomSheet from '@/views/pages/ordering/CartBottomSheet.vue';
 import { useProductStore } from '@/stores/productStore';
 import { usePaymentStore } from '@/stores/paymentStore';
 import { useOrderStore } from '@/stores/orderStore';
+import animationData from '@/assets/lottie/lottieFile/nodata.json';
 
 const productStore = useProductStore();
 const paymentStore = usePaymentStore();
@@ -14,6 +15,8 @@ const cartVisible = ref(false);
 const buttonCartVisible = computed(() => orderStore.cartList.length > 0);
 const lookingOrdering = ref(false);
 const lookingProduct = ref({});
+
+const isProductsEmpty = computed(() => productStore.products.length === 0);
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -83,6 +86,9 @@ const closeCart = () => {
           </VCard>
         </VCol>
       </div>
+    </VRow>
+    <VRow v-if="isProductsEmpty">
+      <Vue3Lottie :animationData="animationData" :height="400" :width="400"/>
     </VRow>
   </VCard>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { Payment_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { useRouter } from 'vue-router';
@@ -8,15 +8,35 @@ import { inject } from 'vue';
 const $swal = inject('$swal');
 const router = useRouter();
 
+// เพิ่ม default value สำหรับ paymentInfo
 const paymentInfo = ref({
     typePromtpay: '',
     numberPromtpay: ''
 });
+
 const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 const isEditing = ref(false);
 
+// ตรวจสอบว่า userInfo มีค่าก่อนใช้งาน
+onMounted(async () => {
+    const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
+    if (!userInfo || !userInfo.role) {
+        // จัดการกรณีที่ไม่มีข้อมูลผู้ใช้
+        $swal.fire({
+            icon: 'error',
+            title: 'ไม่พบข้อมูลผู้ใช้',
+            text: 'กรุณาเข้าสู่ระบบใหม่',
+        });
+        router.push('/login');
+        return;
+    }
+
+    await fetchPaymentInfo();
+});
+
+// ตรวจสอบค่าก่อนใช้งานใน computed property
 const getPromptPayLabel = computed(() => {
-    return paymentInfo.value.typePromtpay === 'phone' ? 'เบอร์มือถือ' : 'หมายเลขบัตรประชาชน';
+    return paymentInfo.value && paymentInfo.value.typePromtpay === 'phone' ? 'เบอร์มือถือ' : 'หมายเลขบัตรประชาชน';
 });
 
 const validatePromptPayNumber = () => {
@@ -40,22 +60,6 @@ const validatePromptPayNumber = () => {
     }
     return true;
 };
-
-onMounted(async () => {
-    
-    const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo'));
-    if (userInfo.role !== 'admin') {
-        $swal.fire({
-            icon: 'error',
-            title: 'ไม่มีสิทธิ์เข้าถึง',
-            text: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้',
-        });
-        router.push('/');
-        return;
-    }
-
-    await fetchPaymentInfo();
-});
 
 const fetchPaymentInfo = async () => {
     try {
