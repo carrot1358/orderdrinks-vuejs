@@ -26,10 +26,12 @@ export const useOrderStore = defineStore('order', {
       this.cartList.splice(index, 1);
     },
     increaseQuantity(index) {
-      this.cartList[index].quantity++;
+      if (index >= 0 && index < this.cartList.length) {
+        this.cartList[index].quantity++;
+      }
     },
     decreaseQuantity(index) {
-      if (this.cartList[index].quantity > 1) {
+      if (index >= 0 && index < this.cartList.length && this.cartList[index].quantity > 1) {
         this.cartList[index].quantity--;
       }
     },

@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import GiveDetailDeliver from '@/views/pages/ordering/GiveDetailDeliver.vue';
+import GiveDetailDeliver from '@/views/pages/ordering/giveDetailDeliver.vue';
 import { useOrderStore } from '@/stores/orderStore';
 import { usePaymentStore } from '@/stores/paymentStore';
 
@@ -15,6 +15,14 @@ const props = defineProps({
 
 const orderStore = useOrderStore();
 const paymentStore = usePaymentStore();
+
+const increaseQuantity = (index) => {
+  orderStore.increaseQuantity(index);
+};
+
+const decreaseQuantity = (index) => {
+  orderStore.decreaseQuantity(index);
+};
 
 const showDetailDeliver = ref(false);
 
@@ -38,45 +46,46 @@ const removeFromCart = (index) => {
 
 <template>
   <v-bottom-sheet v-model="props.cartVisible" max-width="100%" persistent>
-    <v-container class="fill-height d-flex align-center justify-center">
-      <v-card max-width="800" min-width="300" class="text-center align-content-center justify-center">
-        <v-card-title>ตะกร้าสินค้า</v-card-title>
-        <v-card-text>
-          <div v-for="(product, index) in orderStore.cartList" :key="product.productId">
-            <VCard class="d-flex text-center align-content-center justify-center pa-2 my-5">
-              <VRow>
-                <VCol cols="12" sm="6" md="4">
-                  <div class="d-inline-flex">
-                    <VImg>
-                      <img :src="VITE_API_URL + product.imagePath" :alt="product.name" height="50" class="rounded mx-3">
-                    </VImg>
-                    <p class="align-content-center">{{ product.name }}</p>
+    <v-card max-width="900" min-width="400" class="cart-card">
+      <v-card-title class="cart-title">ตะกร้าสินค้า</v-card-title>
+      <v-card-text class="cart-content">
+        <div class="cart-items">
+          <v-card v-for="(product, index) in orderStore.cartList" :key="product.productId" class="product-card mb-3" flat>
+            <v-row no-gutters align="center">
+              <v-col cols="3">
+                <v-img :src="product.imagePath ? `${VITE_API_URL}${product.imagePath}` : ''" height="80" contain class="bg-grey-lighten-2"></v-img>
+              </v-col>
+              <v-col cols="9">
+                <v-card-text>
+                  <div class="text-subtitle-1 font-weight-medium">{{ product.name }}</div>
+                  <div class="text-body-2 text-grey">ราคา: {{ product.price }} บาท</div>
+                  <div class="d-flex align-center mt-2">
+                    <v-btn icon="mdi-minus" size="small" color="primary" variant="text" @click="decreaseQuantity(index)"></v-btn>
+                    <span class="mx-2 text-body-1">{{ product.quantity }}</span>
+                    <v-btn icon="mdi-plus" size="small" color="primary" variant="text" @click="increaseQuantity(index)"></v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn icon="mdi-delete" size="small" color="error" variant="text" @click="props.removeFromCart(index)"></v-btn>
                   </div>
-                </VCol>
-                <VCol cols="12" sm="6" md="8">
-                  <div class="d-inline-flex">
-                    <div class="mx-4">
-                      <v-btn @click="orderStore.decreaseQuantity(index)" min-width="15" max-width="10" max-height="30">-</v-btn>
-                      <span class="text-center justify-center align-content-center px-4 mb-5">{{ product.quantity }}</span>
-                      <v-btn @click="orderStore.increaseQuantity(index)" min-width="15" max-width="10" max-height="30">+</v-btn>
-                      <p>
-                        <span>{{ product.price * product.quantity }} บาท</span>
-                      </p>
-                    </div>
-                    <VBtn class="mx-3" color="error" min-width="15" @click="removeFromCart(index)">ลบ</VBtn>
-                  </div>
-                </VCol>
-              </VRow>
-            </VCard>
-          </div>
-          <VRow class="d-flex justify-center align-content-center mt-5 mb-2"><h3>ราคารวม : {{ totalPrice }} บาท</h3></VRow>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" @click="handleOrderClick">สั่งซื้อ</v-btn>
-          <v-btn text @click="props.closeCart" color="rgba(255, 0, 0)">ปิด</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-container>
+                </v-card-text>
+              </v-col>
+            </v-row>
+          </v-card>
+        </div>
+      </v-card-text>
+      <v-card-actions class="cart-actions">
+        <v-row class="d-flex justify-center align-center mb-2">
+          <h3>ราคารวม : {{ totalPrice }} บาท</h3>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn color="primary" block @click="handleOrderClick">สั่งซื้อ</v-btn>
+          </v-col>
+          <v-col>
+            <v-btn text block @click="props.closeCart" color="error">ปิด</v-btn>
+          </v-col>
+        </v-row>
+      </v-card-actions>
+    </v-card>
   </v-bottom-sheet>
 
   <GiveDetailDeliver
@@ -92,5 +101,57 @@ const removeFromCart = (index) => {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.cart-card {
+  display: flex;
+  flex-direction: column;
+  height: 80vh; /* ปรับความสูงตามต้องการ */
+  max-height: 600px; /* กำหนดความสูงสูงสุด */
+}
+
+.cart-title {
+  flex-shrink: 0;
+  padding: 16px;
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+.cart-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.cart-items {
+  padding-bottom: 16px;
+}
+
+.product-card {
+  border-bottom: 1px solid #e0e0e0;
+  padding: 8px 0;
+}
+
+.product-card:last-child {
+  border-bottom: none;
+}
+
+.cart-actions {
+  flex-shrink: 0;
+  padding: 16px;
+  background-color: white;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* ปรับแต่งปุ่มเพิ่ม/ลด */
+.v-btn.v-btn--icon.v-btn--size-small {
+  width: 28px;
+  height: 28px;
+}
+
+/* ปรับแต่งข้อความจำนวน */
+.text-body-1 {
+  min-width: 24px;
+  text-align: center;
 }
 </style>
