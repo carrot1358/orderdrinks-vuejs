@@ -101,7 +101,7 @@ onMounted(async () => {
         $swal.fire({
             icon: 'error',
             title: 'ไม่มีสิทธิ์เข้าถึง',
-            text: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้',
+            text: 'คุณไม่มีสิทธิ์เข้าถึงหน้านี้ ' + userInfo.role + userInfo.isAdmin,
             customClass: {
                 popup: 'swal-on-top'
             }
