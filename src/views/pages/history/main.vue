@@ -1,14 +1,39 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import { useDisplay } from 'vuetify'
+import MoreDetailOrder from './MoreDetailOrder.vue';
+
+const { mdAndUp, lgAndUp } = useDisplay()
 
 const orders = ref([]);
 const selectedOrder = ref(null);
 const showDetailDialog = ref(false);
+const loading = ref(true);
+const paymentStatusFilter = ref([]);
+const deliveryStatusFilter = ref([]);
+
+const paymentStatusOptions = [
+
+  { title: 'ชำระแล้ว', value: 'paid' },
+  { title: 'ยังไม่ชำระ', value: 'not_paid' },
+  { title: 'ยกเลิก', value: 'cancel' }
+];
+
+const deliveryStatusOptions = [
+
+  { title: 'รอดำเนินการ', value: 'pending' },
+  { title: 'กำลังจัดส่ง', value: 'delivering' },
+  { title: 'จัดส่งแล้ว', value: 'delivered' },
+  { title: 'ยกเลิก', value: 'cancel' }
+];
+
+const Api_URL = import.meta.env.VITE_API_URL;
 
 const fetchOrders = async () => {
   try {
+    loading.value = true;
     const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
     const response = await axios.get(Order_ENDPOINTS.getOrderByUser, {
       headers: {
@@ -18,6 +43,8 @@ const fetchOrders = async () => {
     orders.value = response.data.data;
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ:', error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -45,70 +72,211 @@ const showOrderDetail = (order) => {
   showDetailDialog.value = true;
 };
 
+const getStatusColor = (status) => {
+  switch (status) {
+    case 'paid':
+    case 'completed':
+      return 'success';
+    case 'pending':
+    case 'delivering':
+      return 'warning';
+    case 'not_paid':
+    case 'cancel':
+    case 'cancelled':
+      return 'error';
+    default:
+      return 'info';
+  }
+};
+
+const translateStatus = (status) => {
+  const statusMap = {
+    'paid': 'ชำระแล้ว',
+    'completed': 'เสร็จสิ้น',
+    'pending': 'รอดำเนินการ',
+    'delivering': 'กำลังจัดส่ง',
+    'not_paid': 'ยังไม่ชำระ',
+    'cancel': 'ยกเลิก',
+    'cancelled': 'ยกเลิกแล้ว',
+    'delivered': 'จัดส่งแล้ว'
+  };
+  return statusMap[status] || status;
+};
+
+const filteredOrders = computed(() => {
+  return orders.value.filter(order => {
+    const paymentMatch = paymentStatusFilter.value.length === 0 ||
+      paymentStatusFilter.value.includes('all') ||
+      paymentStatusFilter.value.includes(order.statusPaid);
+    const deliveryMatch = deliveryStatusFilter.value.length === 0 ||
+      deliveryStatusFilter.value.includes('all') ||
+      deliveryStatusFilter.value.includes(order.deliverStatus);
+    return paymentMatch && deliveryMatch;
+  });
+});
+
 onMounted(fetchOrders);
+
+const headers = computed(() => [
+  { title: 'วันที่สั่งซื้อ', key: 'createdAt', align: 'center' },
+  { title: 'ราคารวม', key: 'totalPrice', align: 'end' },
+  { title: 'สถานะการชำระเงิน', key: 'statusPaid', align: 'center' },
+  { title: 'การดำเนินการ', key: 'actions', align: 'center', sortable: false }
+])
+
+const updateShowDetailDialog = (value) => {
+  showDetailDialog.value = value;
+  if (!value) {
+    // Dialog was closed, refresh orders
+    fetchOrders();
+  }
+};
 </script>
 
 <template>
-  <v-container>
-    <h1 class="text-h4 mb-4">ประวัติการสั่งซื้อ</h1>
-    <v-list>
-      <v-list-item v-for="order in orders" :key="order.orderId" class="mb-4">
-        <v-card width="100%">
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" sm="6">
-                <p><strong>เวลาที่สร้าง:</strong> {{ formatDate(order.createdAt) }}</p>
-                <p><strong>สถานะการชำระเงิน:</strong> {{ order.statusPaid }}</p>
-                <p><strong>ยกเลิกคำสั่งซื้อ:</strong> {{ order.cancelOrder ? 'ใช่' : 'ไม่' }}</p>
-                <p><strong>เสร็จสมบูรณ์:</strong> {{ order.completedOrder ? 'ใช่' : 'ไม่' }}</p>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <p><strong>ราคารวม:</strong> {{ order.totalPrice }} บาท</p>
-                <v-btn
-                  v-if="!order.cancelOrder && !order.completedOrder"
-                  color="error"
-                  @click="cancelOrder(order.orderId)"
-                  class="mr-2"
-                >
-                  ยกเลิกคำสั่งซื้อ
-                </v-btn>
-                <v-btn color="primary" @click="showOrderDetail(order)">
-                  ดูรายละเอียด
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-list-item>
-    </v-list>
+  <v-container fluid>
+    <v-card class="order-history-card">
+      <v-card-title class="text-h4 font-weight-bold pa-6">
+        <v-icon large left class="mr-2">mdi-history</v-icon>
+        ประวัติการสั่งซื้อ
+      </v-card-title>
 
-    <v-dialog v-model="showDetailDialog" max-width="600px">
-      <v-card v-if="selectedOrder">
-        <v-card-title>รายละเอียดคำสั่งซื้อ</v-card-title>
-        <v-card-text>
-          <p><strong>รหัสคำสั่งซื้อ:</strong> {{ selectedOrder.orderId }}</p>
-          <p><strong>วันที่สั่งซื้อ:</strong> {{ formatDate(selectedOrder.createdAt) }}</p>
-          <p><strong>สถานะการชำระเงิน:</strong> {{ selectedOrder.statusPaid }}</p>
-          <p><strong>วิธีการชำระเงิน:</strong> {{ selectedOrder.methodPaid }}</p>
-          <p><strong>ราคารวม:</strong> {{ selectedOrder.totalPrice }} บาท</p>
-          <p><strong>ยกเลิกคำสั่งซื้อ:</strong> {{ selectedOrder.cancelOrder ? 'ใช่' : 'ไม่' }}</p>
-          <p><strong>เสร็จสมบูรณ์:</strong> {{ selectedOrder.completedOrder ? 'ใช่' : 'ไม่' }}</p>
-          <h3 class="mt-4">รายการสินค้า:</h3>
-          <v-list>
-            <v-list-item v-for="product in selectedOrder.products" :key="product._id">
-              <v-list-item-content>
-                <v-list-item-title>{{ product.productId.name }}</v-list-item-title>
-                <v-list-item-subtitle>
-                  จำนวน: {{ product.quantity }} | ราคา: {{ product.productId.price * product.quantity }} บาท
-                </v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" @click="showDetailDialog = false">ปิด</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+      <v-card-text>
+        <v-row class="mb-4">
+          <v-col cols="12" sm="6" md="4">
+            <v-select v-model="paymentStatusFilter" :items="paymentStatusOptions" label="สถานะการชำระ" outlined dense
+              multiple chips clearable></v-select>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-select v-model="deliveryStatusFilter" :items="deliveryStatusOptions" label="สถานะการจัดส่ง" outlined
+              dense multiple chips clearable></v-select>
+          </v-col>
+        </v-row>
+
+        <v-data-table :headers="headers" :items="filteredOrders" :loading="loading" class="elevation-1">
+          <template v-slot:item.createdAt="{ item }">
+            <v-chip :color="new Date(item.createdAt) > new Date(Date.now() - 86400000) ? 'success' : 'default'" label>
+              {{ formatDate(item.createdAt) }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.totalPrice="{ item }">
+            <v-chip color="primary" label>
+              {{ item.totalPrice.toLocaleString() }} บาท
+            </v-chip>
+          </template>
+
+          <template v-slot:item.statusPaid="{ item }">
+            <v-chip :color="getStatusColor(item.statusPaid)" label>
+              {{ translateStatus(item.deliverStatus === 'cancel' ? 'cancel' : item.statusPaid) }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.deliverStatus="{ item }">
+            <v-chip :color="getStatusColor(item.deliverStatus)" label>
+              {{ translateStatus(item.deliverStatus) }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+            <v-btn v-if="item.deliverStatus !== 'cancel' && item.deliverStatus !== 'delivered' && !item.completedOrder"
+              color="error" variant="tonal" @click="cancelOrder(item.orderId)" class="mr-2" size="small">
+              ยกเลิก
+            </v-btn>
+            <v-btn color="primary" variant="tonal" @click="showOrderDetail(item)" size="small">
+              รายละเอียด
+            </v-btn>
+          </template>
+        </v-data-table>
+      </v-card-text>
+    </v-card>
+
+    <MoreDetailOrder :showDialog="showDetailDialog" :selectedOrder="selectedOrder"
+      @update:showDialog="updateShowDetailDialog" />
   </v-container>
 </template>
+
+<style scoped>
+.order-history-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+:deep(.v-data-table) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:deep(.v-data-table__wrapper > table) {
+  border-spacing: 0;
+  border-collapse: separate;
+}
+
+:deep(tbody tr) {
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+:deep(tbody tr:hover) {
+  background-color: rgba(var(--v-theme-primary), 0.05);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+  :deep(.v-data-table__wrapper) {
+    overflow-x: auto;
+  }
+}
+
+.order-detail-card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.order-detail-card .v-card__title {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.order-detail-card .v-card__text {
+  padding-top: 20px;
+}
+
+.v-list-item {
+  padding: 0;
+}
+
+.v-avatar {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.v-simple-table {
+  background-color: transparent !important;
+}
+
+.v-simple-table th {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+.v-simple-table td {
+  height: 60px;
+  vertical-align: middle;
+}
+
+.product-row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.product-row:last-child {
+  border-bottom: none;
+}
+
+.v-avatar {
+  margin-right: 12px;
+}
+
+.v-chip {
+  font-weight: 500;
+}
+</style>
