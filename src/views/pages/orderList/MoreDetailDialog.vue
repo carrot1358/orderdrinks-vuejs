@@ -2,12 +2,18 @@
 import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
-import { LongdoMap } from "longdo-map-vue";
+import { LongdoMap, LongdoMapLoad } from "longdo-map-vue";
 
+const apiKey = import.meta.env.VITE_LONGDO_MAP_API_KEY;
+
+LongdoMapLoad({
+  apiKey: apiKey,
+});
 const props = defineProps({
     selectedOrder: Object,
     showDialog: Boolean,
 });
+
 
 const emit = defineEmits(['update:showDialog', 'orderUpdated']);
 

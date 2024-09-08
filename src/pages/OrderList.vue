@@ -1,10 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import MoreDetailDialog from '@/views/pages/orderList/MoreDetailDialog.vue';
 import { VSkeletonLoader } from 'vuetify/components';
-import { computed } from 'vue';
 import { useDisplay } from 'vuetify';
 
 const { mdAndUp, lgAndUp } = useDisplay();
@@ -17,28 +16,57 @@ const selectedOrder = ref(null);
 
 const Api_URL = import.meta.env.VITE_API_URL;
 
+const paymentStatusFilter = ref([]);
+const deliveryStatusFilter = ref([]);
+
+const paymentStatusOptions = [
+  { title: 'ชำระเงินแล้ว', value: 'paid' },
+  { title: 'ยังไม่ชำระเงิน', value: 'not_paid' },
+  { title: 'ตรวจสอบการชำระเงิน', value: 'check_paid' },
+  { title: 'รอชำระเงิน', value: 'wait_paid' }
+];
+
+const deliveryStatusOptions = [
+  { title: 'รอดำเนินการ', value: 'pending' },
+  { title: 'กำลังจัดส่ง', value: 'delivering' },
+  { title: 'จัดส่งแล้ว', value: 'delivered' },
+  { title: 'ยกเลิก', value: 'cancel' }
+];
+
+const filteredOrders = computed(() => {
+  return orders.value.filter(order => {
+    const paymentMatch = paymentStatusFilter.value.length === 0 ||
+      paymentStatusFilter.value.includes('all') ||
+      paymentStatusFilter.value.includes(order.statusPaid);
+    const deliveryMatch = deliveryStatusFilter.value.length === 0 ||
+      deliveryStatusFilter.value.includes('all') ||
+      deliveryStatusFilter.value.includes(order.deliverStatus);
+    return paymentMatch && deliveryMatch;
+  });
+});
+
 const fetchOrders = async () => {
-    const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-    try {
-        const response = await axios.get(Order_ENDPOINTS.getOrders, {
-            headers: {
-                'Authorization': `Bearer ${jwtToken}`
-            }
-        });
-        orders.value = response.data.data;
-        loading.value = false;
-    } catch (err) {
-        error.value = 'เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ';
-        loading.value = false;
-        console.error('เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ:', err);
-    }
+  const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+  try {
+    const response = await axios.get(Order_ENDPOINTS.getOrders, {
+      headers: {
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    });
+    orders.value = response.data.data;
+    loading.value = false;
+  } catch (err) {
+    error.value = 'เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ';
+    loading.value = false;
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ:', err);
+  }
 };
 
 onMounted(fetchOrders);
 
 const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('th-TH', options);
+  const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return new Date(dateString).toLocaleDateString('th-TH', options);
 };
 
 const getStatusColor = (status) => {
@@ -108,8 +136,8 @@ const getOrderStatusIcon = (status) => {
 };
 
 const showOrderDetail = (order) => {
-    selectedOrder.value = order;
-    showDetailDialog.value = true;
+  selectedOrder.value = order;
+  showDetailDialog.value = true;
 };
 
 const handleOrderUpdated = () => {
@@ -136,32 +164,28 @@ const headers = computed(() => [
       </v-card-title>
 
       <v-card-text>
-        <v-skeleton-loader
-          v-if="loading"
-          type="table"
-          class="mx-auto"
-        ></v-skeleton-loader>
+        <v-row class="mb-4">
+          <v-col cols="12" sm="6" md="4">
+            <v-select v-model="paymentStatusFilter" :items="paymentStatusOptions" label="สถานะการชำระเงิน" outlined
+              dense multiple chips clearable></v-select>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-select v-model="deliveryStatusFilter" :items="deliveryStatusOptions" label="สถานะการจัดส่ง" outlined
+              dense multiple chips clearable></v-select>
+          </v-col>
+        </v-row>
 
-        <v-alert
-          v-else-if="error"
-          type="error"
-          icon="mdi-alert-circle"
-          prominent
-          border="left"
-        >
+        <v-skeleton-loader v-if="loading" type="table" class="mx-auto"></v-skeleton-loader>
+
+        <v-alert v-else-if="error" type="error" icon="mdi-alert-circle" prominent border="left">
           {{ error }}
         </v-alert>
 
-        <v-data-table
-          v-else
-          :headers="headers"
-          :items="orders"
-          :items-per-page="10"
-          class="elevation-1"
-        >
+        <v-data-table v-else :headers="headers" :items="filteredOrders" :items-per-page="10" class="elevation-1">
           <template v-slot:item.userId.name="{ item }">
             <v-avatar size="32" class="mr-2 mt-2">
-              <v-img :src="item.userId.avatar ? `${Api_URL}${item.userId.avatar}` : 'https://cdn.vuetifyjs.com/images/john.jpg'"></v-img>
+              <v-img
+                :src="item.userId.avatar ? `${Api_URL}${item.userId.avatar}` : 'https://cdn.vuetifyjs.com/images/john.jpg'"></v-img>
             </v-avatar>
             {{ item.userId.name }}
           </template>
@@ -171,12 +195,8 @@ const headers = computed(() => [
           </template>
 
           <template v-slot:item.createdAt="{ item }">
-            <v-chip
-              v-if="mdAndUp"
-              :color="new Date(item.createdAt) > new Date(Date.now() - 86400000) ? 'success' : 'default'"
-              small
-              label
-            >
+            <v-chip v-if="mdAndUp"
+              :color="new Date(item.createdAt) > new Date(Date.now() - 86400000) ? 'success' : 'default'" small label>
               {{ formatDate(item.createdAt) }}
             </v-chip>
           </template>
@@ -214,12 +234,7 @@ const headers = computed(() => [
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <v-btn
-              color="primary"
-              variant="tonal"
-              @click="showOrderDetail(item)"
-              size="small"
-            >
+            <v-btn color="primary" variant="tonal" @click="showOrderDetail(item)" size="small">
               <v-icon left>mdi-eye</v-icon>
               รายละเอียด
             </v-btn>
@@ -228,11 +243,8 @@ const headers = computed(() => [
       </v-card-text>
     </v-card>
 
-    <MoreDetailDialog
-      v-model:showDialog="showDetailDialog"
-      :selectedOrder="selectedOrder"
-      @orderUpdated="handleOrderUpdated"
-    />
+    <MoreDetailDialog v-model:showDialog="showDetailDialog" :selectedOrder="selectedOrder"
+      @orderUpdated="handleOrderUpdated" />
   </v-container>
 </template>
 
