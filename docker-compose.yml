@@ -1,13 +1,10 @@
-version: '3'
+version: '4'
 services:
   orderdrinks-vuejs:
-    build: .
+    image: orderdrinks-vuejs:latest
     container_name: orderdrinks-vuejs
     ports:
       - "5050:5050"
-    volumes:
-      - .:/app
-      - /app/node_modules
     environment:
       - NODE_ENV=production
     networks:

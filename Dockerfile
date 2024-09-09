@@ -12,8 +12,6 @@ COPY src/@iconify src/@iconify/
 # ติดตั้ง dependencies
 RUN npm install
 
-
-
 # คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
 COPY . .
 
