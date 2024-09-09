@@ -1,84 +1,88 @@
 <script setup>
-import {useRoute} from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import AccountSettingsAccount from '@/views/pages/account-settings/AccountSettingsAccount.vue'
 import AccountSettingsNotification from '@/views/pages/account-settings/AccountSettingsNotification.vue'
 import AccountSettingsSecurity from '@/views/pages/account-settings/AccountSettingsSecurity.vue'
-import {onMounted} from "vue";
-import router from "@/router";
+import axios from 'axios'
+import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints'
 
 const route = useRoute()
-const activeTab = ref(route.params.tab)
+const activeTab = ref(route.params.tab || 'account')
+const userProfile = ref(null)
 
-onMounted(() => {
-  /*if (localStorage.getItem('userInfo') === null && sessionStorage.getItem('userInfo') === null){
-    router.push('/login').then(
-      () => {
-        console.log('redirected to login')
-        window.location.reload()
-      }
-    )
-  }*/
+const tabs = [
+  { title: 'บัญชี', icon: 'mdi-account-outline', tab: 'account' },
+  { title: 'ความปลอดภัย', icon: 'mdi-lock-outline', tab: 'security' },
+  { title: 'การแจ้งเตือน', icon: 'mdi-bell-outline', tab: 'notification' },
+]
+
+onMounted(async () => {
+  await fetchUserProfile()
 })
 
-// tabs
-const tabs = [
-  {
-    title: 'Account',
-    icon: 'bx-user',
-    tab: 'account',
-  },
-  {
-    title: 'Security',
-    icon: 'bx-lock-open',
-    tab: 'security',
-  },
-  {
-    title: 'Notifications',
-    icon: 'bx-bell',
-    tab: 'notification',
-  },
-]
+const fetchUserProfile = async () => {
+  try {
+    const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken')
+    const response = await axios.get(User_ENDPOINTS.getProfile, {
+      headers: { 'Authorization': `Bearer ${jwtToken}` }
+    })
+    userProfile.value = response.data.data
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการดึงข้อมูลผู้ใช้:', error)
+  }
+}
+
+const updateUserProfile = async (updatedData) => {
+  try {
+    const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken')
+    await axios.put(`${User_ENDPOINTS.updateUser}${userProfile.value.userId}`, updatedData, {
+      headers: {
+        'Authorization': `Bearer ${jwtToken}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    await fetchUserProfile()
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ใช้:', error)
+  }
+}
 </script>
 
 <template>
-  <div>
-    <VTabs
-      v-model="activeTab"
-      show-arrows
-    >
-      <VTab
-        v-for="item in tabs"
-        :key="item.icon"
-        :value="item.tab"
-      >
-        <VIcon
-          size="20"
-          start
-          :icon="item.icon"
-        />
+  <VCard>
+    <VTabs v-model="activeTab" grow>
+      <VTab v-for="item in tabs" :key="item.tab" :value="item.tab">
+        <VIcon :icon="item.icon" class="mr-2" />
         {{ item.title }}
       </VTab>
     </VTabs>
-    <VDivider/>
 
-    <VWindow
-      v-model="activeTab"
-      class="mt-5 disable-tab-transition"
-    >
-      <!-- Account -->
-      <VWindowItem value="account">
-        <AccountSettingsAccount/>
-      </VWindowItem>
+    <VDivider />
 
-       Security
-      <VWindowItem value="security">
-        <AccountSettingsSecurity/>
-      </VWindowItem>
+    <VCardText>
+      <VWindow v-model="activeTab">
+        <VWindowItem value="account">
+          <AccountSettingsAccount
+            :user-profile="userProfile"
+            @update-profile="updateUserProfile"
+          />
+        </VWindowItem>
 
-      <!-- Notification -->
-      <VWindowItem value="notification">
-        <AccountSettingsNotification/>
-      </VWindowItem>
-    </VWindow>
-  </div>
+        <VWindowItem value="security">
+          <AccountSettingsSecurity
+            :user-profile="userProfile"
+            @update-profile="updateUserProfile"
+          />
+        </VWindowItem>
+
+        <VWindowItem value="notification">
+          <AccountSettingsNotification
+            :user-profile="userProfile"
+            @update-profile="updateUserProfile"
+          />
+        </VWindowItem>
+      </VWindow>
+    </VCardText>
+  </VCard>
 </template>

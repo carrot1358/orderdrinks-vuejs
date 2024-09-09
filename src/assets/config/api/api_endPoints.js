@@ -34,3 +34,8 @@ export const Payment_ENDPOINTS = {
   getPayments: backend_url+"/api/v1/payments/", // GET
   updatePayment: backend_url+"/api/v1/payments/", // PUT
 }
+
+export const Notification_ENDPOINTS = {
+  getNotifications: backend_url+"/api/v1/notifications/", // GET
+  updateNotification: backend_url+"/api/v1/notifications/", // PUT
+}
