@@ -9,6 +9,8 @@ COPY package*.json ./
 
 COPY src/@iconify src/@iconify/
 
+RUN npm run postinstall
+
 # ติดตั้ง dependencies
 RUN npm install
 

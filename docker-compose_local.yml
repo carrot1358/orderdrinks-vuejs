@@ -1,0 +1,15 @@
+version: '4'
+services:
+  orderdrinks-vuejs:
+    build: .
+    container_name: orderdrinks-vuejs
+    ports:
+      - "5050:5050"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - My-Orderdrinks
+
+networks:
+  My-Orderdrinks:
+    name: My-Orderdrinks
