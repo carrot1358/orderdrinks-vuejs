@@ -19,6 +19,12 @@ jobs:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.VM_KNOWN_HOSTS }}
 
+      - name: Copy docker-compose.yml to VM
+        env:
+          HOST: ${{ secrets.VM_HOST }}
+          USER: ${{ secrets.VM_USER }}
+        run: scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
+
       - name: Push to VM and Run
         env:
           HOST: ${{ secrets.VM_HOST }}
