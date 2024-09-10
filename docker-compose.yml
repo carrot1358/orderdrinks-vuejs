@@ -1,4 +1,4 @@
-version: '4'
+version: '3'
 services:
   orderdrinks-vuejs:
     image: orderdrinks-vuejs:latest
