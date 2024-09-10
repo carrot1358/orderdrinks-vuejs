@@ -10,8 +10,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=$(cat version.txt)" >> $GITHUB_OUTPUT
+
       - name: Build Docker image
-        run: docker build -t orderdrinks-vuejs:${{ github.sha }} .
+        run: docker build -t orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }} .
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -24,5 +28,15 @@ jobs:
           HOST: ${{ secrets.VM_HOST }}
           USER: ${{ secrets.VM_USER }}
         run: |
-          docker save orderdrinks-vuejs:${{ github.sha }} | ssh $USER@$HOST 'docker load'
-          ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d orderdrinks-vuejs'
+          # ลบไฟล์เก่าและคัดลอกไฟล์ใหม่
+          ssh $USER@$HOST 'rm -f ~/docker-compose.yml'
+          scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
+
+          # บันทึกและโหลด Docker image
+          docker save orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }} | ssh $USER@$HOST 'docker load'
+
+          # อัปเดต image tag ใน docker-compose.yml บนเซิร์ฟเวอร์
+          ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }}|' ~/docker-compose.yml"
+
+          # รัน docker-compose
+          ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d --force-recreate orderdrinks-vuejs'
