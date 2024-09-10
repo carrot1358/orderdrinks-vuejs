@@ -31,5 +31,5 @@ jobs:
           USER: ${{ secrets.VM_USER }}
         run: |
           docker save orderdrinks-vuejs:${{ github.sha }} | ssh $USER@$HOST 'docker load'
-          ssh $USER@$HOST 'docker tag orderdrinks-vuejs:${{ github.sha }} orderdrinks-vuejs:latest'
+          ssh $USER@$HOST 'docker build -t orderdrinks-vuejs:latest .'
           ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d --force-recreate orderdrinks-vuejs'
