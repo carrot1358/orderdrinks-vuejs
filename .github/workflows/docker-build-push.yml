@@ -54,8 +54,13 @@ jobs:
           # อัปเดตไฟล์ docker-compose.yml
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
           
-          # สร้างไฟล์ .env บน VM (ถ้ายังไม่มี)
-          ssh $USER@$HOST 'mkdir -p ~/env && touch ~/env/.env'
+          # แก้ไข docker-compose.yml บน VM
+          ssh $USER@$HOST "sed -i 's|~/.env:/app/.env|$HOME/.env:/app/.env|' ~/docker-compose.yml"
+          
+          # คัดลอก .env.example เป็น .env ถ้า .env ไม่มีอยู่
+          scp .env.example $USER@$HOST:~/env.example
+          ssh $USER@$HOST '[ ! -f ~/.env ] && cp ~/env.example ~/.env || echo ".env already exists"'
+          ssh $USER@$HOST 'rm ~/env.example'
           
           # โหลด Docker image ไปยัง VM
           scp image.tar $USER@$HOST:~/image.tar

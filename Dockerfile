@@ -9,9 +9,6 @@ COPY package*.json ./
 
 COPY src/@iconify src/@iconify/
 
-# ไม่ต้องคัดลอก .env แล้ว เพราะจะใช้จาก volume
-# COPY .env.example .env
-
 # ติดตั้ง dependencies
 RUN npm install
 
