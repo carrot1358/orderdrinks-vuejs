@@ -7,6 +7,9 @@ services:
       - "5050:5050"
     environment:
       - NODE_ENV=production
+      - VITE_LONGDO_MAP_API_KEY=${VITE_LONGDO_MAP_API_KEY}
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_API_KEY=${VITE_API_KEY}
     volumes:
       - ~/.env:/app/.env
     networks:
