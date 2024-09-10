@@ -5,38 +5,57 @@ on:
     branches: [main]
 
 jobs:
-  build-and-push:
+  get-version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v2
-
       - name: Get version
         id: get_version
         run: echo "VERSION=$(cat version.txt)" >> $GITHUB_OUTPUT
 
+  build-docker-image:
+    needs: get-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Build Docker image
-        run: docker build -t orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }} .
+        run: docker build -t orderdrinks-vuejs:${{ needs.get-version.outputs.version }} .
 
+  prepare-vm:
+    needs: [get-version, build-docker-image]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.VM_KNOWN_HOSTS }}
-
-      - name: Push to VM and Run
+      - name: Copy .env and docker-compose.yml
         env:
           HOST: ${{ secrets.VM_HOST }}
           USER: ${{ secrets.VM_USER }}
         run: |
-          # ลบไฟล์เก่าและคัดลอกไฟล์ใหม่
-          ssh $USER@$HOST 'rm -f ~/docker-compose.yml'
+          ssh $USER@$HOST 'cp ~/frontend/.env ~/orderdrinks-vuejs/.env'
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
 
-          # บันทึกและโหลด Docker image
-          docker save orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }} | ssh $USER@$HOST 'docker load'
-
-          # อัปเดต image tag ใน docker-compose.yml บนเซิร์ฟเวอร์
-          ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:${{ steps.get_version.outputs.VERSION }}|' ~/docker-compose.yml"
-
-          # รัน docker-compose
+  deploy-to-vm:
+    needs: [get-version, build-docker-image, prepare-vm]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.VM_KNOWN_HOSTS }}
+      - name: Push and Run on VM
+        env:
+          HOST: ${{ secrets.VM_HOST }}
+          USER: ${{ secrets.VM_USER }}
+          VERSION: ${{ needs.get-version.outputs.version }}
+        run: |
+          docker save orderdrinks-vuejs:$VERSION | ssh $USER@$HOST 'docker load'
+          ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:$VERSION|' ~/docker-compose.yml"
           ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d --force-recreate orderdrinks-vuejs'
