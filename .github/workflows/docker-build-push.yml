@@ -33,12 +33,18 @@ jobs:
         with:
           key: ${{ secrets.VM_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.VM_KNOWN_HOSTS }}
-      - name: Copy .env and docker-compose.yml
+      - name: Prepare VM environment
         env:
           HOST: ${{ secrets.VM_HOST }}
           USER: ${{ secrets.VM_USER }}
         run: |
+          # สร้างโฟลเดอร์ orderdrinks-vuejs ถ้ายังไม่มี
+          ssh $USER@$HOST 'mkdir -p ~/orderdrinks-vuejs'
+          
+          # คัดลอกไฟล์ .env
           ssh $USER@$HOST 'cp ~/env/.env_frontend ~/orderdrinks-vuejs/.env'
+          
+          # คัดลอกไฟล์ docker-compose.yml
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
 
   deploy-to-vm:
