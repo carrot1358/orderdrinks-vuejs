@@ -66,5 +66,8 @@ jobs:
           # อัปเดต image tag ใน docker-compose.yml
           ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:$VERSION|' ~/docker-compose.yml"
           
+          #ลบ container ที่มีชื่อ orderdrinks-vuejs
+          ssh $USER@$HOST 'docker rm -f orderdrinks-vuejs'
+          
           # รัน docker-compose
           ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d --force-recreate orderdrinks-vuejs'
