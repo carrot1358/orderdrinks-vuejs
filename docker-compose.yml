@@ -7,9 +7,14 @@ services:
       - "5050:5050"
     environment:
       - NODE_ENV=production
+    volumes:
+      - ./env:/app/.env
     networks:
       - My-Orderdrinks
 
 networks:
   My-Orderdrinks:
     name: My-Orderdrinks
+
+volumes:
+  env:

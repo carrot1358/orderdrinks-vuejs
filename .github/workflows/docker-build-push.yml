@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
     steps:
       - uses: actions/checkout@v2
 
@@ -37,9 +39,6 @@ jobs:
         with:
           name: docker-image
 
-      - name: Load Docker image
-        run: docker load < image.tar
-
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
         with:
@@ -55,8 +54,12 @@ jobs:
           # อัปเดตไฟล์ docker-compose.yml
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
           
-          # โหลด Docker image
-          docker save orderdrinks-vuejs:$VERSION | ssh $USER@$HOST 'docker load'
+          # สร้างไฟล์ .env บน VM (ถ้ายังไม่มี)
+          ssh $USER@$HOST 'mkdir -p ~/env && touch ~/env/.env'
+          
+          # โหลด Docker image ไปยัง VM
+          scp image.tar $USER@$HOST:~/image.tar
+          ssh $USER@$HOST 'docker load < ~/image.tar && rm ~/image.tar'
           
           # อัปเดต image tag ใน docker-compose.yml
           ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:$VERSION|' ~/docker-compose.yml"

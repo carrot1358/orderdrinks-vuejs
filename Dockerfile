@@ -9,6 +9,9 @@ COPY package*.json ./
 
 COPY src/@iconify src/@iconify/
 
+# ไม่ต้องคัดลอก .env แล้ว เพราะจะใช้จาก volume
+# COPY .env.example .env
+
 # ติดตั้ง dependencies
 RUN npm install
 
@@ -18,7 +21,7 @@ COPY . .
 # สร้าง production build
 RUN npm run build
 
-# เปิดพอร์ต 3000 สำหรับการเข้าถึงแอพ
+# เปิดพอร์ต 5050 สำหรับการเข้าถึงแอพ
 EXPOSE 5050
 
 # รันคำสั่งเพื่อเริ่มต้นแอพ
