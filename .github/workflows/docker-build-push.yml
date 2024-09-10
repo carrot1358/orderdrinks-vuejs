@@ -38,7 +38,7 @@ jobs:
           HOST: ${{ secrets.VM_HOST }}
           USER: ${{ secrets.VM_USER }}
         run: |
-          ssh $USER@$HOST 'cp ~/frontend/.env ~/orderdrinks-vuejs/.env'
+          ssh $USER@$HOST 'cp ~/env/.env_frontend ~/orderdrinks-vuejs/.env'
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
 
   deploy-to-vm:
