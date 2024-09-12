@@ -12,10 +12,6 @@ services:
       - VITE_LONGDO_MAP_API_KEY=${VITE_LONGDO_MAP_API_KEY}
       - VITE_API_URL=${VITE_API_URL}
       - VITE_WEBSOCKET_URL=${VITE_WEBSOCKET_URL}
-    env_file:
-      - .env
-    volumes:
-      - ./.env:/app/.env
     networks:
       - My-Orderdrinks
 
@@ -24,6 +20,3 @@ networks:
     name: My-Orderdrinks
     driver: bridge
     external: true
-
-volumes:
-  env:
