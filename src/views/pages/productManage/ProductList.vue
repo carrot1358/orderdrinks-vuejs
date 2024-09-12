@@ -11,6 +11,7 @@ const editingProduct = ref(null);
 const showEditDialog = ref(false);
 const imagePreview = ref(null);
 const $swal = inject('$swal');
+const isLoading = ref(true);
 
 const props = defineProps({
     fetchProducts: Function
@@ -22,6 +23,7 @@ onMounted(async () => {
 
 const fetchProducts = async () => {
     try {
+        isLoading.value = true;
         const response = await axios.get(Product_ENDPOINTS.getProducts);
         products.value = response.data.data;
     } catch (error) {
@@ -31,6 +33,8 @@ const fetchProducts = async () => {
             title: 'การดึงข้อมูลสินค้าผิดพลาด',
             text: 'กรุณาลองใหม่อีกครั้ง',
         });
+    } finally {
+        isLoading.value = false;
     }
 };
 
@@ -162,7 +166,13 @@ const getStockColor = (stock) => {
         </VCardTitle>
         <VDivider></VDivider>
         <VCardText>
-            <VTable hover class="product-table">
+            <v-skeleton-loader
+                v-if="isLoading"
+                type="table-heading, table-thead, table-tbody, table-tfoot"
+                class="mb-6"
+            ></v-skeleton-loader>
+
+            <VTable v-else hover class="product-table">
                 <thead>
                     <tr>
                         <th class="text-left">ชื่อ</th>
@@ -275,5 +285,10 @@ const getStockColor = (stock) => {
 
 .swal-on-top {
     z-index: 9999 !important;
+}
+
+.v-skeleton-loader {
+    border-radius: 8px;
+    overflow: hidden;
 }
 </style>

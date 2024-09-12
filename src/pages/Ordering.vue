@@ -40,12 +40,17 @@ const isProductsEmpty = computed(() => productStore.products.length === 0);
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
+// เพิ่มบรรทัดนี้
+const isLoading = ref(true);
+
 onMounted(async () => {
+  isLoading.value = true;
   await Promise.all([
     productStore.fetchProducts(),
     paymentStore.fetchPaymentAdminDetails(),
     checkUserAddress()
   ]);
+  isLoading.value = false;
 });
 
 const totalPrice = computed(() => orderStore.getTotalPrice);
@@ -203,17 +208,29 @@ console.log('All env variables:', import.meta.env);
       <h1>สั่งซื้อสินค้า</h1>
     </VCardTitle>
     <VRow class="align-content-center justify-center">
-      <div v-for="(product, index) in productStore.products" :key="index">
-        <VCol>
-          <VCard class="ma-1 pa-3">
-            <VCardTitle>{{ product.name }}</VCardTitle>
-            <VImg>
-              <img class="rounded" :src="VITE_API_URL + product.imagePath" :alt="product.name">
-            </VImg>
-            <VBtn color="primary" @click="clickOrder(product)">สั่ง</VBtn>
-          </VCard>
+      <template v-if="isLoading">
+        <VCol v-for="n in 8" :key="n">
+          <v-skeleton-loader
+            class="ma-1 pa-3"
+            type="card"
+            width="200"
+            height="300"
+          ></v-skeleton-loader>
         </VCol>
-      </div>
+      </template>
+      <template v-else>
+        <div v-for="(product, index) in productStore.products" :key="index">
+          <VCol>
+            <VCard class="ma-1 pa-3">
+              <VCardTitle>{{ product.name }}</VCardTitle>
+              <VImg>
+                <img class="rounded" :src="VITE_API_URL + product.imagePath" :alt="product.name">
+              </VImg>
+              <VBtn color="primary" @click="clickOrder(product)">สั่ง</VBtn>
+            </VCard>
+          </VCol>
+        </div>
+      </template>
     </VRow>
     <VRow v-if="isProductsEmpty">
       <v-col cols="12" class="text-center">

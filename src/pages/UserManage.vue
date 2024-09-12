@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { useRouter } from 'vue-router';
@@ -31,15 +31,16 @@ const jwtToken = computed(() => localStorage.getItem('jwtToken') || sessionStora
 
 const fetchUsers = async () => {
     try {
+        loading.value = true;
         const response = await axios.get(User_ENDPOINTS.getUsers, {
             headers: { 'Authorization': `Bearer ${jwtToken.value}` }
         });
         users.value = response.data.data;
-        loading.value = false;
     } catch (err) {
         error.value = 'เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้';
-        loading.value = false;
         console.error(err);
+    } finally {
+        loading.value = false;
     }
 };
 
@@ -197,10 +198,19 @@ const getRoleIcon = (role) => {
             </v-col>
         </v-row>
 
-        <v-row v-if="filteredUsers.length">
+        <v-row v-if="loading">
+            <v-col v-for="n in 8" :key="n" cols="12" sm="6" md="4" lg="3">
+                <v-skeleton-loader
+                    type="card"
+                    class="mb-4"
+                    height="350"
+                ></v-skeleton-loader>
+            </v-col>
+        </v-row>
+
+        <v-row v-else-if="filteredUsers.length">
             <v-col v-for="user in filteredUsers" :key="user.userId" cols="12" sm="6" md="4" lg="3">
-                <v-card class="user-card d-flex flex-column align-center text-center pa-4" elevation="2"
-                    :loading="loading">
+                <v-card class="user-card d-flex flex-column align-center text-center pa-4" elevation="2">
                     <v-avatar size="200" color="grey lighten-2" class="mb-4">
                         <v-img v-if="user.avatar" :src="getAvatarUrl(user.avatar)" cover></v-img>
                         <v-icon v-else size="128" color="grey darken-2">
@@ -280,4 +290,8 @@ const getRoleIcon = (role) => {
     z-index: 9999 !important;
 }
 
+.v-skeleton-loader {
+    border-radius: 12px;
+    overflow: hidden;
+}
 </style>

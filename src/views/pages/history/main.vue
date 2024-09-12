@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { useDisplay } from 'vuetify'
@@ -80,6 +80,8 @@ const getStatusColor = (status) => {
     case 'pending':
     case 'delivering':
       return 'warning';
+    case 'wait_paid':
+      return 'info';
     case 'not_paid':
     case 'cancel':
     case 'cancelled':
@@ -97,6 +99,7 @@ const translateStatus = (status) => {
     'delivering': 'กำลังจัดส่ง',
     'not_paid': 'ยังไม่ชำระ',
     'cancel': 'ยกเลิก',
+    'wait_paid': 'รอชำระ',
     'cancelled': 'ยกเลิกแล้ว',
     'delivered': 'จัดส่งแล้ว'
   };
@@ -104,15 +107,17 @@ const translateStatus = (status) => {
 };
 
 const filteredOrders = computed(() => {
-  return orders.value.filter(order => {
-    const paymentMatch = paymentStatusFilter.value.length === 0 ||
-      paymentStatusFilter.value.includes('all') ||
-      paymentStatusFilter.value.includes(order.statusPaid);
-    const deliveryMatch = deliveryStatusFilter.value.length === 0 ||
-      deliveryStatusFilter.value.includes('all') ||
-      deliveryStatusFilter.value.includes(order.deliverStatus);
-    return paymentMatch && deliveryMatch;
-  });
+  return orders.value
+    .filter(order => {
+      const paymentMatch = paymentStatusFilter.value.length === 0 ||
+        paymentStatusFilter.value.includes('all') ||
+        paymentStatusFilter.value.includes(order.statusPaid);
+      const deliveryMatch = deliveryStatusFilter.value.length === 0 ||
+        deliveryStatusFilter.value.includes('all') ||
+        deliveryStatusFilter.value.includes(order.deliverStatus);
+      return paymentMatch && deliveryMatch;
+    })
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // เรียงลำดับตามวันที่สร้าง จากใหม่ไปเก่า
 });
 
 onMounted(fetchOrders);
@@ -153,7 +158,20 @@ const updateShowDetailDialog = (value) => {
           </v-col>
         </v-row>
 
-        <v-data-table :headers="headers" :items="filteredOrders" :loading="loading" class="elevation-1">
+        <v-skeleton-loader
+          v-if="loading"
+          type="table"
+          class="mb-6"
+        ></v-skeleton-loader>
+
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="filteredOrders"
+          :loading="loading"
+          class="elevation-1"
+          :sort-by="[{ key: 'createdAt', order: 'desc' }]"
+        >
           <template v-slot:item.createdAt="{ item }">
             <v-chip :color="new Date(item.createdAt) > new Date(Date.now() - 86400000) ? 'success' : 'default'" label>
               {{ formatDate(item.createdAt) }}
@@ -167,7 +185,7 @@ const updateShowDetailDialog = (value) => {
           </template>
 
           <template v-slot:item.statusPaid="{ item }">
-            <v-chip :color="getStatusColor(item.statusPaid)" label>
+            <v-chip :color="getStatusColor(item.deliverStatus === 'cancel' ? 'cancel' : item.statusPaid)" label>
               {{ translateStatus(item.deliverStatus === 'cancel' ? 'cancel' : item.statusPaid) }}
             </v-chip>
           </template>
@@ -278,5 +296,10 @@ const updateShowDetailDialog = (value) => {
 
 .v-chip {
   font-weight: 500;
+}
+
+.v-skeleton-loader {
+  border-radius: 8px;
+  overflow: hidden;
 }
 </style>

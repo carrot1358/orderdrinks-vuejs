@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import AddProduct from '@/views/pages/productManage/AddProduct.vue';
 import ProductList from '@/views/pages/productManage/ProductList.vue';
 import { inject } from 'vue';
@@ -9,6 +9,7 @@ const $swal = inject('$swal');
 
 const showAddProductDialog = ref(false);
 const productListRef = ref(null);
+const isLoading = ref(true);
 
 const openAddProductDialog = () => {
   showAddProductDialog.value = true;
@@ -25,11 +26,16 @@ const handleProductAdded = () => {
   }
 };
 
-const fetchProducts = () => {
+const fetchProducts = async () => {
   if (productListRef.value) {
-    productListRef.value.fetchProducts();
+    await productListRef.value.fetchProducts();
   }
 };
+
+onMounted(async () => {
+  await fetchProducts();
+  isLoading.value = false;
+});
 </script>
 
 <template>
@@ -63,7 +69,17 @@ const fetchProducts = () => {
           />
         </VDialog>
 
-        <ProductList ref="productListRef" :fetchProducts="fetchProducts" />
+        <v-skeleton-loader
+          v-if="isLoading"
+          type="table"
+          class="mb-6"
+        ></v-skeleton-loader>
+
+        <ProductList
+          v-else
+          ref="productListRef"
+          :fetchProducts="fetchProducts"
+        />
       </VContainer>
     </VCardText>
   </VCard>
@@ -77,5 +93,10 @@ const fetchProducts = () => {
 
 .swal-on-top {
   z-index: 9999 !important;
+}
+
+.v-skeleton-loader {
+  border-radius: 8px;
+  overflow: hidden;
 }
 </style>
