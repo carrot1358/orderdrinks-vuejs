@@ -18,6 +18,10 @@ const orderStore = useOrderStore();
 const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
 const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
 
+const Urlapi = import.meta.env.VITE_API_URL;
+const UrlWs = import.meta.env.VITE_WEBSOCKET_URL;
+const UrlLongdoMap = import.meta.env.VITE_LONGDO_MAP_API_KEY;
+
 const cartVisible = ref(false);
 const buttonCartVisible = computed(() => orderStore.cartList.length > 0);
 const lookingOrdering = ref(false);
@@ -173,6 +177,9 @@ watch(showAddressDialog, (newValue) => {
 </script>
 
 <template>
+  {{ Urlapi }}
+  {{ UrlWs }}
+  {{ UrlLongdoMap }}
   <OrderDialog
     :lookingOrdering="lookingOrdering"
     :lookingProduct="lookingProduct"

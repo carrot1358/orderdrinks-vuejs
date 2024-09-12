@@ -52,22 +52,28 @@ jobs:
           VERSION: ${{ needs.build.outputs.version }}
         run: |
           # อัปเดตไฟล์ docker-compose.yml
+          echo "copy docker-compose.yml to VM"
           scp docker-compose.yml $USER@$HOST:~/docker-compose.yml
           
           # คัดลอก .env.example เป็น .env ถ้า .env ไม่มีอยู่
+          echo "copy .env.example to VM"
           scp .env.example $USER@$HOST:~/env.example
           ssh $USER@$HOST '[ ! -f .env ] && cp env.example .env || echo ".env already exists"'
           ssh $USER@$HOST 'rm env.example'
           
           # โหลด Docker image ไปยัง VM
+          echo "load Docker image to VM"
           scp image.tar $USER@$HOST:~/image.tar
           ssh $USER@$HOST 'docker load < ~/image.tar && rm ~/image.tar'
           
           # อัปเดต image tag ใน docker-compose.yml
+          echo "update image tag in docker-compose.yml"
           ssh $USER@$HOST "sed -i 's|image: orderdrinks-vuejs:.*|image: orderdrinks-vuejs:$VERSION|' ~/docker-compose.yml"
           
           #ลบ container ที่มีชื่อ orderdrinks-vuejs
+          echo "delete container orderdrinks-vuejs"
           ssh $USER@$HOST 'docker rm -f orderdrinks-vuejs'
           
           # รัน docker-compose
+          echo "run docker-compose"
           ssh $USER@$HOST 'docker-compose -f ~/docker-compose.yml up -d --force-recreate orderdrinks-vuejs'
