@@ -70,4 +70,5 @@ export default defineConfig({
     port: 5050,
     host: '0.0.0.0',
   },
+  envPrefix: 'VITE_',
 })

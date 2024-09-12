@@ -46,9 +46,6 @@ onMounted(async () => {
     paymentStore.fetchPaymentAdminDetails(),
     checkUserAddress()
   ]);
-  console.log("Urlapi", Urlapi);
-  console.log("UrlWs", UrlWs);
-  console.log("UrlLongdoMap", UrlLongdoMap);
 });
 
 const totalPrice = computed(() => orderStore.getTotalPrice);
@@ -177,12 +174,11 @@ const urlToFile = async (url, filename) => {
 watch(showAddressDialog, (newValue) => {
   console.log("showAddressDialog changed:", newValue);
 });
+
+console.log('All env variables:', import.meta.env);
 </script>
 
 <template>
-  Urlapi: {{ Urlapi }}
-  UrlWs: {{ UrlWs }}
-  UrlLongdoMap: {{ UrlLongdoMap }}
   <OrderDialog
     :lookingOrdering="lookingOrdering"
     :lookingProduct="lookingProduct"
