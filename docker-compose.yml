@@ -1,7 +1,9 @@
 version: '3'
 services:
   orderdrinks-vuejs:
-    image: orderdrinks-vuejs:latest
+    build:
+      context: ./
+      dockerfile: Dockerfile
     container_name: orderdrinks-vuejs
     ports:
       - "5050:5050"

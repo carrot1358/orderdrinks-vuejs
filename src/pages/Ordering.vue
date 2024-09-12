@@ -77,7 +77,7 @@ const closeCart = () => {
 };
 
 const checkUserAddress = async () => {
-  try { 
+  try {
     const response = await axios.get(`${User_ENDPOINTS.getProfile}`, {
       headers: {
         'Authorization': `Bearer ${jwtToken}`
@@ -90,8 +90,8 @@ const checkUserAddress = async () => {
     console.log('userProfile.value.address', userProfile.value.address);
     console.log('userProfile.value.phone', userProfile.value.phone);
     console.log('userProfile.value.lineAvatar', userProfile.value.lineAvatar);
-    
-    
+
+
     if (!userProfile.value.lat || !userProfile.value.lng || !userProfile.value.address || userProfile.value.phone === "ยังไม่ได้ระบุ") {
       await nextTick();
       showAddressDialog.value = true;
@@ -99,7 +99,7 @@ const checkUserAddress = async () => {
     }
 
     console.log("showAddressDialog", showAddressDialog.value);
-    
+
   } catch (error) {
     console.error('Error fetching user profile:', error);
     Swal.fire({
@@ -144,6 +144,16 @@ const updateUserInfo = async (updatedInfo) => {
         title: 'อัพเดทข้อมูลสำเร็จ',
         text: response.data.message,
       });
+      axios.get(User_ENDPOINTS.getProfile, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      }).then((response) => {
+        sessionStorage.removeItem('userinfo')
+        sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
+      }).catch((error) => {
+        console.log(error)
+      })
     } else {
       throw new Error(response.data.message || 'Failed to update user info');
     }
@@ -179,29 +189,19 @@ console.log('All env variables:', import.meta.env);
 </script>
 
 <template>
-  <OrderDialog
-    :lookingOrdering="lookingOrdering"
-    :lookingProduct="lookingProduct"
-    :addToCart="addToCart"
-    :closeDialog="closeDialog"
-  />
+  <OrderDialog :lookingOrdering="lookingOrdering" :lookingProduct="lookingProduct" :addToCart="addToCart"
+    :closeDialog="closeDialog" />
 
-  <CartBottomSheet
-    :cartVisible="cartVisible"
-    :closeCart="closeCart"
-    :totalPrice="totalPrice"
-    :removeFromCart="removeFromCart"
-  />
+  <CartBottomSheet :cartVisible="cartVisible" :closeCart="closeCart" :totalPrice="totalPrice"
+    :removeFromCart="removeFromCart" />
 
-  <IfNonAddress
-    v-if="showAddressDialog"
-    v-model="showAddressDialog"
-    :userProfile="userProfile"
-    @update-user-info="updateUserInfo"
-  />
+  <IfNonAddress v-if="showAddressDialog" v-model="showAddressDialog" :userProfile="userProfile"
+    @update-user-info="updateUserInfo" />
 
   <VCard class="align-content-center justify-center text-center pa-2 pb-8 center">
-    <VCardTitle><h1>สั่งซื้อสินค้า</h1></VCardTitle>
+    <VCardTitle>
+      <h1>สั่งซื้อสินค้า</h1>
+    </VCardTitle>
     <VRow class="align-content-center justify-center">
       <div v-for="(product, index) in productStore.products" :key="index">
         <VCol>
@@ -217,11 +217,7 @@ console.log('All env variables:', import.meta.env);
     </VRow>
     <VRow v-if="isProductsEmpty">
       <v-col cols="12" class="text-center">
-        <Vue3Lottie
-          :animationData="animationData"
-          :height="400"
-          :width="400"
-        />
+        <Vue3Lottie :animationData="animationData" :height="400" :width="400" />
         <h2 class="mt-4">ไม่มีสินค้าในขณะนี้</h2>
       </v-col>
     </VRow>

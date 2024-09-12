@@ -1,5 +1,5 @@
 # ใช้ Node.js เวอร์ชันล่าสุดเป็นฐาน
-FROM node:latest
+FROM node:latest as build-stage
 
 # ตั้งค่าไดเรกทอรีทำงาน
 WORKDIR /app
@@ -18,8 +18,9 @@ COPY . .
 # สร้าง production build
 RUN npm run build
 
-# เปิดพอร์ต 5050 สำหรับการเข้าถึงแอพ
+# Production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 5050
-
-# รันคำสั่งเพื่อเริ่มต้นแอพ
-CMD ["npm", "run", "preview"]
+CMD ["nginx", "-g", "daemon off;"]
