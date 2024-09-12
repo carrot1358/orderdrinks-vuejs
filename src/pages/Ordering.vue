@@ -150,7 +150,13 @@ const updateUserInfo = async (updatedInfo) => {
       icon: 'error',
       title: 'เกิดข้อผิดพลาด',
       text: error.response?.data?.message || error.message || 'ไม่สามารถอัพเดทข้อมูลได้ กรุณาลองใหม่อีกครั้ง',
+      timer: 2000,
+      timerProgressBar: true,
+      showConfirmButton: false,
     });
+    setTimeout(() => {
+      showAddressDialog.value = true;
+    }, 2000);
   }
 };
 
