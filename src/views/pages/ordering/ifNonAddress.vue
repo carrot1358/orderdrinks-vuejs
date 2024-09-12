@@ -27,7 +27,11 @@ const alert = ref({
 // ใช้ watch เพื่อคอยดูการเปลี่ยนแปลงของ userProfile
 watch(() => props.userProfile, (newProfile) => {
     if (newProfile) {
-        localUserData.value = { ...newProfile };
+        const { name, phone, ...rest } = newProfile;
+        localUserData.value = { 
+            ...localUserData.value,
+            ...rest
+        };
     }
 }, { immediate: true });
 
