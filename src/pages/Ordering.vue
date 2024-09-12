@@ -46,6 +46,9 @@ onMounted(async () => {
     paymentStore.fetchPaymentAdminDetails(),
     checkUserAddress()
   ]);
+  console.log("Urlapi", Urlapi);
+  console.log("UrlWs", UrlWs);
+  console.log("UrlLongdoMap", UrlLongdoMap);
 });
 
 const totalPrice = computed(() => orderStore.getTotalPrice);
@@ -177,9 +180,9 @@ watch(showAddressDialog, (newValue) => {
 </script>
 
 <template>
-  {{ Urlapi }}
-  {{ UrlWs }}
-  {{ UrlLongdoMap }}
+  Urlapi: {{ Urlapi }}
+  UrlWs: {{ UrlWs }}
+  UrlLongdoMap: {{ UrlLongdoMap }}
   <OrderDialog
     :lookingOrdering="lookingOrdering"
     :lookingProduct="lookingProduct"
