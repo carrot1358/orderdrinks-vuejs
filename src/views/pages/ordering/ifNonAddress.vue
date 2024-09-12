@@ -118,18 +118,43 @@ const updateMap = (lat, lng) => {
     if (mapInstance.value) {
         const location = { lon: lng, lat: lat };
         mapInstance.value.location(location, true);
-        mapInstance.value.Overlays.clear();
-        const marker = new window.longdo.Marker(location);
-        mapInstance.value.Overlays.add(marker);
+        updateMarker(location);
     }
 };
 
 const mapInstance = ref(null);
 const zoom = ref(15);
+const marker = ref(null);
 
 function loadMap(map) {
     mapInstance.value = map;
     map.Layers.setBase(longdo.Layers.NORMAL);
+    map.Event.bind('click', function(mouse) {
+        const location = map.location(mouse);
+        updateMarker(location);
+        updateCoordinates(location);
+    });
+}
+
+function updateMarker(location) {
+    if (marker.value) {
+        mapInstance.value.Overlays.remove(marker.value);
+    }
+    marker.value = new window.longdo.Marker(location);
+    mapInstance.value.Overlays.add(marker.value);
+}
+
+function updateCoordinates(location) {
+    localUserData.value.lat = location.lat.toFixed(6);
+    localUserData.value.lng = location.lon.toFixed(6);
+}
+
+function markCurrentLocation() {
+    if (mapInstance.value) {
+        const center = mapInstance.value.location();
+        updateMarker(center);
+        updateCoordinates(center);
+    }
 }
 
 watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, newLng]) => {
@@ -202,7 +227,7 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                         <v-col cols="12">
                             <v-btn @click="getLocation" color="secondary" block class="mb-4">
                                 <v-icon left>mdi-crosshairs-gps</v-icon>
-                                รับตำแหน่งปัจจุบัน
+                                รับตำแหน่งจาก GPS
                             </v-btn>
                         </v-col>
                         <v-col cols="12" sm="6">
@@ -228,6 +253,12 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                 
                 <v-card outlined class="mt-4">
                     <longdo-map @load="loadMap" :zoom="zoom" ref="mapInstance" style="width: 100%; height: 300px;"></longdo-map>
+                    <v-card-actions>
+                        <v-btn @click="markCurrentLocation" color="primary" text>
+                            <v-icon left>mdi-map-marker</v-icon>
+                            ทำเครื่องหมายตำแหน่งปัจจุบัน
+                        </v-btn>
+                    </v-card-actions>
                 </v-card>
             </v-card-text>
             
