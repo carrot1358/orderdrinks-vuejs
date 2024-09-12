@@ -302,8 +302,10 @@ watch(() => props.qrCodePayment, (newValue) => {
 
           <template v-slot:actions>
             <div class="d-flex justify-space-between w-100">
-              <v-btn v-if="activeStep > 1 && activeStep < 3" @click="activeStep--" class="mr-auto">ย้อนกลับ</v-btn>
-              <v-btn v-if="activeStep === 3" @click="closeDetailDeliver" class="mr-auto" color="error">จ่ายภายหลัง</v-btn>
+              <v-btn v-if="activeStep === 1" @click="closeDetailDeliver" class="mr-auto" color="error">ยกเลิก</v-btn>
+              <v-btn v-else-if="activeStep > 1 && activeStep < 3" @click="activeStep--" class="mr-auto">ย้อนกลับ</v-btn>
+              <v-btn v-if="activeStep === 3" @click="closeDetailDeliver" class="mr-auto"
+                color="error">จ่ายภายหลัง</v-btn>
               <v-btn v-if="activeStep === 2 && payment === 'โอนเงิน (QR พร้อมเพย์)'" @click="placeOrder"
                 class="ml-auto">ชำระเงิน</v-btn>
               <v-btn v-if="activeStep < 2" @click="activeStep++" class="ml-auto">ถัดไป</v-btn>
