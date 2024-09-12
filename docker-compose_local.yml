@@ -5,7 +5,6 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: orderdrinks-vuejs
-    container_name: orderdrinks-vuejs
     ports:
       - "5050:5050"
     environment:
