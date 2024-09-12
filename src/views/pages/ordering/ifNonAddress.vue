@@ -35,19 +35,36 @@ watch(() => props.userProfile, (newProfile) => {
     }
 }, { immediate: true });
 
+const isPhoneValid = computed(() => {
+    const phoneRegex = /^0\d{9}$/;
+    return phoneRegex.test(localUserData.value.phone);
+});
+
+const isEmailValid = computed(() => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(localUserData.value.email);
+});
+
 const isFormValid = computed(() => {
-    return Object.values(localUserData.value).every(field => {
-        // ตรวจสอบว่า field เป็น string หรือไม่ก่อนใช้ trim()
-        return typeof field === 'string' ? field.trim() !== '' : field !== '';
+    return Object.entries(localUserData.value).every(([key, value]) => {
+        if (key === 'phone') return isPhoneValid.value;
+        if (key === 'email') return isEmailValid.value;
+        return typeof value === 'string' ? value.trim() !== '' : value !== '';
     });
 });
 
 const updateUserInfo = async () => {
     if (!isFormValid.value) {
+        let errorMessage = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
+        if (!isPhoneValid.value) {
+            errorMessage = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (ต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0)';
+        } else if (!isEmailValid.value) {
+            errorMessage = 'กรุณากรอกอีเมลให้ถูกต้อง';
+        }
         alert.value = {
             show: true,
             type: 'error',
-            message: 'กรุณากรอกข้อมูลให้ครบทุกช่อง'
+            message: errorMessage
         };
         return;
     }
@@ -160,6 +177,7 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                                 prepend-icon="mdi-email"
                                 outlined
                                 dense
+                                :rules="[v => isEmailValid || 'กรุณากรอกอีเมลให้ถูกต้อง']"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">
@@ -169,6 +187,7 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                                 prepend-icon="mdi-phone"
                                 outlined
                                 dense
+                                :rules="[v => isPhoneValid || 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (ต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0)']"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">
