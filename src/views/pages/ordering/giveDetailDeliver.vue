@@ -6,6 +6,7 @@ import LottieAnimation from "@/assets/lottie/lottieanimetion.vue";
 import { inject } from 'vue';
 import axios from 'axios';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import Swal from 'sweetalert2'
 
 const backendUrl = import.meta.env.VITE_API_URL;
 
@@ -102,7 +103,7 @@ const placeOrder = async () => {
   if (result.isConfirmed) {
     // เก็บข้อมูล cartList ไว้ในตัวแปรภายใน component
     localCartList.value = [...orderStore.cartList];
-    
+
     const formattedProducts = JSON.stringify(orderStore.cartList.map(product => ({
       productId: product.productId,
       quantity: product.quantity
@@ -135,7 +136,7 @@ const uploadPaymentSlip = async () => {
   loading.value = true;
   const result = await paymentStore.checkPaymentStatus(orderId.value, paymentSlip.value);
   console.log("result", result);
-  if(result.statusPaid === "paid"){
+  if (result.statusPaid === "paid") {
     paymentStatus.value = "ชำระเงินสำเร็จ";
     isDisabledDoneButton.value = false;
     await $swal.fire({
@@ -179,7 +180,6 @@ const closeDetailDeliver = () => {
 
 const debugPaymentStatus = () => {
   console.log('Current payment status:', paymentStatus.value);
-  // เพิ่มโค้ดสำหรับการดีบั๊กเพิ่มเติมตามต้องการ
 };
 
 const calculateTotalPrice = (cartList) => {
@@ -192,25 +192,29 @@ watch(() => props.qrCodePayment, (newValue) => {
 </script>
 
 <template>
-  <v-dialog v-model="showDetailDeliver" max-width="600px">
-    <v-card>
+  <v-dialog v-model="showDetailDeliver" max-width="100%" fullscreen :z-index="1000">
+    <v-card class="full-width-card">
       <v-card-title>
         <span class="headline">รายละเอียดคำสั่งซื้อ</span>
       </v-card-title>
       <v-card-text>
-        <v-stepper v-model="activeStep" class="pa-3"
+        <v-stepper v-model="activeStep" class="pa-3 full-width-stepper"
           :items="['รายละเอียด', 'วิธีชำระเงิน', showStep3 ? 'ชำระเงิน' : 'สำเร็จ']">
           <template v-slot:item.1>
             <v-card title="รายละเอียดผู้ใช้" flat>
               <v-card-text>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12">
                     <v-text-field v-model="userDetail.name" label="ชื่อ" outlined></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
                     <v-text-field v-model="userDetail.phone" label="เบอร์โทร" outlined></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="6" md="4">
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
                     <v-text-field v-model="userAddress" label="ที่อยู่" outlined></v-text-field>
                   </v-col>
                 </v-row>
@@ -219,10 +223,10 @@ watch(() => props.qrCodePayment, (newValue) => {
           </template>
 
           <template v-slot:item.2>
-            <v-card title="ช่องทางการชำระเงิน" flat>
+            <v-card title="ช่องทางการชำระเงิน" flat class="full-width-card">
               <v-card-text>
                 <v-row>
-                  <v-col cols="12" sm="6" md="4">
+                  <v-col cols="12">
                     <v-select v-model="payment" :items="paymentItems" label="ช่องทางชำระเงิน" outlined></v-select>
                   </v-col>
                 </v-row>
@@ -231,69 +235,60 @@ watch(() => props.qrCodePayment, (newValue) => {
           </template>
 
           <template v-if="showStep3" v-slot:item.3>
-            
 
-              <v-card-text class="d-flex flex-column justify-center align-center">
-                <img v-if="props.qrCodePayment" :src="props.qrCodePayment" alt="QR Code" />
-                <v-progress-circular v-else indeterminate color="primary"></v-progress-circular>
-                <v-chip :style="{ backgroundColor: paymentStatusColor, color: 'white' }">{{ paymentStatus }}</v-chip>
+
+            <v-card-text class="d-flex flex-column justify-center align-center">
+              <img v-if="props.qrCodePayment" :src="props.qrCodePayment" alt="QR Code" />
+              <v-progress-circular v-else indeterminate color="primary"></v-progress-circular>
+              <v-chip :style="{ backgroundColor: paymentStatusColor, color: 'white' }">{{ paymentStatus }}</v-chip>
+            </v-card-text>
+
+            <v-file-input v-model="paymentSlip" label="อัพโหลดสลิปการโอนเงิน" prepend-icon="mdi-paperclip"
+              accept="image/*" @change="handleFileChange" chips show-size />
+            <div class="d-flex flex-column justify-center align-center mt-3">
+              <v-img :src="paymentSlipReader" v-if="paymentSlipReader" width="30%"></v-img>
+            </div>
+
+            <div class="d-flex justify-center align-content-center mt-3">
+              <v-btn :loading="loading" :disabled="!paymentSlip" class="flex-grow-1" height="48" variant="tonal"
+                @click="uploadPaymentSlip">
+                ส่งหลักฐาน
+              </v-btn>
+            </div>
+
+            <v-card class="payment-details-card mx-auto mt-4" elevation="3" max-width="600" rounded="lg">
+              <v-card-title class="text-h5 font-weight-bold primary--text">รายการสินค้า</v-card-title>
+              <v-card-text>
+                <v-row no-gutters>
+                  <v-col v-for="item in localCartList" :key="item.productId" cols="12" sm="6" md="4" class="pa-2">
+                    <v-card outlined>
+                      <v-img :src="backendUrl + item.imagePath" v-if="item.imagePath" height="120" cover></v-img>
+                      <v-icon v-else size="120" class="grey lighten-2">mdi-package-variant-closed</v-icon>
+                      <v-card-text>
+                        <div class="font-weight-medium">{{ item.name }}</div>
+                        <div class="text-caption">จำนวน: {{ item.quantity }} x {{ item.price.toLocaleString() }} บาท
+                        </div>
+                        <v-chip color="primary" text-color="white" x-small class="mt-1">
+                          {{ (item.quantity * item.price).toLocaleString() }} บาท
+                        </v-chip>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+                <v-divider class="my-3"></v-divider>
+                <v-row align="center" justify="space-between">
+                  <v-col cols="6">
+                    <div class="text-h6 font-weight-bold">ราคารวมทั้งสิ้น</div>
+                  </v-col>
+                  <v-col cols="6" class="text-right">
+                    <v-chip color="success" text-color="white" large>
+                      <v-icon class="mr-1" left small>mdi-cash-multiple</v-icon>
+                      {{ calculateTotalPrice(localCartList).toLocaleString() }} บาท
+                    </v-chip>
+                  </v-col>
+                </v-row>
               </v-card-text>
-
-              <v-file-input v-model="paymentSlip" label="อัพโหลดสลิปการโอนเงิน" prepend-icon="mdi-paperclip"
-                accept="image/*" @change="handleFileChange" chips show-size />
-              <div class="d-flex flex-column justify-center align-center mt-3">
-                <v-img :src="paymentSlipReader" v-if="paymentSlipReader" width="30%"></v-img>
-              </div>
-
-              <div class="d-flex justify-center align-content-center mt-3">
-                <v-btn :loading="loading" :disabled="!paymentSlip" class="flex-grow-1" height="48" variant="tonal"
-                  @click="uploadPaymentSlip">
-                  ส่งหลักฐาน
-                </v-btn>
-              </div>
-
-              <v-card 
-                class="payment-details-card mx-auto mt-4"
-                elevation="3"
-                max-width="600"
-                rounded="lg"
-              >
-                <v-card-title class="text-h5 font-weight-bold primary--text">รายการสินค้า</v-card-title>
-                <v-card-text>
-                  <v-row no-gutters>
-                    <v-col v-for="item in localCartList" :key="item.productId" cols="12" sm="6" md="4" class="pa-2">
-                      <v-card outlined>
-                        <v-img
-                          :src="backendUrl + item.imagePath"
-                          v-if="item.imagePath"
-                          height="120"
-                          cover
-                        ></v-img>
-                        <v-icon v-else size="120" class="grey lighten-2">mdi-package-variant-closed</v-icon>
-                        <v-card-text>
-                          <div class="font-weight-medium">{{ item.name }}</div>
-                          <div class="text-caption">จำนวน: {{ item.quantity }} x {{ item.price.toLocaleString() }} บาท</div>
-                          <v-chip color="primary" text-color="white" x-small class="mt-1">
-                            {{ (item.quantity * item.price).toLocaleString() }} บาท
-                          </v-chip>
-                        </v-card-text>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                  <v-divider class="my-3"></v-divider>
-                  <v-row align="center" justify="space-between">
-                    <v-col cols="6">
-                      <div class="text-h6 font-weight-bold">ราคารวมทั้งสิ้น</div>
-                    </v-col>
-                    <v-col cols="6" class="text-right">
-                      <v-chip color="success" text-color="white"  large>
-                        <v-icon class="mr-1" left small>mdi-cash-multiple</v-icon>
-                        {{ calculateTotalPrice(localCartList).toLocaleString() }} บาท
-                      </v-chip>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
+            </v-card>
           </template>
 
           <template v-if="!showStep3" v-slot:item.3>
@@ -307,9 +302,11 @@ watch(() => props.qrCodePayment, (newValue) => {
 
           <template v-slot:actions>
             <div class="d-flex justify-space-between w-100">
-              <v-btn v-if="activeStep > 1" @click="activeStep--" class="mr-auto">ย้อนกลับ</v-btn>
-              <v-btn v-if="activeStep === 2 && payment === 'โอนเงิน (QR พร้อมเพย์)'" @click="placeOrder" class="ml-auto">ชำระเงิน</v-btn>
-              <v-btn v-if="activeStep < 2 " @click="activeStep++" class="ml-auto">ถัดไป</v-btn>
+              <v-btn v-if="activeStep > 1 && activeStep < 3" @click="activeStep--" class="mr-auto">ย้อนกลับ</v-btn>
+              <v-btn v-if="activeStep === 3" @click="closeDetailDeliver" class="mr-auto" color="error">จ่ายภายหลัง</v-btn>
+              <v-btn v-if="activeStep === 2 && payment === 'โอนเงิน (QR พร้อมเพย์)'" @click="placeOrder"
+                class="ml-auto">ชำระเงิน</v-btn>
+              <v-btn v-if="activeStep < 2" @click="activeStep++" class="ml-auto">ถัดไป</v-btn>
               <v-btn color="success" v-if="activeStep === 3" :disabled="isDisabledDoneButton"
                 prepend-icon="mdi-check-circle" class="ml-auto" @click="closeDetailDeliver">เสร็จ
               </v-btn>
@@ -323,9 +320,19 @@ watch(() => props.qrCodePayment, (newValue) => {
 
 </template>
 
-<style>
+<style scoped>
 .swal-on-top {
   z-index: 9999 !important;
+}
+
+.swal2-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.swal2-popup {
+  margin: auto !important;
 }
 
 .payment-details-card {
@@ -352,5 +359,22 @@ watch(() => props.qrCodePayment, (newValue) => {
 
 .v-list-item__content {
   flex: 1;
+}
+
+.full-width-card {
+  width: 100%;
+  max-width: 100%;
+}
+
+.full-width-stepper {
+  width: 100%;
+}
+
+.v-stepper {
+  width: 100%;
+}
+
+.v-select {
+  width: 100%;
 }
 </style>

@@ -46,7 +46,7 @@ const removeFromCart = (index) => {
 
 <template>
   <v-bottom-sheet v-model="props.cartVisible" max-width="100%" persistent>
-    <v-card max-width="900" min-width="400" class="cart-card">
+    <v-card max-width="900" class="cart-card mx-auto">
       <v-card-title class="cart-title">ตะกร้าสินค้า</v-card-title>
       <v-card-text class="cart-content">
         <div class="cart-items">
@@ -100,7 +100,7 @@ const removeFromCart = (index) => {
 .v-bottom-sheet {
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-end;
 }
 
 .cart-card {
@@ -108,6 +108,9 @@ const removeFromCart = (index) => {
   flex-direction: column;
   height: 80vh; /* ปรับความสูงตามต้องการ */
   max-height: 600px; /* กำหนดความสูงสูงสุด */
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .cart-title {
