@@ -56,7 +56,11 @@ const fetchOrders = async () => {
     orders.value = response.data.data;
     loading.value = false;
   } catch (err) {
-    error.value = 'เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ';
+    if (err.response.data.message === "ไม่พบคำสั่งซื้อ") {
+      error.value = 'ไม่พบคำสั่งซื้อ';
+    } else {
+      error.value = 'เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ : ' + err.response.data.message;
+    }
     loading.value = false;
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลคำสั่งซื้อ:', err);
   }
