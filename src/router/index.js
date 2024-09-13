@@ -54,6 +54,10 @@ const router = createRouter({
           component: () => import('../pages/AboutMe.vue'),
         },
         {
+          path: 'deliver',
+          component: () => import('../pages/Deliver.vue'),
+        },
+        {
           path: 'product-manage',
           component: () => import('../pages/productManage.vue'),
         },

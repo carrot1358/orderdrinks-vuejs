@@ -111,6 +111,11 @@ const isUser = computed(() => {
         to: '/OrderList',
       }" />
       <VerticalNavLink v-if="isEmployee" :item="{
+        title: 'จัดการส่งสินค้า',
+        icon: 'bx-send',
+        to: '/deliver',
+      }" />
+      <VerticalNavLink v-if="isEmployee" :item="{
         title: 'จัดการสินค้า',
         icon: 'bx-package',
         to: '/product-manage',
