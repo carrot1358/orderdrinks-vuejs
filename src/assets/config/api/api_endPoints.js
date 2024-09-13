@@ -22,12 +22,15 @@ export const Product_ENDPOINTS = {
 export const Order_ENDPOINTS = {
   getOrders: backend_url+"/api/v1/orders/", // GET
   getOrderById: backend_url+"/api/v1/orders/", // GET :id
+  getOderDelivery: backend_url+"/api/v1/orders/get-order-delivery", // GET auth driver
+  getOrderNotDone: backend_url+"/api/v1/orders/get-order-not-done", // GET auth driver
   getOrderByUser: backend_url+"/api/v1/orders/my_order", // GET
   createOrder: backend_url+"/api/v1/orders/", // POST
   completeOrder: backend_url+"/api/v1/orders/complete", // PUT :id
   cancelOrder: backend_url+"/api/v1/orders/cancel", // PUT :id
   updateOrder: backend_url+"/api/v1/orders/update", // PUT :id
   checkSlip: backend_url+"/api/v1/orders/check_slip", // POST
+  prepareOrder: backend_url+"/api/v1/orders/prepare-delivery", // post :id
 }
 
 export const Payment_ENDPOINTS = {
