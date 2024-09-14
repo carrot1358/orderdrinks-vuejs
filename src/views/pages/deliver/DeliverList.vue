@@ -16,6 +16,8 @@ const itemsPerPage = ref(20);
 
 const filteredOrders = ref([]);
 
+const apiUrl = import.meta.env.VITE_API_URL || '';
+
 
 const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage.value));
 
