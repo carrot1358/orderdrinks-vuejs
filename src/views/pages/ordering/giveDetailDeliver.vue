@@ -62,6 +62,51 @@ const totalPrice = computed(() => {
 
 const localCartList = ref([]);
 
+const mapInstance = ref(null);
+const zoom = ref(15);
+const marker = ref(null);
+
+function loadMap(map) {
+  mapInstance.value = map;
+  map.Layers.setBase(longdo.Layers.NORMAL);
+  map.location({ lon: userDetail.value.lng, lat: userDetail.value.lat }, true);
+  updateMarker({ lon: userDetail.value.lng, lat: userDetail.value.lat });
+  map.Event.bind('click', function(mouse) {
+    const location = map.location(mouse);
+    updateMarker(location);
+    updateCoordinates(location);
+  });
+}
+
+function updateMarker(location) {
+  if (marker.value) {
+    mapInstance.value.Overlays.remove(marker.value);
+  }
+  marker.value = new window.longdo.Marker(location);
+  mapInstance.value.Overlays.add(marker.value);
+}
+
+function updateCoordinates(location) {
+  userDetail.value.lat = location.lat.toFixed(6);
+  userDetail.value.lng = location.lon.toFixed(6);
+}
+
+function markCurrentLocation() {
+  if (mapInstance.value) {
+    const center = mapInstance.value.location();
+    updateMarker(center);
+    updateCoordinates(center);
+  }
+}
+
+watch([() => userDetail.value.lat, () => userDetail.value.lng], ([newLat, newLng]) => {
+  if (newLat && newLng && mapInstance.value) {
+    const location = { lon: parseFloat(newLng), lat: parseFloat(newLat) };
+    mapInstance.value.location(location, true);
+    updateMarker(location);
+  }
+});
+
 onMounted(() => {
   Promise.all([
     getUserAddress()
@@ -83,6 +128,41 @@ const getUserAddress = () => {
       console.error('เกิดข้อผิดพลาดในการดึงข้อมูลที่อยู่ผู้ใช้:', error);
     });
 };
+
+async function updateUserInfo() {
+  try {
+    const formData = new FormData();
+    formData.append('name', userDetail.value.name);
+    formData.append('phone', userDetail.value.phone);
+    formData.append('address', userAddress.value);
+    formData.append('lat', userDetail.value.lat);
+    formData.append('lng', userDetail.value.lng);
+
+    const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+
+    const response = await axios.put(
+      `${User_ENDPOINTS.updateUser}${userDetail.value.userId}`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      }
+    );
+
+    if (response.status === 200) {
+      console.log('อัปเดตข้อมูลผู้ใช้สำเร็จ');
+      // ดำเนินการต่อไปยังขั้นตอนที่สอง
+      activeStep.value++;
+    } else {
+      throw new Error('การอัปเดตข้อมูลผู้ใช้ไม่สำเร็จ');
+    }
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ใช้:', error);
+    // แสดงข้อความแจ้งเตือนหรือจัดการข้อผิดพลาดตามที่คุณต้องการ
+  }
+}
 
 const placeOrder = async () => {
   const result = await $swal.fire({
@@ -204,18 +284,29 @@ watch(() => props.qrCodePayment, (newValue) => {
             <v-card title="รายละเอียดผู้ใช้" flat>
               <v-card-text>
                 <v-row>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="6">
                     <v-text-field v-model="userDetail.name" label="ชื่อ" outlined></v-text-field>
                   </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12">
+                  <v-col cols="12" sm="6">
                     <v-text-field v-model="userDetail.phone" label="เบอร์โทร" outlined></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="12">
                     <v-text-field v-model="userAddress" label="ที่อยู่" outlined></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
+                    <v-card outlined>
+                      <longdo-map @load="loadMap" :zoom="zoom" ref="mapInstance" style="width: 100%; height: 300px;"></longdo-map>
+                      <v-card-actions>
+                        <v-btn @click="markCurrentLocation" color="primary" text>
+                          <v-icon left>mdi-map-marker</v-icon>
+                          ทำเครื่องหมายตำแหน่งปัจจุบัน
+                        </v-btn>
+                      </v-card-actions>
+                    </v-card>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -308,7 +399,7 @@ watch(() => props.qrCodePayment, (newValue) => {
                 color="error">จ่ายภายหลัง</v-btn>
               <v-btn v-if="activeStep === 2 && payment === 'โอนเงิน (QR พร้อมเพย์)'" @click="placeOrder"
                 class="ml-auto">ชำระเงิน</v-btn>
-              <v-btn v-if="activeStep < 2" @click="activeStep++" class="ml-auto">ถัดไป</v-btn>
+              <v-btn v-if="activeStep < 2" @click="updateUserInfo" class="ml-auto">ถัดไป</v-btn>
               <v-btn color="success" v-if="activeStep === 3" :disabled="isDisabledDoneButton"
                 prepend-icon="mdi-check-circle" class="ml-auto" @click="closeDetailDeliver">เสร็จ
               </v-btn>
