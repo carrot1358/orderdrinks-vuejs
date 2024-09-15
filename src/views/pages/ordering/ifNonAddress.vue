@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { mdiAccount, mdiEmail, mdiPhone, mdiHome, mdiCrosshairsGps, mdiLatitude, mdiLongitude, mdiContentSave } from '@mdi/js';
+import { mdiAccount, mdiPhone, mdiHome, mdiCrosshairsGps, mdiLatitude, mdiLongitude, mdiContentSave } from '@mdi/js';
 
 const props = defineProps({
     modelValue: Boolean,
@@ -11,7 +11,6 @@ const emit = defineEmits(['update:modelValue', 'update-user-info']);
 
 const localUserData = ref({
     name: '',
-    email: '',
     phone: '',
     address: '',
     lat: '',
@@ -40,15 +39,9 @@ const isPhoneValid = computed(() => {
     return phoneRegex.test(localUserData.value.phone);
 });
 
-const isEmailValid = computed(() => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(localUserData.value.email);
-});
-
 const isFormValid = computed(() => {
     return Object.entries(localUserData.value).every(([key, value]) => {
         if (key === 'phone') return isPhoneValid.value;
-        if (key === 'email') return isEmailValid.value;
         return typeof value === 'string' ? value.trim() !== '' : value !== '';
     });
 });
@@ -58,8 +51,6 @@ const updateUserInfo = async () => {
         let errorMessage = 'กรุณากรอกข้อมูลให้ครบทุกช่อง';
         if (!isPhoneValid.value) {
             errorMessage = 'กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง (ต้องเป็นตัวเลข 10 หลัก และขึ้นต้นด้วย 0)';
-        } else if (!isEmailValid.value) {
-            errorMessage = 'กรุณากรอกอีเมลให้ถูกต้อง';
         }
         alert.value = {
             show: true,
@@ -83,6 +74,10 @@ const updateUserInfo = async () => {
     if (!updatedData.avatar || !(updatedData.avatar instanceof File)) {
         delete updatedData.avatar;
     }
+
+    // update userinfo from updateData
+    const updatedUserInfo = { ...userInfo, ...updatedData };
+    sessionStorage.setItem('userinfo', JSON.stringify(updatedUserInfo));
 
     emit('update-user-info', updatedData);
     emit('update:modelValue', false);
@@ -193,16 +188,6 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                                 prepend-icon="mdi-account"
                                 outlined
                                 dense
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                            <v-text-field
-                                v-model="localUserData.email"
-                                label="อีเมล"
-                                prepend-icon="mdi-email"
-                                outlined
-                                dense
-                                :rules="[v => isEmailValid || 'กรุณากรอกอีเมลให้ถูกต้อง']"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">
