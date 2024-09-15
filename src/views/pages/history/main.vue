@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { useDisplay } from 'vuetify'
 import MoreDetailOrder from './MoreDetailOrder.vue';
+import { usePaymentStore } from '@/stores/paymentStore';
 
 const { mdAndUp, lgAndUp } = useDisplay()
 
@@ -51,20 +52,6 @@ const fetchOrders = async () => {
 const formatDate = (dateString) => {
   const date = new Date(dateString);
   return date.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' });
-};
-
-const cancelOrder = async (orderId) => {
-  try {
-    const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-    await axios.put(`${Order_ENDPOINTS.cancelOrder}/${orderId}`, {}, {
-      headers: {
-        authorization: `Bearer ${jwtToken}`,
-      },
-    });
-    await fetchOrders();
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการยกเลิกคำสั่งซื้อ:', error);
-  }
 };
 
 const showOrderDetail = (order) => {
@@ -136,6 +123,8 @@ const updateShowDetailDialog = (value) => {
     fetchOrders();
   }
 };
+
+const paymentStore = usePaymentStore();
 </script>
 
 <template>
@@ -158,20 +147,10 @@ const updateShowDetailDialog = (value) => {
           </v-col>
         </v-row>
 
-        <v-skeleton-loader
-          v-if="loading"
-          type="table"
-          class="mb-6"
-        ></v-skeleton-loader>
+        <v-skeleton-loader v-if="loading" type="table" class="mb-6"></v-skeleton-loader>
 
-        <v-data-table
-          v-else
-          :headers="headers"
-          :items="filteredOrders"
-          :loading="loading"
-          class="elevation-1"
-          :sort-by="[{ key: 'createdAt', order: 'desc' }]"
-        >
+        <v-data-table v-else :headers="headers" :items="filteredOrders" :loading="loading" class="elevation-1"
+          :sort-by="[{ key: 'createdAt', order: 'desc' }]">
           <template v-slot:item.createdAt="{ item }">
             <v-chip :color="new Date(item.createdAt) > new Date(Date.now() - 86400000) ? 'success' : 'default'" label>
               {{ formatDate(item.createdAt) }}
@@ -197,10 +176,6 @@ const updateShowDetailDialog = (value) => {
           </template>
 
           <template v-slot:item.actions="{ item }">
-            <v-btn v-if="item.deliverStatus !== 'cancel' && item.deliverStatus !== 'delivered' && !item.completedOrder"
-              color="error" variant="tonal" @click="cancelOrder(item.orderId)" class="mr-2" size="small">
-              ยกเลิก
-            </v-btn>
             <v-btn color="primary" variant="tonal" @click="showOrderDetail(item)" size="small">
               รายละเอียด
             </v-btn>
@@ -210,7 +185,8 @@ const updateShowDetailDialog = (value) => {
     </v-card>
 
     <MoreDetailOrder :showDialog="showDetailDialog" :selectedOrder="selectedOrder"
-      @update:showDialog="updateShowDetailDialog" />
+      :qrCodePayment="paymentStore.qrCodePayment" @update:showDialog="updateShowDetailDialog"
+      @orderUpdated="fetchOrders" />
   </v-container>
 </template>
 
