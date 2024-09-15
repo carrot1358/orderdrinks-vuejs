@@ -1,9 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import DeliverDialog from '@/views/pages/deliver/DeliverDialog.vue';
+import { VSkeletonLoader } from 'vuetify/components';
 
 const props = defineProps({
   orders: Array,
+  loading: Boolean,
 });
 
 const emit = defineEmits(['refresh']);
@@ -17,7 +19,6 @@ const itemsPerPage = ref(20);
 const filteredOrders = ref([]);
 
 const apiUrl = import.meta.env.VITE_API_URL || '';
-
 
 const totalPages = computed(() => Math.ceil(filteredOrders.value.length / itemsPerPage.value));
 
@@ -128,61 +129,89 @@ watch(searchQuery, updateFilteredOrders);
       </v-col>
     </v-row>
 
+    <!-- Skeleton Loader -->
+    <template v-if="props.loading">
+      <v-row v-for="n in 5" :key="n" class="mb-4">
+        <v-col cols="12">
+          <v-card>
+            <v-card-text>
+              <v-row align="center" no-gutters>
+                <v-col cols="12" sm="4" md="3" class="pa-2">
+                  <v-skeleton-loader type="list-item-avatar-two-line" />
+                </v-col>
+                <v-col cols="12" sm="3" md="3" class="pa-2">
+                  <v-skeleton-loader type="chip, text" />
+                </v-col>
+                <v-col cols="12" sm="3" md="3" class="pa-2">
+                  <v-skeleton-loader type="chip, text" />
+                </v-col>
+                <v-col cols="12" sm="2" md="3" class="pa-2 text-right">
+                  <v-skeleton-loader type="button" />
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </template>
+
     <!-- รายการ Order -->
-    <v-row>
-      <v-col cols="12" v-for="order in paginatedOrders" :key="order._id">
-        <v-card class="order-card mb-4" elevation="3">
-          <v-card-text>
-            <v-row align="center" no-gutters>
-              <!-- ข้อมูลลูกค้า -->
-              <v-col cols="12" sm="4" md="3" class="pa-2">
-                <div class="d-flex align-center">
-                  <v-avatar color="primary" size="40" class="mr-3 elevation-1">
-                    <v-img v-if="order.userId.avatar" :src="apiUrl + order.userId.avatar" :alt="order.userId.name">
-                      <template v-slot:placeholder>
-                        <v-icon icon="mdi-account" color="white"></v-icon>
-                      </template>
-                    </v-img>
-                    <v-icon v-else icon="mdi-account" color="white"></v-icon>
-                  </v-avatar>
-                  <div>
-                    <div class="text-subtitle-1 font-weight-medium">{{ order.userId.name }}</div>
-                    <div class="text-caption">{{ order.userId.phone }}</div>
+    <template v-else>
+      <v-row>
+        <v-col cols="12" v-for="order in paginatedOrders" :key="order._id">
+          <v-card class="order-card mb-2" elevation="3">
+            <v-card-text>
+              <v-row align="center" no-gutters>
+                <!-- ข้อมูลลูกค้า -->
+                <v-col cols="12" sm="4" md="3" class="pa-2">
+                  <div class="d-flex align-center">
+                    <v-avatar color="primary" size="40" class="mr-3 elevation-1">
+                      <v-img v-if="order.userId.avatar" :src="apiUrl + order.userId.avatar" :alt="order.userId.name">
+                        <template v-slot:placeholder>
+                          <v-icon icon="mdi-account" color="white"></v-icon>
+                        </template>
+                      </v-img>
+                      <v-icon v-else icon="mdi-account" color="white"></v-icon>
+                    </v-avatar>
+                    <div>
+                      <div class="text-subtitle-1 font-weight-medium">{{ order.userId.name }}</div>
+                      <div class="text-caption">{{ order.userId.phone }}</div>
+                    </div>
                   </div>
-                </div>
-              </v-col>
+                </v-col>
 
-              <!-- ข้อมูลการชำระเงิน -->
-              <v-col cols="12" sm="3" md="3" class="pa-2">
-                <v-chip :color="getStatusPaidColor(order.statusPaid)" small class="mr-2">
-                  {{ getStatusPaidText(order.statusPaid) }}
-                </v-chip>
-                <span class="font-weight-bold">{{ order.totalPrice }} บาท</span>
-              </v-col>
+                <!-- ข้อมูลการชำระเงิน -->
+                <v-col cols="12" sm="3" md="3" class="pa-2">
+                  <v-chip :color="getStatusPaidColor(order.statusPaid)" small class="mr-2">
+                    {{ getStatusPaidText(order.statusPaid) }}
+                  </v-chip>
+                  <span class="font-weight-bold">{{ order.totalPrice }} บาท</span>
+                </v-col>
 
-              <!-- ข้อมูลการจัดส่ง -->
-              <v-col cols="12" sm="3" md="3" class="pa-2">
-                <v-chip :color="getDeliverStatusColor(order.deliverStatus)" small class="mr-2">
-                  {{ getDeliverStatusText(order.deliverStatus) }}
-                </v-chip>
-                <span>{{ (order.distance / 1000).toFixed(2) }} กม.</span>
-              </v-col>
+                <!-- ข้อมูลการจัดส่ง -->
+                <v-col cols="12" sm="3" md="3" class="pa-2">
+                  <v-chip :color="getDeliverStatusColor(order.deliverStatus)" small class="mr-2">
+                    {{ getDeliverStatusText(order.deliverStatus) }}
+                  </v-chip>
+                  <span>{{ (order.distance / 1000).toFixed(2) }} กม.</span>
+                </v-col>
 
-              <!-- ปุ่มดำเนินการ -->
-              <v-col cols="12" sm="2" md="3" class="pa-2 text-right">
-                <v-btn color="primary" variant="tonal" @click="showOrderDetail(order)">
-                  <v-icon left>mdi-information-outline</v-icon>
-                  รายละเอียด
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+                <!-- ปุ่มดำเนินการ -->
+                <v-col cols="12" sm="2" md="3" class="pa-2 text-left">
+                  <v-btn color="primary" variant="tonal" @click="showOrderDetail(order)">
+                    <v-icon left>mdi-information-outline</v-icon>
+                    รายละเอียด
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
 
-    <!-- Pagination -->
-    <v-pagination v-model="currentPage" :length="totalPages" @update:model-value="updateFilteredOrders"></v-pagination>
+      <!-- Pagination -->
+      <v-pagination v-model="currentPage" :length="totalPages" @update:model-value="updateFilteredOrders"></v-pagination>
+    </template>
   </v-container>
 
   <DeliverDialog v-if="selectedOrder" v-model:showDialog="showDetailDialog" :selectedOrder="selectedOrder"
