@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import DeliverList from '@/views/pages/deliver/DeliverList.vue';
+import { VSkeletonLoader } from 'vuetify/components';
 
 const orders = ref([]);
 const loading = ref(false);
@@ -51,11 +52,9 @@ onMounted(fetchOrders);
       </v-col>
     </v-row>
     <v-card class="mt-5">
-      <v-row>
-        <v-col cols="12">
-          <DeliverList :orders="orders" :loading="loading" @refresh="fetchOrders" />
-        </v-col>
-      </v-row>
+      <v-card-text>
+        <DeliverList :orders="orders" :loading="loading" @refresh="fetchOrders" />
+      </v-card-text>
     </v-card>
   </v-container>
 </template>
