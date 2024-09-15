@@ -34,7 +34,7 @@ const handleAddToCart = () => {
   <v-dialog v-model="props.lookingOrdering" max-width="500" persistent>
     <v-card class="text-center">
       <v-card-title>
-        <h1>สั่งซื้อ : {{ props.lookingProduct.name }}</h1>
+        <h3>สั่งซื้อ : {{ props.lookingProduct.name }}</h3>
       </v-card-title>
       <v-img :src="VITE_API_URL + props.lookingProduct.imagePath" :alt="props.lookingProduct.name" class="mb-4" height="200" max-width="100%"></v-img>
       <v-row class="pt-3 text-center align-content-center justify-center">
