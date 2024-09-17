@@ -123,6 +123,11 @@ onMounted(() => {
   checkJwtToken()
 })
 
+// เพิ่มฟังก์ชันสำหรับล็อกอินด้วย Line
+const loginWithLine = () => {
+  window.location.href = 'https://backend.nattapad.me/line/login';
+};
+
 </script>
 
 <template>
@@ -185,6 +190,19 @@ onMounted(() => {
               <RouterLink class="text-primary ms-2" to="/register">
                 สร้างบัญชี
               </RouterLink>
+            </VCol>
+
+            <!-- เพิ่มปุ่มล็อกอินด้วย Line -->
+            <VCol cols="12" class="text-center">
+              <VBtn
+                block
+                color="success"
+                @click="loginWithLine"
+                class="mt-2"
+              >
+                <i class="bx bxl-line me-2"></i>
+                เข้าสู่ระบบด้วย Line
+              </VBtn>
             </VCol>
           </VRow>
         </VForm>
