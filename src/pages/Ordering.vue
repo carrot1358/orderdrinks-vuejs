@@ -82,36 +82,56 @@ const closeCart = () => {
 };
 
 const checkUserAddress = async () => {
-  try {
-    const response = await axios.get(`${User_ENDPOINTS.getProfile}`, {
-      headers: {
-        'Authorization': `Bearer ${jwtToken}`
-      }
-    });
-    userProfile.value = response.data.data;
-    console.log(userProfile.value);
-    console.log('userProfile.value.lat', userProfile.value.lat);
-    console.log('userProfile.value.lng', userProfile.value.lng);
-    console.log('userProfile.value.address', userProfile.value.address);
-    console.log('userProfile.value.phone', userProfile.value.phone);
-    console.log('userProfile.value.lineAvatar', userProfile.value.lineAvatar);
 
-
-    if (!userProfile.value.lat || !userProfile.value.lng || !userProfile.value.address || userProfile.value.phone === "ยังไม่ได้ระบุ") {
-      await nextTick();
-      showAddressDialog.value = true;
-      console.log("Setting showAddressDialog to true", showAddressDialog.value);
-    }
-
-    console.log("showAddressDialog", showAddressDialog.value);
-
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
+  if (!userInfo.userId || !jwtToken) {
     Swal.fire({
       icon: 'error',
       title: 'เกิดข้อผิดพลาด',
-      text: 'ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง',
+      text: 'คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน',
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'เข้าสู่ระบบ',
+      cancelButtonText: 'ฉันจะเข้าสู่ระบบภายหลัง',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '/login';
+      }
     });
+    return;
+  } else {
+
+
+    try {
+      const response = await axios.get(`${User_ENDPOINTS.getProfile}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`
+        }
+      });
+      userProfile.value = response.data.data;
+      console.log(userProfile.value);
+      console.log('userProfile.value.lat', userProfile.value.lat);
+      console.log('userProfile.value.lng', userProfile.value.lng);
+      console.log('userProfile.value.address', userProfile.value.address);
+      console.log('userProfile.value.phone', userProfile.value.phone);
+      console.log('userProfile.value.lineAvatar', userProfile.value.lineAvatar);
+
+
+      if (!userProfile.value.lat || !userProfile.value.lng || !userProfile.value.address || userProfile.value.phone === "ยังไม่ได้ระบุ") {
+        await nextTick();
+        showAddressDialog.value = true;
+        console.log("Setting showAddressDialog to true", showAddressDialog.value);
+      }
+
+      console.log("showAddressDialog", showAddressDialog.value);
+
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: error.response.data.message,
+      });
+    }
   }
 };
 
@@ -210,12 +230,7 @@ console.log('All env variables:', import.meta.env);
     <VRow class="align-content-center justify-center">
       <template v-if="isLoading">
         <VCol v-for="n in 8" :key="n">
-          <v-skeleton-loader
-            class="ma-1 pa-3"
-            type="card"
-            width="200"
-            height="300"
-          ></v-skeleton-loader>
+          <v-skeleton-loader class="ma-1 pa-3" type="card" width="200" height="300"></v-skeleton-loader>
         </VCol>
       </template>
       <template v-else>
@@ -223,14 +238,8 @@ console.log('All env variables:', import.meta.env);
           <VCol>
             <VCard class="ma-1 pa-3">
               <VCardTitle>{{ product.name }}</VCardTitle>
-              <VImg
-                :src="VITE_API_URL + product.imagePath"
-                :alt="product.name"
-                min-width="200"
-                min-height="200"
-                contain
-                class="rounded mb-1"
-              ></VImg>
+              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" min-width="200" min-height="200" contain
+                class="rounded mb-1"></VImg>
               <VBtn color="primary" @click="clickOrder(product)">สั่ง</VBtn>
             </VCard>
           </VCol>
