@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 
@@ -36,8 +36,10 @@ const updateUser = async () => {
         const formData = new FormData();
         Object.keys(editingUser.value).forEach(key => {
             if (editingUser.value[key] !== null && editingUser.value[key] !== undefined) {
-                if (key === 'avatar' && editingUser.value[key] instanceof File) {
-                    formData.append('avatar', editingUser.value[key]);
+                if (key === 'avatar') {
+                    if (editingUser.value[key] instanceof File) {
+                        formData.append('avatar', editingUser.value[key]);
+                    }
                 } else {
                     formData.append(key, editingUser.value[key]);
                 }
@@ -82,6 +84,18 @@ const updateUser = async () => {
         props.onClose();
     }
 };
+
+const updateIsAdmin = (newRole) => {
+    if (newRole === 'admin') {
+        editingUser.value.isAdmin = true;
+    }
+};
+
+watch(() => editingUser.value.role, (newRole) => {
+    if (newRole === 'admin') {
+        editingUser.value.isAdmin = true;
+    }
+});
 </script>
 
 <template>
@@ -94,19 +108,17 @@ const updateUser = async () => {
                     <v-icon v-else size="150" color="grey lighten-1">mdi-account-circle</v-icon>
                 </v-avatar>
 
-                <v-file-input label="รูปโปรไฟล์" @change="handleFileChange" accept="image/*"
+                <v-file-input class="mb-2" label="รูปโปรไฟล์" @change="handleFileChange" accept="image/*"
                     prepend-icon="mdi-camera"></v-file-input>
 
-                <v-text-field v-model="editingUser.name" label="ชื่อ" required></v-text-field>
-                <v-text-field v-model="editingUser.email" label="อีเมล" required></v-text-field>
-                <v-text-field v-model="editingUser.phone" label="เบอร์โทร" required></v-text-field>
-                <v-text-field v-model="editingUser.address" label="ที่อยู่"></v-text-field>
-                <v-text-field v-model="editingUser.password" label="รหัสผ่าน" type="password"></v-text-field>
-                <v-select v-model="editingUser.role" :items="['admin', 'driver', 'manager', 'user']" label="บทบาท"
-                    required></v-select>
-                <v-checkbox v-model="editingUser.isAdmin" label="เป็นผู้ดูแลระบบ"></v-checkbox>
-                <v-text-field v-model="editingUser.lng" label="ลองจิจูด"></v-text-field>
-                <v-text-field v-model="editingUser.lat" label="ละติจูด"></v-text-field>
+                <v-text-field class="mb-2" v-model="editingUser.name" label="ชื่อ" required></v-text-field>
+                <v-text-field class="mb-2" v-model="editingUser.phone" label="เบอร์โทร" required></v-text-field>
+                <v-text-field class="mb-2" v-model="editingUser.address" label="ที่อยู่"></v-text-field>
+                <v-text-field class="mb-2" v-model="editingUser.password" label="รหัสผ่าน" type="password"></v-text-field>
+                <v-select class="mb-2" v-model="editingUser.role" :items="['admin', 'driver', 'manager', 'user']" label="บทบาท"
+                    required @update:model-value="updateIsAdmin"></v-select>
+                <v-text-field class="mb-2" v-model="editingUser.lng" label="ลองจิจูด"></v-text-field>
+                <v-text-field class="mb-2" v-model="editingUser.lat" label="ละติจูด"></v-text-field>
             </v-form>
         </v-card-text>
         <v-card-actions>
