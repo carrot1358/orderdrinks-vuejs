@@ -1,10 +1,10 @@
 # ส่วนประกอบของโครงการ
 
-### Git FrontEnd VueJS : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs) (คุณอยู่ที่นี่)
+### Git FrontEnd VueJS : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs) [Github](https://github.com/carrot1358/orderdrinks-vuejs) (คุณอยู่ที่นี่)
 
-### Git BackEnd Elysia : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia)
+### Git BackEnd Elysia : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia) [Github](https://github.com/carrot1358/orderdrinks-elysia)
 
-### Git สำหรับ Hardware(Raspberry Pi) : [คลิก](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git) 
+### Git สำหรับ Hardware(Raspberry Pi) : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git) 
 
 # วิธีการติดตั้งและรันโปรแกรม
 
