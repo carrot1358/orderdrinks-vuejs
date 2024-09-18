@@ -10,6 +10,7 @@ import { useOrderStore } from '@/stores/orderStore';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import 'animate.css';
 
 const productStore = useProductStore();
 const paymentStore = usePaymentStore();
@@ -211,52 +212,82 @@ watch(showAddressDialog, (newValue) => {
 });
 
 console.log('All env variables:', import.meta.env);
+
+const cartItemCount = computed(() => orderStore.cartList.length);
+
+const isPulsing = ref(false);
+
+const startPulse = () => {
+  isPulsing.value = true;
+};
+
 </script>
 
 <template>
-  <OrderDialog :lookingOrdering="lookingOrdering" :lookingProduct="lookingProduct" :addToCart="addToCart"
-    :closeDialog="closeDialog" />
+  
+    <OrderDialog :lookingOrdering="lookingOrdering" :lookingProduct="lookingProduct" :addToCart="addToCart"
+      :closeDialog="closeDialog" />
 
-  <CartBottomSheet :cartVisible="cartVisible" :closeCart="closeCart" :totalPrice="totalPrice"
-    :removeFromCart="removeFromCart" />
+    <CartBottomSheet :cartVisible="cartVisible" :closeCart="closeCart" :totalPrice="totalPrice"
+      :removeFromCart="removeFromCart" />
 
-  <IfNonAddress v-if="showAddressDialog" v-model="showAddressDialog" :userProfile="userProfile"
-    @update-user-info="updateUserInfo" />
+    <IfNonAddress v-if="showAddressDialog" v-model="showAddressDialog" :userProfile="userProfile"
+      @update-user-info="updateUserInfo" />
 
-  <VCard class="align-content-center justify-center text-center pa-2 pb-8 center">
-    <VCardTitle>
-      <h1>สั่งซื้อสินค้า</h1>
-    </VCardTitle>
-    <VRow class="align-content-center justify-center">
-      <template v-if="isLoading">
-        <VCol v-for="n in 8" :key="n">
-          <v-skeleton-loader class="ma-1 pa-3" type="card" width="200" height="300"></v-skeleton-loader>
-        </VCol>
-      </template>
-      <template v-else>
-        <div v-for="(product, index) in productStore.products" :key="index">
-          <VCol>
-            <VCard class="ma-1 pa-3">
-              <VCardTitle>{{ product.name }}</VCardTitle>
-              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" min-width="200" min-height="200" contain
-                class="rounded mb-1"></VImg>
-              <VBtn color="primary" @click="clickOrder(product)">สั่ง</VBtn>
-            </VCard>
+    <VCard class="align-content-center justify-center text-center pa-2 pb-8 center">
+      <VCardTitle>
+        <h1>สั่งซื้อสินค้า</h1>
+      </VCardTitle>
+      <VRow class="align-content-center justify-center">
+        <template v-if="isLoading">
+          <VCol v-for="n in 8" :key="n">
+            <v-skeleton-loader class="ma-1 pa-3" type="card" width="200" height="300"></v-skeleton-loader>
           </VCol>
-        </div>
-      </template>
-    </VRow>
-    <VRow v-if="isProductsEmpty">
-      <v-col cols="12" class="text-center">
-        <Vue3Lottie :animationData="animationData" :height="400" :width="400" />
-        <h2 class="mt-4">ไม่มีสินค้าในขณะนี้</h2>
-      </v-col>
-    </VRow>
-  </VCard>
-
-  <v-btn icon large class="cart-button" @click="cartVisible = true" v-if="buttonCartVisible">
-    <v-icon>mdi-cart</v-icon>
-  </v-btn>
+        </template>
+        <template v-else>
+          <div v-for="(product, index) in productStore.products" :key="index">
+            <VCol>
+              <VCard class="ma-1 pa-3">
+                <VCardTitle>{{ product.name }}</VCardTitle>
+                <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" min-width="200" min-height="200" contain
+                  class="rounded mb-1"></VImg>
+                <VBtn color="primary" @click="clickOrder(product)">สั่ง</VBtn>
+              </VCard>
+            </VCol>
+          </div>
+        </template>
+      </VRow>
+      <VRow v-if="isProductsEmpty">
+        <v-col cols="12" class="text-center">
+          <Vue3Lottie :animationData="animationData" :height="400" :width="400" />
+          <h2 class="mt-4">ไม่มีสินค้าในขณะนี้</h2>
+        </v-col>
+      </VRow>
+    </VCard>
+    <Transition
+    name="custom-animation"
+    enter-active-class="animate__animated animate__bounceInRight"
+    leave-active-class="animate__animated animate__bounceOutRight"
+    @after-enter="startPulse"
+  >
+    <v-btn
+      icon
+      large
+      class="cart-button"
+      @click="cartVisible = true"
+      v-if="buttonCartVisible"
+      :class="{ 'cart-button-visible': cartVisible, 'animate__animated animate__pulse animate__infinite': isPulsing }"
+    >
+      <v-icon>mdi-cart</v-icon>
+      <v-badge
+        :content="cartItemCount"
+        color="error"
+        floating
+        offset-x="0"
+        offset-y="-15"
+      ></v-badge>
+    </v-btn>
+  </Transition>
 </template>
 
 <style scoped>
@@ -265,5 +296,28 @@ console.log('All env variables:', import.meta.env);
   bottom: 20px;
   right: 20px;
   z-index: 1000;
+  transition: transform 0.3s ease-in-out;
+}
+
+.cart-button-visible {
+  transform: scale(1.1);
+}
+
+/* ปรับแต่ง badge */
+:deep(.v-badge__badge) {
+  font-size: 12px;
+  padding: 3px;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+/* ปรับความเร็วของ animation ถ้าต้องการ */
+.animate__bounceInRight,
+.animate__bounceOutRight {
+  --animate-duration: 0.5s;
+}
+
+.animate__pulse {
+  --animate-duration: 2s;
 }
 </style>
