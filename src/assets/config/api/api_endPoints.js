@@ -42,3 +42,12 @@ export const Notification_ENDPOINTS = {
   getNotifications: backend_url+"/api/v1/notifications/", // GET
   updateNotification: backend_url+"/api/v1/notifications/", // PUT
 }
+
+export const FactoryMaintenance_ENDPOINTS = {
+  addFilterRefill: backend_url+"/api/v1/filter-reports/refill", // POST auth admin
+  getFilterRefills: backend_url+"/api/v1/filter-reports/refill", // GET auth admin
+  addFilterChange: backend_url+"/api/v1/filter-reports/change", // POST auth admin
+  getFilterChanges: backend_url+"/api/v1/filter-reports/change", // GET auth admin
+  addFilterCleaning: backend_url+"/api/v1/filter-reports/cleaning", // POST auth admin
+  getFilterCleanings: backend_url+"/api/v1/filter-reports/cleaning", // GET auth admin
+}
