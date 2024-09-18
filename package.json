@@ -22,6 +22,7 @@
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^10.1.2",
     "@vueuse/math": "^10.1.2",
+    "animate.css": "^4.1.1",
     "apexcharts-clevision": "^3.28.5",
     "axios": "1.4.0",
     "axios-mock-adapter": "^1.21.4",
