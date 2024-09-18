@@ -19,8 +19,8 @@ const jwtToken = localStorage.getItem("jwtToken")
 const userinfo = ref(
     JSON.parse(
         localStorage.getItem("userinfo") ||
-            sessionStorage.getItem("userinfo") ||
-            "{}"
+        sessionStorage.getItem("userinfo") ||
+        "{}"
     )
 );
 
@@ -82,20 +82,13 @@ const isUser = computed(() => {
         <template #navbar="{ toggleVerticalOverlayNavActive }">
             <div class="d-flex h-100 align-center">
                 <!-- 👉 Vertical nav toggle in overlay mode -->
-                <IconBtn
-                    class="ms-n3 d-lg-none"
-                    @click="toggleVerticalOverlayNavActive(true)"
-                >
+                <IconBtn class="ms-n3 d-lg-none" @click="toggleVerticalOverlayNavActive(true)">
                     <VIcon icon="bx-menu" />
                 </IconBtn>
                 <VSpacer />
 
-                <IconBtn
-                    class="me-2"
-                    href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
+                <IconBtn class="me-2" href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
+                    target="_blank" rel="noopener noreferrer">
                     <VIcon icon="bxl-github" />
                 </IconBtn>
 
@@ -109,12 +102,7 @@ const isUser = computed(() => {
                 </div>
                 <div v-else>
                     <RouterLink to="/login">
-                        <VBtn
-                            class="text-capitalize"
-                            color="primary"
-                            size="small"
-                            outlined
-                        >
+                        <VBtn class="text-capitalize" color="primary" size="small" outlined>
                             <VIcon icon="bx-log-in" />
                             Login
                         </VBtn>
@@ -124,107 +112,71 @@ const isUser = computed(() => {
         </template>
 
         <template #vertical-nav-content>
-            <VerticalNavLink
-                :item="{
-                    title: 'สั่งซื้อสินค้า',
-                    icon: 'bx-cart',
-                    to: '/Ordering',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isUser || isEmployee || isAdmin"
-                :item="{
-                    title: 'ประวัติการสั่งซื้อ',
-                    icon: 'bx-history',
-                    to: '/history',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isLogin"
-                :item="{
-                    title: 'ตั้งค่าบัญชี',
-                    icon: 'mdi-account-cog-outline',
-                    to: '/account-settings',
-                }"
-            />
+            <VerticalNavLink :item="{
+                title: 'สั่งซื้อสินค้า',
+                icon: 'bx-cart',
+                to: '/Ordering',
+            }" />
+            <VerticalNavLink v-if="isUser || isEmployee || isAdmin" :item="{
+                title: 'ประวัติการสั่งซื้อ',
+                icon: 'bx-history',
+                to: '/history',
+            }" />
+            <VerticalNavLink v-if="isLogin" :item="{
+                title: 'ตั้งค่าบัญชี',
+                icon: 'mdi-account-cog-outline',
+                to: '/account-settings',
+            }" />
+            <VerticalNavSectionTitle v-if="isAdmin" :item="{
+                heading: 'ผู้ดูแลระบบ',
+            }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'รายการคำสั่งซื้อ',
+                icon: 'bx-list-ul',
+                to: '/OrderList',
+            }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'จัดการสินค้า',
+                icon: 'bx-package',
+                to: '/product-manage',
+            }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'จัดการผู้ใช้',
+                icon: 'bx-user',
+                to: '/user-manage',
+            }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'จัดการการชำระเงิน',
+                icon: 'bx-credit-card',
+                to: '/payment-manage',
+            }" />
 
-            <VerticalNavSectionTitle
-                v-if="isAdmin"
-                :item="{
-                    heading: 'ผู้ดูแลระบบ',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isAdmin"
-                :item="{
-                    title: 'รายการคำสั่งซื้อ',
-                    icon: 'bx-list-ul',
-                    to: '/OrderList',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isAdmin"
-                :item="{
-                    title: 'จัดการสินค้า',
-                    icon: 'bx-package',
-                    to: '/product-manage',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isAdmin"
-                :item="{
-                    title: 'จัดการผู้ใช้',
-                    icon: 'bx-user',
-                    to: '/user-manage',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isAdmin"
-                :item="{
-                    title: 'จัดการการชำระเงิน',
-                    icon: 'bx-credit-card',
-                    to: '/payment-manage',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isAdmin"
-                :item="{
-                    title: 'การบำรุงรักษาโรงงาน',
-                    icon: 'bx:bxs-report',
-                    to: '/FactoryMaintenace',
-                }"
-            />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'การบำรุงรักษาโรงงาน',
+                icon: 'bx:bxs-report',
+                to: '/FactoryMaintenace',
+            }" />
 
-            <VerticalNavSectionTitle
-                v-if="isDriver"
-                :item="{
-                    heading: 'คนขับรถ',
-                }"
-            />
-            <VerticalNavLink
-                v-if="isDriver"
-                :item="{
-                    title: 'จัดการส่งสินค้า',
-                    icon: 'bx-send',
-                    to: '/deliver',
-                }"
-            />
+            <VerticalNavSectionTitle v-if="isDriver" :item="{
+                heading: 'คนขับรถ',
+            }" />
+            <VerticalNavLink v-if="isDriver" :item="{
+                title: 'จัดการส่งสินค้า',
+                icon: 'bx-send',
+                to: '/deliver',
+            }" />
 
-            
+
 
             <!-- 👉 Pages -->
-            <VerticalNavSectionTitle
-                :item="{
-                    heading: 'Pages',
-                }"
-            />
-            <VerticalNavLink
-                :item="{
-                    title: 'เกี่ยวกับเรา',
-                    icon: 'mdi-account',
-                    to: '/about-me',
-                }"
-            />
+            <VerticalNavSectionTitle :item="{
+                heading: 'Pages',
+            }" />
+            <VerticalNavLink :item="{
+                title: 'เกี่ยวกับเรา',
+                icon: 'mdi-account',
+                to: '/about-me',
+            }" />
 
             <!--       👉 User Interface
             <VerticalNavSectionTitle
