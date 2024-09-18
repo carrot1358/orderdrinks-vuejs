@@ -63,7 +63,11 @@ const updateUserInfo = async () => {
     const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
     const isAdmin = userInfo.isAdmin;
 
-    let updatedData = { ...localUserData.value };
+    let updatedData = { 
+        name: localUserData.value.name,
+        phone: localUserData.value.phone,
+        ...localUserData.value 
+    };
     
     if (!isAdmin) {
         delete updatedData.isAdmin;
