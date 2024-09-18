@@ -69,6 +69,10 @@ const router = createRouter({
           path: 'user-manage',
           component: () => import('../pages/UserManage.vue'),
         },
+        {
+          path: 'FactoryMaintenace',
+          component: () => import('../pages/FactoryMaintenace.vue'),
+        },
       ],
     },
     {
