@@ -6,6 +6,7 @@ import AccountSettingsNotification from '@/views/pages/account-settings/AccountS
 import AccountSettingsSecurity from '@/views/pages/account-settings/AccountSettingsSecurity.vue'
 import axios from 'axios'
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const activeTab = ref(route.params.tab || 'account')
@@ -41,8 +42,26 @@ const updateUserProfile = async (updatedData) => {
         'Authorization': `Bearer ${jwtToken}`,
         'Content-Type': 'multipart/form-data'
       }
+    }).then((response) => {
+      if(response.status === 200){
+        fetchUserProfile()
+        Swal.fire({
+          title: 'อัปเดตข้อมูลผู้ใช้สำเร็จ',
+          icon: 'success',
+          showConfirmButton: false,
+          timer: 1500
+        })
+      }
+    }).catch((error) => {
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ใช้',
+        text: error.response.data.message,
+        icon: 'error',
+        showConfirmButton: false,
+        timer: 1500
+      })
     })
-    await fetchUserProfile()
+    
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการอัปเดตข้อมูลผู้ใช้:', error)
   }
