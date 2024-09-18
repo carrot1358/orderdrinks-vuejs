@@ -71,7 +71,7 @@ function loadMap(map) {
   map.Layers.setBase(longdo.Layers.NORMAL);
   map.location({ lon: userDetail.value.lng, lat: userDetail.value.lat }, true);
   updateMarker({ lon: userDetail.value.lng, lat: userDetail.value.lat });
-  map.Event.bind('click', function(mouse) {
+  map.Event.bind('click', function (mouse) {
     const location = map.location(mouse);
     updateMarker(location);
     updateCoordinates(location);
@@ -164,16 +164,78 @@ async function updateUserInfo() {
   }
 }
 
+const placeOrderCash = async () => {
+  const orderPlaced = await placeOrder();
+  if (orderPlaced) {
+    await $swal.fire({
+      title: 'สั่งซื้อสำเร็จ',
+      text: 'ขอบคุณสำหรับการสั่งซื้อ คุณสามารถชำระเงินปลายทางได้',
+      icon: 'success',
+      confirmButtonText: 'ตกลง',
+      timer: 2000,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      customClass: {
+        container: 'swal-on-top'
+      }
+    });
+    closeDetailDeliver();
+  }
+};
+
 const placeOrder = async () => {
+  // สร้างข้อความสรุปรายการสั่งซื้อ
+  const orderSummary = orderStore.cartList.map(item =>
+    `<tr>
+      <td>${item.name}</td>
+      <td>${item.quantity}</td>
+      <td>${item.price.toLocaleString()} บาท</td>
+      <td>${(item.price * item.quantity).toLocaleString()} บาท</td>
+    </tr>`
+  ).join('');
+
+  // คำนวณราคารวม
+  const totalPrice = orderStore.cartList.reduce((total, item) => total + (item.price * item.quantity), 0);
+
   const result = await $swal.fire({
-    title: 'ยืนยันสร้างคำสั่งซื้อ',
-    text: 'คุณต้องการสร้างคำสั่งซื้อหรือไม่?',
-    icon: 'warning',
+    title: 'ยืนยันคำสั่งซื้อ',
+    html: `
+      <div style="text-align: left; font-family: 'Kanit', sans-serif;">
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+          <h3 style="color: #4a4a4a; margin-bottom: 10px;">ข้อมูลการจัดส่ง</h3>
+          <p><strong>ชื่อ:</strong> ${userDetail.value.name}</p>
+          <p><strong>ที่อยู่:</strong> ${userAddress.value}</p>
+          <p><strong>เบอร์โทร:</strong> ${userDetail.value.phone}</p>
+        </div>
+        <h3 style="color: #4a4a4a; margin-bottom: 10px;">รายการสั่งซื้อ</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="background-color: #4a4a4a; color: white;">
+              <th style="padding: 10px; text-align: left;">สินค้า</th>
+              <th style="padding: 10px; text-align: center;">จำนวน</th>
+              <th style="padding: 10px; text-align: right;">ราคาต่อชิ้น</th>
+              <th style="padding: 10px; text-align: right;">ราคารวม</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${orderSummary}
+          </tbody>
+          <tfoot>
+            <tr style="background-color: #f5f5f5; font-weight: bold;">
+              <td colspan="3" style="padding: 10px; text-align: right;">ราคารวมทั้งสิ้น:</td>
+              <td style="padding: 10px; text-align: right;">${totalPrice.toLocaleString()} บาท</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    `,
+    icon: 'info',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
     cancelButtonColor: '#d33',
-    confirmButtonText: 'ยืนยัน',
+    confirmButtonText: 'ยืนยันคำสั่งซื้อ',
     cancelButtonText: 'ยกเลิก',
+    width: '600px',
     target: document.body,
     customClass: {
       container: 'swal-on-top'
@@ -188,17 +250,30 @@ const placeOrder = async () => {
       productId: product.productId,
       quantity: product.quantity
     })));
-    await orderStore.placeOrder({
-      products: formattedProducts,
-      methodPaid: payment.value,
-    }).then((response) => {
+    try {
+      const response = await orderStore.placeOrder({
+        products: formattedProducts,
+        methodPaid: payment.value,
+      });
       orderId.value = response.orderId;
       console.log("orderId", orderId.value);
       activeStep.value++;
-    }).catch((error) => {
+      return true; // คืนค่า true เมื่อการสั่งซื้อสำเร็จ
+    } catch (error) {
       console.log("error", error);
-    });
+      await $swal.fire({
+        title: 'เกิดข้อผิดพลาด',
+        text: 'ไม่สามารถดำเนินการสั่งซื้อได้ กรุณาลองใหม่อีกครั้ง',
+        icon: 'error',
+        confirmButtonText: 'ตกลง',
+        customClass: {
+          container: 'swal-on-top'
+        }
+      });
+      return false; // คืนค่า false เมื่อเกิดข้อผิดพลาด
+    }
   }
+  return false; // คืนค่า false ถ้าผู้ใช้ยกเลิกการยืนยัน
 };
 
 const handleFileChange = async () => {
@@ -299,7 +374,8 @@ watch(() => props.qrCodePayment, (newValue) => {
                 <v-row>
                   <v-col cols="12">
                     <v-card outlined>
-                      <longdo-map @load="loadMap" :zoom="zoom" ref="mapInstance" style="width: 100%; height: 300px;"></longdo-map>
+                      <longdo-map @load="loadMap" :zoom="zoom" ref="mapInstance"
+                        style="width: 100%; height: 300px;"></longdo-map>
                       <v-card-actions>
                         <v-btn @click="markCurrentLocation" color="primary" text>
                           <v-icon left>mdi-map-marker</v-icon>
@@ -395,14 +471,21 @@ watch(() => props.qrCodePayment, (newValue) => {
             <div class="d-flex justify-space-between w-100">
               <v-btn v-if="activeStep === 1" @click="closeDetailDeliver" class="mr-auto" color="error">ยกเลิก</v-btn>
               <v-btn v-else-if="activeStep > 1 && activeStep < 3" @click="activeStep--" class="mr-auto">ย้อนกลับ</v-btn>
-              <v-btn v-if="activeStep === 3" @click="closeDetailDeliver" class="mr-auto"
-                color="error">จ่ายภายหลัง</v-btn>
+
+
               <v-btn v-if="activeStep === 2 && payment === 'โอนเงิน (QR พร้อมเพย์)'" @click="placeOrder"
                 class="ml-auto">ชำระเงิน</v-btn>
+              <v-btn color="success" v-if="activeStep === 2 && payment === 'เงินสด (ปลายทาง)'"
+                @click="placeOrderCash" class="ml-auto">จ่ายสด</v-btn>
               <v-btn v-if="activeStep < 2" @click="updateUserInfo" class="ml-auto">ถัดไป</v-btn>
+
+              <v-btn v-if="activeStep === 3" @click="closeDetailDeliver" class="mr-auto"
+                color="error">จ่ายภายหลัง</v-btn>
               <v-btn color="success" v-if="activeStep === 3" :disabled="isDisabledDoneButton"
                 prepend-icon="mdi-check-circle" class="ml-auto" @click="closeDetailDeliver">เสร็จ
               </v-btn>
+              
+
             </div>
           </template>
 
@@ -414,6 +497,8 @@ watch(() => props.qrCodePayment, (newValue) => {
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap');
+
 .swal-on-top {
   z-index: 9999 !important;
 }
@@ -426,6 +511,7 @@ watch(() => props.qrCodePayment, (newValue) => {
 
 .swal2-popup {
   margin: auto !important;
+  font-family: 'Kanit', sans-serif;
 }
 
 .payment-details-card {
