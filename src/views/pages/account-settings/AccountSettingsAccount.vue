@@ -32,18 +32,18 @@ const updateProfile = async () => {
         Object.keys(localUserProfile.value).forEach((key) => {
             if (
                 localUserProfile.value[key] !== null &&
-                localUserProfile.value[key] !== undefined
+                localUserProfile.value[key] !== undefined &&
+                key !== "avatar"
             ) {
-                if (
-                    key === "avatar" &&
-                    localUserProfile.value[key] instanceof File
-                ) {
-                    formData.append("avatar", localUserProfile.value[key]);
-                } else {
-                    formData.append(key, localUserProfile.value[key]);
-                }
+                formData.append(key, localUserProfile.value[key]);
             }
         });
+
+        // เพิ่ม avatar เฉพาะเมื่อมีการอัปเดต
+        if (localUserProfile.value.avatar instanceof File) {
+            formData.append("avatar", localUserProfile.value.avatar);
+        }
+
         emit("update-profile", formData);
     } finally {
         loading.value = false;
@@ -69,17 +69,17 @@ const getAvatarUrl = () => {
     <VForm @submit.prevent="updateProfile">
         <VRow justify="center">
             <VCol justify="center" cols="12" md="4" class="text-center">
-              <div class="d-flex justify-center">
-              <VAvatar size="250" class="mb-4">
-                    <VImg
-                        v-if="getAvatarUrl()"
-                        :src="getAvatarUrl()"
-                        alt="Avatar"
-                        max-width="100%"
-                    />
-                    <VIcon v-else size="150" icon="mdi-account-circle" />
-                </VAvatar>
-              </div>
+                <div class="d-flex justify-center">
+                    <VAvatar size="250" class="mb-4">
+                        <VImg
+                            v-if="getAvatarUrl()"
+                            :src="getAvatarUrl()"
+                            alt="Avatar"
+                            max-width="100%"
+                        />
+                        <VIcon v-else size="150" icon="mdi-account-circle" />
+                    </VAvatar>
+                </div>
                 <VFileInput
                     class="mt-4"
                     label="อัปโหลดรูปโปรไฟล์"
@@ -89,7 +89,11 @@ const getAvatarUrl = () => {
                 />
             </VCol>
             <VCol cols="12" md="8">
-                <VTextField class="mb-4" v-model="localUserProfile.name" label="ชื่อ" />
+                <VTextField
+                    class="mb-4"
+                    v-model="localUserProfile.name"
+                    label="ชื่อ"
+                />
                 <VTextField
                     class="mb-4"
                     v-model="localUserProfile.email"
@@ -119,7 +123,7 @@ const getAvatarUrl = () => {
                     <VCol cols="6">
                         <VTextField
                             class="mb-4"
-                        v-model="localUserProfile.lat"
+                            v-model="localUserProfile.lat"
                             label="ละติจูด"
                             type="number"
                             step="0.000001"
@@ -136,12 +140,12 @@ const getAvatarUrl = () => {
 
 <style scoped>
 .v-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .v-file-input {
-  width: 100%;
+    width: 100%;
 }
 </style>
