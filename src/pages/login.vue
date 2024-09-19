@@ -171,7 +171,7 @@ const loginWithLine = () => {
 
               <!-- remember me checkbox -->
               <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
-                <VCheckbox v-model="remember" label="จำฉัน" />
+                <!-- <VCheckbox v-model="remember" label="จำฉัน" /> -->
 
                 <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)">
                   ลืมรหัสผ่าน?
@@ -185,12 +185,12 @@ const loginWithLine = () => {
             </VCol>
 
             <!-- create account -->
-            <VCol cols="12" class="text-center text-base">
+            <!-- <VCol cols="12" class="text-center text-base">
               <span>ยังไม่มีบัญชีหรือเปล่า?</span>
               <RouterLink class="text-primary ms-2" to="/register">
                 สร้างบัญชี
               </RouterLink>
-            </VCol>
+            </VCol> -->
 
             <!-- เพิ่มปุ่มล็อกอินด้วย Line -->
             <VCol cols="12" class="text-center">
