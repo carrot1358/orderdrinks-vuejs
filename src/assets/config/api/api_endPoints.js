@@ -3,6 +3,7 @@ const backend_url = import.meta.env.VITE_API_URL
 export const User_ENDPOINTS = {
   createUser: backend_url+"/api/v1/users/", // POST
   loginUser: backend_url+"/api/v1/users/login", // POST
+  confirmExistedUser: backend_url+"/api/v1/users/confirm-existed-user", // POST
   getUsers: backend_url+"/api/v1/users/", // GET
   getUserById: backend_url+"/api/v1/users/", // GET :id
   getProfile: backend_url+"/api/v1/users/profile", // GET
