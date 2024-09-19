@@ -2,13 +2,15 @@
 import { ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import LocationPicker from '@/components/LocationPicker.vue';
 
 const props = defineProps({
     user: Object,
     jwtToken: String,
     onClose: Function,
     onUpdate: Function,
-    swal: Object,
+    isDriver: Boolean,
+    isAdmin: Boolean,
 });
 
 const editingUser = ref({ ...props.user });
@@ -56,7 +58,7 @@ const updateUser = async () => {
         });
 
         if (response.data && response.data.success) {
-            props.swal.fire({
+            swal.fire({
                 icon: 'success',
                 title: 'อัปเดตข้อมูลผู้ใช้สำเร็จ',
                 showConfirmButton: false,
@@ -73,7 +75,7 @@ const updateUser = async () => {
         }
     } catch (err) {
         console.error('Error updating user:', err);
-        props.swal.fire({
+        swal.fire({
             icon: 'error',
             title: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล',
             text: err.response?.data?.message || err.message || 'กรุณาลองใหม่อีกครั้ง',
@@ -90,6 +92,20 @@ const updateIsAdmin = (newRole) => {
         editingUser.value.isAdmin = true;
     }
 };
+
+const locationData = ref({
+    address: props.user.address || '',
+    lat: props.user.lat || '',
+    lng: props.user.lng || ''
+});
+
+watch(locationData, (newValue) => {
+    editingUser.value.address = newValue.address;
+    editingUser.value.lat = newValue.lat;
+    editingUser.value.lng = newValue.lng;
+}, { deep: true });
+
+// ลบฟังก์ชัน updateLocationData ออก เนื่องจากเราจะใช้ watch แทน
 
 watch(() => editingUser.value.role, (newRole) => {
     if (newRole === 'admin') {
@@ -108,17 +124,20 @@ watch(() => editingUser.value.role, (newRole) => {
                     <v-icon v-else size="150" color="grey lighten-1">mdi-account-circle</v-icon>
                 </v-avatar>
 
-                <v-file-input class="mb-2" label="รูปโปรไฟล์" @change="handleFileChange" accept="image/*"
-                    prepend-icon="mdi-camera"></v-file-input>
+                <v-file-input class="mb-2" prepend-icon="mdi-camera" label="รูปโปรไฟล์" @change="handleFileChange"
+                    accept="image/*"></v-file-input>
 
-                <v-text-field class="mb-2" v-model="editingUser.name" label="ชื่อ" required></v-text-field>
-                <v-text-field class="mb-2" v-model="editingUser.phone" label="เบอร์โทร" required></v-text-field>
-                <v-text-field class="mb-2" v-model="editingUser.address" label="ที่อยู่"></v-text-field>
-                <v-text-field class="mb-2" v-model="editingUser.password" label="รหัสผ่าน" type="password"></v-text-field>
-                <v-select class="mb-2" v-model="editingUser.role" :items="['admin', 'driver', 'manager', 'user']" label="บทบาท"
-                    required @update:model-value="updateIsAdmin"></v-select>
-                <v-text-field class="mb-2" v-model="editingUser.lng" label="ลองจิจูด"></v-text-field>
-                <v-text-field class="mb-2" v-model="editingUser.lat" label="ละติจูด"></v-text-field>
+                <v-text-field class="mb-2" prepend-icon="mdi-account" v-model="editingUser.name" label="ชื่อ"
+                    required></v-text-field>
+                <v-text-field class="mb-2" prepend-icon="mdi-phone" v-model="editingUser.phone" label="เบอร์โทร"
+                    required></v-text-field>
+                <v-text-field class="mb-2" prepend-icon="mdi-lock" v-model="editingUser.password" label="รหัสผ่าน"
+                    type="password"></v-text-field>
+                <v-select v-if="isAdmin" class="mb-2" v-model="editingUser.role"
+                    :items="['admin', 'driver', 'manager', 'user']" label="บทบาท" required
+                    @update:model-value="updateIsAdmin"></v-select>
+
+                <LocationPicker v-model="locationData" />
             </v-form>
         </v-card-text>
         <v-card-actions>
