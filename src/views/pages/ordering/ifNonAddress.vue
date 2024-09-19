@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { mdiAccount, mdiPhone, mdiHome, mdiCrosshairsGps, mdiLatitude, mdiLongitude, mdiContentSave } from '@mdi/js';
+import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 
 const props = defineProps({
     modelValue: Boolean,
@@ -8,6 +8,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'update-user-info']);
+const isShowMergeAccount = ref(false);
 
 const localUserData = ref({
     name: '',
@@ -21,6 +22,12 @@ const alert = ref({
     show: false,
     type: '',
     message: ''
+});
+
+const mergeAccount = ref({
+    phone: '',
+    passwordConfirmExisted: '',
+    lineId: props.userProfile.lineId,
 });
 
 // ใช้ watch เพื่อคอยดูการเปลี่ยนแปลงของ userProfile
@@ -45,6 +52,17 @@ const isFormValid = computed(() => {
         return typeof value === 'string' ? value.trim() !== '' : value !== '';
     });
 });
+
+
+const updateMergeAccount = async () => {
+    await axios.post(User_ENDPOINTS.confirmExistedUser, mergeAccount.value)
+    .then((res) => {
+        console.log(res)
+    })
+    .catch((err) => {
+        console.log(err)
+    })
+}
 
 const updateUserInfo = async () => {
     if (!isFormValid.value) {
@@ -156,6 +174,16 @@ function markCurrentLocation() {
     }
 }
 
+const showMergeAccount = () => {
+    isShowMergeAccount.value = true;
+
+}
+
+const closeMergeAccount = () => {
+    isShowMergeAccount.value = false;
+}
+
+
 watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, newLng]) => {
     if (newLat && newLng) {
         updateMap(parseFloat(newLat), parseFloat(newLng));
@@ -168,7 +196,8 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
         <v-card class="rounded-lg">
             <v-card-title class="headline bg-primary text-white pa-4">
                 <v-icon large left>mdi-account-edit</v-icon>
-                <span class="ml-2">ข้อมูลผู้ใช้</span>
+                <span class="ml-2">ข้อมูลผู้ใช้ <v-btn color="primary" @click="showMergeAccount" text>มีพนักงานสมัครให้แล้ว?</v-btn></span>
+                
             </v-card-title>
             
             <v-card-text class="pa-6">
@@ -265,6 +294,60 @@ watch([() => localUserData.value.lat, () => localUserData.value.lng], ([newLat, 
                     บันทึก
                 </v-btn>
             </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="isShowMergeAccount" persistent max-width="800px">
+        <v-card class="rounded-lg">
+            <v-card-title class="headline bg-primary text-white pa-4">
+                <v-icon large left>mdi-account-edit</v-icon>
+                <span class="ml-2">รวมข้อมูลผู้ใช้ </span>
+                
+            </v-card-title>
+            
+            <v-card-text class="pa-6">
+                
+                <v-form>
+                    <v-row>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
+                                v-model="mergeAccount.phone"
+                                label="เบอร์โทรศัพท์"
+                                prepend-icon="mdi-phone"
+                                outlined
+                                dense
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
+                                v-model="mergeAccount.passwordConfirmExisted"
+                                label="รหัสรวมข้อมูล"
+                                prepend-icon="mdi-lock"
+                                outlined
+                                dense
+                            ></v-text-field>
+                        </v-col>
+                    </v-row>
+                </v-form>
+                
+                
+            </v-card-text>
+            
+            <v-divider></v-divider>
+            
+            <v-card-actions class="pa-4">
+                <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    @click="updateMergeAccount"
+                    elevation="2"
+                >
+                    <v-icon left>mdi-content-save</v-icon>
+                    บันทึก
+                </v-btn>
+                <v-btn @click="closeMergeAccount" color="error" text>ยกเลิก</v-btn>
+            </v-card-actions>
+            
         </v-card>
     </v-dialog>
 </template>
