@@ -1,101 +1,78 @@
-import { createRouter, createWebHistory } from 'vue-router'
-
+import { createRouter, createWebHistory } from "vue-router";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', redirect: '/Ordering' },
+    { path: "/", redirect: "/Ordering" },
     {
-      path: '/',
-      component: () => import('../layouts/default.vue'),
+      path: "/",
+      component: () => import("../layouts/default.vue"),
       children: [
         {
-          path: 'dashboard',
-          component: () => import('../pages/dashboard.vue'),
+          path: "dashboard",
+          component: () => import("../pages/dashboard.vue"),
         },
         {
-          path: 'OrderList',
-          component: () => import('../pages/OrderList.vue'),
+          path: "OrderList",
+          component: () => import("../pages/OrderList.vue"),
         },
         {
-          path: 'Ordering',
-          component: () => import('../pages/Ordering.vue'),
+          path: "Ordering",
+          component: () => import("../pages/Ordering.vue"),
         },
         {
-          path: 'history',
-          component: () => import('../pages/history.vue'),
+          path: "history",
+          component: () => import("../pages/history.vue"),
         },
         {
-          path: 'account-settings',
-          component: () => import('../pages/account-settings.vue'),
+          path: "account-settings",
+          component: () => import("../pages/account-settings.vue"),
         },
         {
-          path: 'typography',
-          component: () => import('../pages/typography.vue'),
+          path: "about-me",
+          component: () => import("../pages/AboutMe.vue"),
         },
         {
-          path: 'icons',
-          component: () => import('../pages/icons.vue'),
+          path: "deliver",
+          component: () => import("../pages/Deliver.vue"),
         },
         {
-          path: 'cards',
-          component: () => import('../pages/cards.vue'),
+          path: "product-manage",
+          component: () => import("../pages/productManage.vue"),
         },
         {
-          path: 'tables',
-          component: () => import('../pages/tables.vue'),
+          path: "payment-manage",
+          component: () => import("../pages/paymentManage.vue"),
         },
         {
-          path: 'form-layouts',
-          component: () => import('../pages/form-layouts.vue'),
+          path: "user-manage",
+          component: () => import("../pages/UserManage.vue"),
         },
         {
-          path: 'about-me',
-          component: () => import('../pages/AboutMe.vue'),
-        },
-        {
-          path: 'deliver',
-          component: () => import('../pages/Deliver.vue'),
-        },
-        {
-          path: 'product-manage',
-          component: () => import('../pages/productManage.vue'),
-        },
-        {
-          path: 'payment-manage',
-          component: () => import('../pages/paymentManage.vue'),
-        },
-        {
-          path: 'user-manage',
-          component: () => import('../pages/UserManage.vue'),
-        },
-        {
-          path: 'FactoryMaintenace',
-          component: () => import('../pages/FactoryMaintenace.vue'),
+          path: "FactoryMaintenace",
+          component: () => import("../pages/FactoryMaintenace.vue"),
         },
       ],
     },
     {
-      path: '/',
-      component: () => import('../layouts/blank.vue'),
+      path: "/",
+      component: () => import("../layouts/blank.vue"),
       children: [
         {
-          path: 'login',
-          component: () => import('../pages/login.vue'),
+          path: "login",
+          component: () => import("../pages/login.vue"),
         },
         {
-          path: 'register',
-          component: () => import('../pages/register.vue'),
+          path: "register",
+          component: () => import("../pages/register.vue"),
         },
         {
-          path: '/:pathMatch(.*)*',
-          component: () => import('../pages/[...all].vue'),
+          path: "/:pathMatch(.*)*",
+          component: () => import("../pages/[...all].vue"),
         },
-        
       ],
     },
-    
   ],
-})
+});
 
-export default router
+export default router;
