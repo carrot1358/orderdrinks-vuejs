@@ -57,7 +57,11 @@ const isFormValid = computed(() => {
 
 
 const updateMergeAccount = async () => {
-    await axios.post(User_ENDPOINTS.confirmExistedUser, mergeAccount.value)
+    const formData = new FormData();
+    formData.append('phone', mergeAccount.value.phone);
+    formData.append('passwordConfirmExisted', mergeAccount.value.passwordConfirmExisted);
+    formData.append('lineId', props.userProfile.lineId);
+    await axios.post(User_ENDPOINTS.confirmExistedUser, formData)
     .then((res) => {
         if(res.status === 200){
             console.log(res.data)
