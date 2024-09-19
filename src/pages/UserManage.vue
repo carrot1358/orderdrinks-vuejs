@@ -17,6 +17,10 @@ const error = ref(null);
 const showEditDialog = ref(false);
 const showCreateDialog = ref(false);
 const selectedUser = ref(null);
+const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
+
+const isAdmin = computed(() => userInfo.isAdmin);
+const isDriver = computed(() => userInfo.role === 'driver');
 
 // เพิ่ม computed properties สำหรับ nameMatch และ phoneMatch
 const nameMatch = computed(() => {
@@ -97,8 +101,8 @@ const deleteUser = async (userId) => {
 };
 
 onMounted(async () => {
-    const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
-    if (!userInfo || !userInfo.isAdmin) {
+    
+    if (!userInfo || (!userInfo.isAdmin && !userInfo.role === 'driver')) {
         $swal.fire({
             icon: 'error',
             title: 'ไม่มีสิทธิ์เข้าถึง',
@@ -236,7 +240,7 @@ const getRoleIcon = (role) => {
                         <v-btn icon small @click="openEditDialog(user)" color="primary" class="mr-2">
                             <v-icon>mdi-pencil</v-icon>
                         </v-btn>
-                        <v-btn icon small @click="deleteUser(user.userId)" color="error">
+                        <v-btn v-if="!isDriver" icon small @click="deleteUser(user.userId)" color="error">
                             <v-icon>mdi-delete</v-icon>
                         </v-btn>
                     </v-card-actions>
@@ -255,12 +259,12 @@ const getRoleIcon = (role) => {
 
         <v-dialog v-model="showEditDialog" max-width="500px">
             <EditUser :user="selectedUser" :jwtToken="jwtToken" :onClose="() => showEditDialog = false"
-                :onUpdate="fetchUsers" :swal="$swal" />
+                :onUpdate="fetchUsers"  :isAdmin="isAdmin" :isDriver="isDriver" />
         </v-dialog>
 
         <v-dialog v-model="showCreateDialog" max-width="500px">
             <CreateUser :jwtToken="jwtToken" :onClose="() => showCreateDialog = false" :onCreate="fetchUsers"
-                :swal="$swal" />
+                 :isAdmin="isAdmin" :isDriver="isDriver" />
         </v-dialog>
     </v-container>
 </template>
