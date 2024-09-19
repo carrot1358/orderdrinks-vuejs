@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     modelValue: Boolean,
@@ -57,7 +58,37 @@ const isFormValid = computed(() => {
 const updateMergeAccount = async () => {
     await axios.post(User_ENDPOINTS.confirmExistedUser, mergeAccount.value)
     .then((res) => {
-        console.log(res)
+        if(res.status === 200){
+            console.log(res.data)
+            removeSessionStorage('jwtToken')
+            removeSessionStorage('userinfo')
+            const jwtToken = res.data.data.accessToken
+            sessionStorage.setItem('jwtToken', jwtToken)
+
+            axios.get(User_ENDPOINTS.getProfile, {
+                headers: {
+                    'Authorization': `Bearer ${jwtToken}`
+                }
+            })
+            .then((res) => {
+                console.log(res.data)
+                sessionStorage.setItem('userinfo', JSON.stringify(res.data.data))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'รวมข้อมูลสำเร็จ',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    customClass: {
+                        container: 'swal-on-top'
+                    }
+                }).then(() => {
+                    window.location.href = '/ordering'
+                })
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+        }
     })
     .catch((err) => {
         console.log(err)
