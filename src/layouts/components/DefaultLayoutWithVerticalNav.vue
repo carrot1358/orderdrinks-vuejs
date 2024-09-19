@@ -5,6 +5,8 @@ import upgradeBannerDark from "@images/pro/upgrade-banner-dark.png";
 import upgradeBannerLight from "@images/pro/upgrade-banner-light.png";
 import VerticalNavLayout from "@layouts/components/VerticalNavLayout.vue";
 import VerticalNavLink from "@layouts/components/VerticalNavLink.vue";
+import { ref } from 'vue';
+import LoginDialog from '@/components/LoginDialog.vue'; // สร้างไฟล์นี้ใหม่
 
 // Components
 import Footer from "@/layouts/components/Footer.vue";
@@ -74,6 +76,12 @@ const isUser = computed(() => {
         return false;
     }
 });
+
+const showLoginDialog = ref(false);
+
+const openLoginDialog = () => {
+  showLoginDialog.value = true;
+};
 </script>
 
 <template>
@@ -101,12 +109,10 @@ const isUser = computed(() => {
                     <UserProfile :isLogin="isLogin" />
                 </div>
                 <div v-else>
-                    <RouterLink to="/login">
-                        <VBtn class="text-capitalize" color="primary" size="small" outlined>
-                            <VIcon icon="bx-log-in" />
-                            Login
-                        </VBtn>
-                    </RouterLink>
+                    <VBtn class="text-capitalize" color="primary" size="small" outlined @click="openLoginDialog">
+                        <VIcon icon="bx-log-in" />
+                        Login
+                    </VBtn>
                 </div>
             </div>
         </template>
@@ -150,13 +156,13 @@ const isUser = computed(() => {
                 icon: 'bx-credit-card',
                 to: '/payment-manage',
             }" />
-
             <VerticalNavLink v-if="isAdmin" :item="{
                 title: 'การบำรุงรักษาโรงงาน',
                 icon: 'bx:bxs-report',
                 to: '/FactoryMaintenace',
             }" />
 
+            <!-- 👉 คนขับรถ -->
             <VerticalNavSectionTitle v-if="isDriver" :item="{
                 heading: 'คนขับรถ',
             }" />
@@ -165,7 +171,6 @@ const isUser = computed(() => {
                 icon: 'bx-send',
                 to: '/deliver',
             }" />
-
 
 
             <!-- 👉 Pages -->
@@ -177,48 +182,6 @@ const isUser = computed(() => {
                 icon: 'mdi-account',
                 to: '/about-me',
             }" />
-
-            <!--       👉 User Interface
-            <VerticalNavSectionTitle
-              :item="{
-                heading: 'User Interface',
-              }"
-            />
-            <VerticalNavLink
-              :item="{
-                title: 'Typography',
-                icon: 'mdi-alpha-t-box-outline',
-                to: '/typography',
-              }"
-            />
-            <VerticalNavLink
-              :item="{
-                title: 'Icons',
-                icon: 'bx-show',
-                to: '/icons',
-              }"
-            />
-            <VerticalNavLink
-              :item="{
-                title: 'Cards',
-                icon: 'bx-credit-card',
-                to: '/cards',
-              }"
-            />
-            <VerticalNavLink
-              :item="{
-                title: 'Tables',
-                icon: 'bx-table',
-                to: '/tables',
-              }"
-            />
-            <VerticalNavLink
-              :item="{
-                title: 'Form Layouts',
-                icon: 'mdi-form-select',
-                to: '/form-layouts',
-              }"
-            />-->
         </template>
 
         <!-- 👉 Pages -->
@@ -229,6 +192,8 @@ const isUser = computed(() => {
             <!--      <Footer />-->
         </template>
     </VerticalNavLayout>
+
+    <LoginDialog v-model="showLoginDialog" />
 </template>
 
 <style lang="scss" scoped>
