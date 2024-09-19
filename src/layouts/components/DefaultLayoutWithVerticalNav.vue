@@ -171,7 +171,11 @@ const openLoginDialog = () => {
                 icon: 'bx-send',
                 to: '/deliver',
             }" />
-
+            <VerticalNavLink v-if="isDriver" :item="{
+                title: 'จัดการผู้ใช้',
+                icon: 'bx-user',
+                to: '/user-manage-driver',
+            }" />
 
             <!-- 👉 Pages -->
             <VerticalNavSectionTitle :item="{
