@@ -49,6 +49,10 @@ const router = createRouter({
           component: () => import("../pages/UserManage.vue"),
         },
         {
+          path: "user-manage-driver",
+          component: () => import("../pages/UserManage.vue"),
+        },
+        {
           path: "FactoryMaintenace",
           component: () => import("../pages/FactoryMaintenace.vue"),
         },
