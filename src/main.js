@@ -13,6 +13,7 @@ import VueSweetalert2 from "vue-sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import Vue3Lottie from "vue3-lottie";
 import LongdoMap from "longdo-map-vue";
+import Swal from 'sweetalert2';
 
 loadFonts();
 
@@ -31,6 +32,25 @@ app.use(createPinia());
 app.use(router);
 app.use(VueSweetalert2);
 app.use(Vue3Lottie);
+
+// กำหนดค่าเริ่มต้นสำหรับ Sweetalert2
+const swal = Swal.mixin({
+  customClass: {
+    container: 'my-swal'
+  }
+})
+
+// ใช้ swal แทน Swal ในแอพพลิเคชันของคุณ
+app.config.globalProperties.$swal = swal
+
+// เพิ่ม CSS global
+const style = document.createElement('style')
+style.textContent = `
+  .my-swal {
+    z-index: 9999 !important;
+  }
+`
+document.head.appendChild(style)
 
 // Mount vue app
 app.mount("#app");
