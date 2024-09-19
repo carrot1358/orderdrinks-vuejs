@@ -2,6 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 const props = defineProps({
     modelValue: Boolean,
