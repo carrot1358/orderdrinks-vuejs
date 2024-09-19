@@ -65,8 +65,8 @@ const updateMergeAccount = async () => {
     .then((res) => {
         if(res.status === 200){
             console.log(res.data)
-            removeSessionStorage('jwtToken')
-            removeSessionStorage('userinfo')
+            sessionStorage.removeItem('jwtToken')
+            sessionStorage.removeItem('userinfo')
             const jwtToken = res.data.data.accessToken
             sessionStorage.setItem('jwtToken', jwtToken)
 
