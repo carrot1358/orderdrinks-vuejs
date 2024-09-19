@@ -68,19 +68,19 @@
                     <v-window-item value="change">
                         <v-data-table :headers="changeHeaders" :items="filterChangeData" :items-per-page="itemsPerPage"
                             :page.sync="currentPage" class="elevation-1">
-                        <template v-slot:item.smallFilter="{ item }">
-                            <v-icon :color="item.smallFilter ? 'success' : 'error'">
-                                {{ item.smallFilter ? 'mdi-check' : 'mdi-close' }}
-                            </v-icon>
-                        </template>
-                        <template v-slot:item.membraneFilter="{ item }">
-                            <v-icon :color="item.membraneFilter ? 'success' : 'error'">
-                                {{ item.membraneFilter ? 'mdi-check' : 'mdi-close' }}
-                            </v-icon>
-                        </template>
-                        <template v-slot:item.date="{ item }">
-                            {{ formatDate(item.date) }}
-                        </template>
+                            <template v-slot:item.smallFilter="{ item }">
+                                <v-icon :color="item.smallFilter ? 'success' : 'error'">
+                                    {{ item.smallFilter ? 'mdi-check' : 'mdi-close' }}
+                                </v-icon>
+                            </template>
+                            <template v-slot:item.membraneFilter="{ item }">
+                                <v-icon :color="item.membraneFilter ? 'success' : 'error'">
+                                    {{ item.membraneFilter ? 'mdi-check' : 'mdi-close' }}
+                                </v-icon>
+                            </template>
+                            <template v-slot:item.date="{ item }">
+                                {{ formatDate(item.date) }}
+                            </template>
                         </v-data-table>
                     </v-window-item>
 
@@ -107,20 +107,14 @@
                 <v-card-title>บันทึกเติมสารกรอง</v-card-title>
                 <v-card-text>
                     <v-form @submit.prevent="submitRefillForm">
-                        <v-checkbox  v-model="refillForm.iodine" label="เหลือไอโอดีน (ทุก 3 วัน)"></v-checkbox>
-                        <v-checkbox  v-model="refillForm.carbon" label="คาร์บอน (ทุก 1 ปี)"></v-checkbox>
-                        <v-checkbox  v-model="refillForm.resin" label="เรซิน (ทุก 1 ปี)"></v-checkbox>
-                        <v-checkbox  v-model="refillForm.manganese" label="แมงกานีส (ทุก 1 ปี)"></v-checkbox>
-                        <v-checkbox  v-model="refillForm.sodaAsh" label="Soda ash (ทุก 1 ปี)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.iodine" label="เหลือไอโอดีน (ทุก 3 วัน)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.carbon" label="คาร์บอน (ทุก 1 ปี)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.resin" label="เรซิน (ทุก 1 ปี)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.manganese" label="แมงกานีส (ทุก 1 ปี)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.sodaAsh" label="Soda ash (ทุก 1 ปี)"></v-checkbox>
                         <v-text-field class="mt-3" v-model="refillForm.other" label="รายละเอียดอื่นๆ"></v-text-field>
-                        <v-text-field
-                            class="mt-3"
-                            v-model="refillForm.date"
-                            label="วันที่"
-                            type="date"
-                            :max="getCurrentDate()"
-                            :value="getCurrentDate()"
-                        ></v-text-field>
+                        <v-text-field class="mt-3" v-model="refillForm.date" label="วันที่" type="date"
+                            :max="getCurrentDate()" :value="getCurrentDate()"></v-text-field>
                         <v-btn type="submit" color="primary" class="mt-4">บันทึก</v-btn>
                     </v-form>
                 </v-card-text>
@@ -133,17 +127,11 @@
                 <v-card-title>บันทึกเปลี่ยนไส้กรอง</v-card-title>
                 <v-card-text>
                     <v-form @submit.prevent="submitChangeForm">
-                        <v-checkbox  v-model="changeForm.smallFilter" label="ไส้กรองเล็ก"></v-checkbox>
-                        <v-checkbox  v-model="changeForm.membraneFilter" label="ไส้กรอง Membrane"></v-checkbox>
+                        <v-checkbox v-model="changeForm.smallFilter" label="ไส้กรองเล็ก"></v-checkbox>
+                        <v-checkbox v-model="changeForm.membraneFilter" label="ไส้กรอง Membrane"></v-checkbox>
                         <v-text-field class="mt-3" v-model="changeForm.other" label="รายละเอียดอื่นๆ"></v-text-field>
-                        <v-text-field
-                            class="mt-3"
-                            v-model="changeForm.date"
-                            label="วันที่"
-                            type="date"
-                            :max="getCurrentDate()"
-                            :value="getCurrentDate()"
-                        ></v-text-field>
+                        <v-text-field class="mt-3" v-model="changeForm.date" label="วันที่" type="date"
+                            :max="getCurrentDate()" :value="getCurrentDate()"></v-text-field>
                         <v-btn type="submit" color="primary" class="mt-4">บันทึก</v-btn>
                     </v-form>
                 </v-card-text>
@@ -157,14 +145,8 @@
                 <v-card-text>
                     <v-form @submit.prevent="submitCleaningForm">
                         <v-checkbox v-model="cleaningForm.cleaned" label="ทำความสะอาด"></v-checkbox>
-                        <v-text-field
-                            class="mt-3"
-                            v-model="cleaningForm.date"
-                            label="วันที่"
-                            type="date"
-                            :max="getCurrentDate()"
-                            :value="getCurrentDate()"
-                        ></v-text-field>
+                        <v-text-field class="mt-3" v-model="cleaningForm.date" label="วันที่" type="date"
+                            :max="getCurrentDate()" :value="getCurrentDate()"></v-text-field>
                         <v-btn type="submit" color="primary" class="mt-4">บันทึก</v-btn>
                     </v-form>
                 </v-card-text>
@@ -260,7 +242,7 @@ onMounted(async () => {
 const getCurrentDate = () => {
     const now = new Date();
     const offset = now.getTimezoneOffset();
-    const thailandTime = new Date(now.getTime() - (offset*60*1000) + (7*60*60*1000));
+    const thailandTime = new Date(now.getTime() - (offset * 60 * 1000) + (7 * 60 * 60 * 1000));
     return thailandTime.toISOString().split('T')[0];
 };
 
@@ -316,7 +298,7 @@ const submitRefillForm = async () => {
         });
 
         await axios.post(FactoryMaintenance_ENDPOINTS.addFilterRefill, formData, {
-            headers: { 
+            headers: {
                 Authorization: `Bearer ${jwtToken.value}`,
                 'Content-Type': 'multipart/form-data'
             },
@@ -337,7 +319,7 @@ const submitChangeForm = async () => {
         });
 
         await axios.post(FactoryMaintenance_ENDPOINTS.addFilterChange, formData, {
-            headers: { 
+            headers: {
                 Authorization: `Bearer ${jwtToken.value}`,
                 'Content-Type': 'multipart/form-data'
             },
@@ -358,7 +340,7 @@ const submitCleaningForm = async () => {
         });
 
         await axios.post(FactoryMaintenance_ENDPOINTS.addFilterCleaning, formData, {
-            headers: { 
+            headers: {
                 Authorization: `Bearer ${jwtToken.value}`,
                 'Content-Type': 'multipart/form-data'
             },
@@ -412,19 +394,19 @@ const cleaningHeaders = ref([
 ]);
 
 const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  const thaiMonths = [
-    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
-    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
-  ];
-  const day = date.getDate();
-  const month = thaiMonths[date.getMonth()];
-  const year = date.getFullYear() + 543; // แปลงเป็นปีพุทธศักราช
-  return `${day} ${month} ${year}`;
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const thaiMonths = [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+    ];
+    const day = date.getDate();
+    const month = thaiMonths[date.getMonth()];
+    const year = date.getFullYear() + 543; // แปลงเป็นปีพุทธศักราช
+    return `${day} ${month} ${year}`;
 };
 </script>
 
 <style scoped>
-/* เพิ่ม CSS ตามต้องการ */
+
 </style>
