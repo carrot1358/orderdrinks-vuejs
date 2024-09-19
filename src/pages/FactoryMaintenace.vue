@@ -35,32 +35,32 @@
                         <v-data-table :headers="refillHeaders" :items="filterRefills" :items-per-page="itemsPerPage"
                             :page.sync="currentPage" class="elevation-1">
                             <template v-slot:item.iodine="{ item }">
-                                <v-icon :color="item.iodine ? 'green' : 'red'">
+                                <v-icon :color="item.iodine ? 'success' : 'error'">
                                     {{ item.iodine ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
                             </template>
                             <template v-slot:item.carbon="{ item }">
-                                <v-icon :color="item.carbon ? 'green' : 'red'">
+                                <v-icon :color="item.carbon ? 'success' : 'error'">
                                     {{ item.carbon ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
                             </template>
                             <template v-slot:item.resin="{ item }">
-                                <v-icon :color="item.resin ? 'green' : 'red'">
+                                <v-icon :color="item.resin ? 'success' : 'error'">
                                     {{ item.resin ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
                             </template>
                             <template v-slot:item.manganese="{ item }">
-                                <v-icon :color="item.manganese ? 'green' : 'red'">
+                                <v-icon :color="item.manganese ? 'success' : 'error'">
                                     {{ item.manganese ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
                             </template>
                             <template v-slot:item.sodaAsh="{ item }">
-                                <v-icon :color="item.sodaAsh ? 'green' : 'red'">
+                                <v-icon :color="item.sodaAsh ? 'success' : 'error'">
                                     {{ item.sodaAsh ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
                             </template>
                             <template v-slot:item.date="{ item }">
-                                {{ new Date(item.date).toLocaleDateString('th-TH') }}
+                                {{ formatDate(item.date) }}
                             </template>
                         </v-data-table>
                     </v-window-item>
@@ -69,14 +69,17 @@
                         <v-data-table :headers="changeHeaders" :items="filterChangeData" :items-per-page="itemsPerPage"
                             :page.sync="currentPage" class="elevation-1">
                         <template v-slot:item.smallFilter="{ item }">
-                            <v-icon :color="item.smallFilter ? 'green' : 'red'">
+                            <v-icon :color="item.smallFilter ? 'success' : 'error'">
                                 {{ item.smallFilter ? 'mdi-check' : 'mdi-close' }}
                             </v-icon>
                         </template>
                         <template v-slot:item.membraneFilter="{ item }">
-                            <v-icon :color="item.membraneFilter ? 'green' : 'red'">
+                            <v-icon :color="item.membraneFilter ? 'success' : 'error'">
                                 {{ item.membraneFilter ? 'mdi-check' : 'mdi-close' }}
                             </v-icon>
+                        </template>
+                        <template v-slot:item.date="{ item }">
+                            {{ formatDate(item.date) }}
                         </template>
                         </v-data-table>
                     </v-window-item>
@@ -85,9 +88,12 @@
                         <v-data-table :headers="cleaningHeaders" :items="filterCleaningData"
                             :items-per-page="itemsPerPage" :page.sync="currentPage" class="elevation-1">
                             <template v-slot:item.cleaned="{ item }">
-                                <v-icon :color="item.cleaned ? 'green' : 'red'">
+                                <v-icon :color="item.cleaned ? 'success' : 'error'">
                                     {{ item.cleaned ? 'mdi-check' : 'mdi-close' }}
                                 </v-icon>
+                            </template>
+                            <template v-slot:item.date="{ item }">
+                                {{ formatDate(item.date) }}
                             </template>
                         </v-data-table>
                     </v-window-item>
@@ -234,7 +240,7 @@ const refillHeaders = ref([
     { title: 'แมงกานีส', key: 'manganese', align: 'center' },
     { title: 'โซดาแอช', key: 'sodaAsh', align: 'center' },
     { title: 'อื่นๆ', key: 'other' },
-    { title: 'วันที่', key: 'date' },
+    { title: 'วันที่', key: 'date', width: '200px' },
 ]);
 
 onMounted(async () => {
@@ -397,13 +403,26 @@ const changeHeaders = ref([
     { title: 'ไส้กรองเล็ก', key: 'smallFilter', align: 'center' },
     { title: 'ไส้กรอง Membrane', key: 'membraneFilter', align: 'center' },
     { title: 'อื่นๆ', key: 'other' },
-    { title: 'วันที่', key: 'date' },
+    { title: 'วันที่', key: 'date', width: '200px' },
 ]);
 
 const cleaningHeaders = ref([
     { title: 'ทำความสะอาด', key: 'cleaned', align: 'center' },
-    { title: 'วันที่', key: 'date' },
+    { title: 'วันที่', key: 'date', width: '200px' },
 ]);
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const thaiMonths = [
+    'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+    'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+  ];
+  const day = date.getDate();
+  const month = thaiMonths[date.getMonth()];
+  const year = date.getFullYear() + 543; // แปลงเป็นปีพุทธศักราช
+  return `${day} ${month} ${year}`;
+};
 </script>
 
 <style scoped>
