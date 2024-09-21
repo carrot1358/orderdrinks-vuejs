@@ -125,7 +125,7 @@ const searchPhone = ref('');
 const filteredUsers = computed(() => {
     if (!Array.isArray(users.value)) return [];
     return users.value.filter(user => {
-        const roleMatch = roleFilter.value === 'ทั้งหมด' || user.role === roleFilter.value;
+        const roleMatch = isDriver.value ? user.role === 'user' : (roleFilter.value === 'ทั้งหมด' || user.role === roleFilter.value);
         return nameMatch.value(user) && phoneMatch.value(user) && roleMatch;
     });
 });
@@ -184,7 +184,7 @@ const getRoleIcon = (role) => {
                                 <v-text-field v-model="searchPhone" prepend-inner-icon="mdi-phone"
                                     label="ค้นหาเบอร์โทรศัพท์" single-line hide-details outlined dense></v-text-field>
                             </v-col>
-                            <v-col cols="12" sm="6" md="3">
+                            <v-col cols="12" sm="6" md="3" v-if="!isDriver">
                                 <v-select v-model="roleFilter"
                                     :items="['ทั้งหมด', 'admin', 'user', 'driver', 'manager']" label="กรองตามบทบาท"
                                     outlined dense></v-select>
