@@ -181,6 +181,11 @@ const openLoginDialog = () => {
             <VerticalNavSectionTitle :item="{
                 heading: 'Pages',
             }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'สถิติการขาย',
+                icon: 'bx-chart',
+                to: '/dashboard',
+            }" />
             <VerticalNavLink :item="{
                 title: 'เกี่ยวกับเรา',
                 icon: 'mdi-account',
