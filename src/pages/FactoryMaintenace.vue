@@ -7,19 +7,24 @@
 
             <v-card-text>
                 <v-row>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-btn color="primary" @click="openRefillDialog" block>
                             บันทึกเติมสารกรอง
                         </v-btn>
                     </v-col>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-btn color="secondary" @click="openChangeDialog" block>
                             บันทึกเปลี่ยนไส้กรอง
                         </v-btn>
                     </v-col>
-                    <v-col cols="12" md="4">
+                    <v-col cols="12" md="3">
                         <v-btn color="success" @click="openCleaningDialog" block>
                             บันทึกทำความสะอาดเครื่องกรอง
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="12" md="3">
+                        <v-btn color="info" @click="openDownloadDialog" block>
+                            ดาวน์โหลดรายงาน
                         </v-btn>
                     </v-col>
                 </v-row>
@@ -152,6 +157,30 @@
                 </v-card-text>
             </v-card>
         </v-dialog>
+
+        <v-dialog v-model="showDownloadDialog" max-width="400px">
+    <v-card>
+        <v-card-title class="text-h5 font-weight-bold">เลือกประเภทรายงานที่ต้องการดาวน์โหลด</v-card-title>
+        <v-card-text>
+            <v-btn-toggle 
+                v-model="selectedReportType" 
+                mandatory 
+                class="d-flex flex-column align-stretch"
+                style="min-height: 200px;"
+            >
+                <v-btn value="refill" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การเติมสารกรอง</v-btn>
+                <v-btn value="change" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การเปลี่ยนไส้กรอง</v-btn>
+                <v-btn value="cleaning" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การทำความสะอาดเครื่องกรอง</v-btn>
+            </v-btn-toggle>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด</v-btn>
+            <v-btn color="error" @click="showDownloadDialog = false">ยกเลิก</v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
+
     </v-container>
 </template>
 
@@ -160,6 +189,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 import { FactoryMaintenance_ENDPOINTS } from "@/assets/config/api/api_endPoints";
+import { saveAs } from 'file-saver';
 
 const router = useRouter();
 const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
@@ -172,6 +202,8 @@ const filterCleaningData = ref([]);
 const showRefillDialog = ref(false);
 const showChangeDialog = ref(false);
 const showCleaningDialog = ref(false);
+const showDownloadDialog = ref(false);
+const selectedReportType = ref('refill');
 
 const openRefillDialog = () => {
     showRefillDialog.value = true;
@@ -186,6 +218,10 @@ const openChangeDialog = () => {
 const openCleaningDialog = () => {
     showCleaningDialog.value = true;
     console.log("showCleaningDialog", showCleaningDialog.value);
+};
+
+const openDownloadDialog = () => {
+    showDownloadDialog.value = true;
 };
 
 const refillForm = ref({
@@ -405,8 +441,46 @@ const formatDate = (dateString) => {
     const year = date.getFullYear() + 543; // แปลงเป็นปีพุทธศักราช
     return `${day} ${month} ${year}`;
 };
+
+const downloadSelectedReport = async () => {
+    try {
+        let endpoint;
+        let filename;
+
+        switch (selectedReportType.value) {
+            case 'refill':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportRefillsPDF;
+                filename = 'รายงานการเติมสารกรอง.pdf';
+                break;
+            case 'change':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportChangesPDF;
+                filename = 'รายงานการเปลี่ยนไส้กรอง.pdf';
+                break;
+            case 'cleaning':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportCleaningsPDF;
+                filename = 'รายงานการทำความสะอาดเครื่องกรอง.pdf';
+                break;
+            default:
+                throw new Error('ไม่พบประเภทรายงานที่เลือก');
+        }
+
+        const response = await axios.get(endpoint, {
+            headers: { Authorization: `Bearer ${jwtToken.value}` },
+            responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        saveAs(blob, filename);
+        showDownloadDialog.value = false;
+    } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการดาวน์โหลดรายงาน:", error);
+        await swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่สามารถดาวน์โหลดรายงานได้ กรุณาลองใหม่อีกครั้ง",
+        });
+    }
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
