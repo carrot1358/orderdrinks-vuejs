@@ -3,17 +3,18 @@ import { ref, watch, computed } from 'vue';
 import axios from 'axios';
 import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { LongdoMap, LongdoMapLoad } from "longdo-map-vue";
+import CameraCapture from '@/components/CameraCapture.vue';
 
 const apiKey = import.meta.env.VITE_LONGDO_MAP_API_KEY;
 
 LongdoMapLoad({
-  apiKey: apiKey,
+    apiKey: apiKey,
 });
+
 const props = defineProps({
     selectedOrder: Object,
     showDialog: Boolean,
 });
-
 
 const emit = defineEmits(['update:showDialog', 'orderUpdated']);
 
@@ -21,6 +22,8 @@ const localSelectedOrder = ref({ ...props.selectedOrder });
 const editMode = ref(false);
 const mapInstance = ref(null);
 const zoom = ref(15);
+const showCamera = ref(false);
+const capturedImage = ref(null);
 
 watch(() => props.selectedOrder, (newValue) => {
     localSelectedOrder.value = { ...newValue };
@@ -108,12 +111,26 @@ const updateOrder = async () => {
     }
 };
 
+const handleCapture = (imageData) => {
+    capturedImage.value = imageData;
+    localSelectedOrder.value.image = imageData;
+    console.log('Image captured:', imageData);
+};
+
 const completeOrder = async () => {
     const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
     try {
-        await axios.put(`${Order_ENDPOINTS.completeOrder}/${localSelectedOrder.value.orderId}`, {}, {
+        const formData = new FormData();
+        formData.append('orderId', localSelectedOrder.value.orderId);
+        if (localSelectedOrder.value.image) {
+            const base64Response = await fetch(localSelectedOrder.value.image);
+            const blob = await base64Response.blob();
+            formData.append('deliverImage', blob, 'delivery_proof.jpg');
+        }
+        await axios.put(Order_ENDPOINTS.completeOrder, formData, {
             headers: {
                 'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'multipart/form-data',
             }
         });
         localSelectedOrder.value.deliverStatus = 'delivered';
@@ -138,6 +155,33 @@ const cancelOrder = async () => {
     }
 };
 
+const getStatusColor = (status) => {
+    switch (status) {
+        case 'paid':
+        case 'delivered':
+            return 'success';
+        case 'not_paid':
+        case 'cancel':
+            return 'error';
+        case 'check_paid':
+        case 'delivering':
+            return 'info';
+        case 'wait_paid':
+        case 'pending':
+            return 'warning';
+        default:
+            return 'grey';
+    }
+};
+
+const toggleCamera = () => {
+    showCamera.value = !showCamera.value;
+};
+
+watch(() => localSelectedOrder.value.image, (newValue) => {
+    console.log('localSelectedOrder.image changed:', newValue);
+}, { deep: true });
+
 const statusPaidItems = [
     { value: 'paid', text: 'ชำระเงินแล้ว' },
     { value: 'not_paid', text: 'ยังไม่ชำระเงิน' },
@@ -157,31 +201,12 @@ const deliverStatusItems = [
     { value: 'delivered', text: 'จัดส่งแล้ว' },
     { value: 'cancel', text: 'ยกเลิก' }
 ];
-
-const getStatusColor = (status) => {
-    switch (status) {
-        case 'paid':
-        case 'delivered':
-            return 'success';
-        case 'not_paid':
-        case 'cancel':
-            return 'error';
-        case 'check_paid':
-        case 'delivering':
-            return 'info';
-        case 'wait_paid':
-        case 'pending':
-            return 'warning';
-        default:
-            return 'grey';
-    }
-};
 </script>
 
 <template>
     <v-dialog v-model="props.showDialog" fullscreen @update:modelValue="$emit('update:showDialog', $event)">
         <v-card>
-            <v-toolbar color="red">
+            <v-toolbar color="white">
                 <v-btn icon @click="$emit('update:showDialog', false)">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
@@ -262,12 +287,15 @@ const getStatusColor = (status) => {
                                     </v-list>
                                 </template>
                                 <template v-else>
-                                    <v-select class="mb-4" v-model="localSelectedOrder.statusPaid" :items="statusPaidItems"
-                                        item-title="text" item-value="value" label="สถานะการชำระเงิน"></v-select>
-                                    <v-select class="mb-4" v-model="localSelectedOrder.methodPaid" :items="methodPaidItems"
-                                        item-title="text" item-value="value" label="วิธีการชำระเงิน"></v-select>
-                                    <v-select class="mb-4" v-model="localSelectedOrder.deliverStatus" :items="deliverStatusItems"
-                                        item-title="text" item-value="value" label="สถานะการจัดส่ง"></v-select>
+                                    <v-select class="mb-4" v-model="localSelectedOrder.statusPaid"
+                                        :items="statusPaidItems" item-title="text" item-value="value"
+                                        label="สถานะการชำระเงิน"></v-select>
+                                    <v-select class="mb-4" v-model="localSelectedOrder.methodPaid"
+                                        :items="methodPaidItems" item-title="text" item-value="value"
+                                        label="วิธีการชำระเงิน"></v-select>
+                                    <v-select class="mb-4" v-model="localSelectedOrder.deliverStatus"
+                                        :items="deliverStatusItems" item-title="text" item-value="value"
+                                        label="สถานะการจัดส่ง"></v-select>
                                 </template>
                             </v-card-text>
                         </v-card>
@@ -281,7 +309,7 @@ const getStatusColor = (status) => {
                                             <v-list-item-title>{{ product.productId.name }}</v-list-item-title>
                                             <v-list-item-subtitle>
                                                 จำนวน: {{ product.quantity }} | ราคา: {{ product.productId.price *
-                                                product.quantity }} บาท
+                                                    product.quantity }} บาท
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
                                     </v-list-item>
@@ -303,14 +331,40 @@ const getStatusColor = (status) => {
                         <v-card>
                             <v-card-title>การดำเนินการ</v-card-title>
                             <v-card-text>
-                                <v-btn v-if="!editMode && localSelectedOrder.deliverStatus !== 'delivered'"
-                                    color="success" @click="completeOrder" class="mr-2 mb-2">
+                                <v-btn 
+                                    v-if="localSelectedOrder.deliverStatus !== 'delivered' && localSelectedOrder.deliverStatus !== 'cancel'"
+                                    color="success" 
+                                    @click="completeOrder" 
+                                    class="mr-2 mb-2"
+                                    :disabled="!localSelectedOrder.image"
+                                >
                                     ส่งสินค้าแล้ว
                                 </v-btn>
-                                <v-btn v-if="!editMode && localSelectedOrder.deliverStatus !== 'cancel'" color="error"
-                                    @click="cancelOrder" class="mb-2">
+                                <v-btn 
+                                    v-if="localSelectedOrder.deliverStatus !== 'delivered' && localSelectedOrder.deliverStatus !== 'cancel'"
+                                    color="error" 
+                                    @click="cancelOrder" 
+                                    class="mr-2 mb-2"
+                                >
                                     ยกเลิกคำสั่งซื้อ
                                 </v-btn>
+                                <v-btn color="primary" @click="toggleCamera" class="mb-2">
+                                    {{ showCamera ? 'ปิดกล้อง' : 'เปิดกล้อง' }}
+                                </v-btn>
+                            </v-card-text>
+                        </v-card>
+
+                        <v-card v-if="showCamera">
+                            <v-card-title>ถ่ายรูปหลักฐานการส่ง</v-card-title>
+                            <v-card-text>
+                                <CameraCapture @capture="handleCapture" />
+                            </v-card-text>
+                        </v-card>
+
+                        <v-card v-if="capturedImage">
+                            <v-card-title>ภาพหลักฐานการส่ง</v-card-title>
+                            <v-card-text>
+                                <v-img :src="capturedImage" max-height="400" contain class="rotate-image"></v-img>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -327,5 +381,12 @@ const getStatusColor = (status) => {
 
 .v-card:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rotate-image {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    max-width: 300px;
+    margin: auto;
 }
 </style>

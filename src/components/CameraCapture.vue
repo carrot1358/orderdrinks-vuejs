@@ -53,6 +53,9 @@ const height = 640;
 let stream = null;
 const facingMode = ref('environment'); // เริ่มต้นด้วยกล้องหลัง
 
+// เพิ่มบรรทัดนี้เพื่อกำหนด emit
+const emit = defineEmits(['capture']);
+
 const startCamera = async () => {
     try {
         if (stream) {
@@ -82,19 +85,25 @@ const stopCamera = () => {
 const captureImage = async () => {
     if (videoElement.value && canvasElement.value) {
         isCapturing.value = true;
-        await new Promise(resolve => setTimeout(resolve, 300)); // เพิ่มดีเลย์เล็กน้อยเพื่อให้ overlay แสดง
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         const context = canvasElement.value.getContext('2d');
         canvasElement.value.width = width;
         canvasElement.value.height = height;
         context.save();
         context.translate(width / 2, height / 2);
-        context.rotate(Math.PI / 2);
-        context.drawImage(videoElement.value, -height / 2, -width / 2, height, width);
+        
+        // ไม่หมุนภาพ
+        // context.rotate(Math.PI);
+        
+        context.drawImage(videoElement.value, -width / 2, -height / 2, width, height);
         context.restore();
         capturedImage.value = canvasElement.value.toDataURL('image/jpeg');
         
         isCapturing.value = false;
+        
+        // ส่งภาพที่ถ่ายได้ไปยัง parent component
+        emit('capture', capturedImage.value);
     }
 };
 
@@ -132,7 +141,7 @@ video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transform: rotate(90deg);
+    /* ลบ transform: rotate(90deg); ออก เพราะเราจัดการการหมุนในโค้ด JavaScript แล้ว */
 }
 
 .button-container {

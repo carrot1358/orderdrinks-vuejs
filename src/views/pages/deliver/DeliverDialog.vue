@@ -88,12 +88,29 @@ const openInGoogleMaps = () => {
     }
 };
 
+const capturedImage = ref(null);
+
+const handleCapture = (imageData) => {
+    capturedImage.value = imageData;
+    localSelectedOrder.value.image = imageData;
+    console.log('Image captured:', imageData); // เพิ่ม log เพื่อตรวจสอบ
+};
+
 const completeOrder = async () => {
     const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
     try {
-        await axios.put(`${Order_ENDPOINTS.completeOrder}/${localSelectedOrder.value.orderId}`, {}, {
+        const formData = new FormData();
+        formData.append('orderId', localSelectedOrder.value.orderId);
+        if (localSelectedOrder.value.image) {
+            // แปลง base64 เป็น Blob
+            const base64Response = await fetch(localSelectedOrder.value.image);
+            const blob = await base64Response.blob();
+            formData.append('deliverImage', blob, 'delivery_proof.jpg');
+        }
+        await axios.put(Order_ENDPOINTS.completeOrder, formData, {
             headers: {
                 'Authorization': `Bearer ${jwtToken}`,
+                'Content-Type': 'multipart/form-data',
             }
         });
         localSelectedOrder.value.deliverStatus = 'delivered';
@@ -127,6 +144,10 @@ const showCamera = ref(false);
 const toggleCamera = () => {
     showCamera.value = !showCamera.value;
 };
+
+watch(() => localSelectedOrder.value.image, (newValue) => {
+    console.log('localSelectedOrder.image changed:', newValue);
+}, { deep: true });
 </script>
 
 <template>
@@ -218,7 +239,7 @@ const toggleCamera = () => {
                                             <v-list-item-title>{{ product.productId.name }}</v-list-item-title>
                                             <v-list-item-subtitle>
                                                 จำนวน: {{ product.quantity }} | ราคา: {{ product.productId.price *
-                                                product.quantity }} บาท
+                                                    product.quantity }} บาท
                                             </v-list-item-subtitle>
                                         </v-list-item-content>
                                     </v-list-item>
@@ -232,7 +253,8 @@ const toggleCamera = () => {
                             <v-card-title>ตำแหน่งที่อยู่ลูกค้า</v-card-title>
                             <v-card-text>
                                 <v-btn @click="openInGoogleMaps" color="primary" class="mb-4">เปิดใน Google Maps</v-btn>
-                                <longdo-map @load="loadMap" :zoom="zoom" style="width: 100%; height: 400px;"></longdo-map>
+                                <longdo-map @load="loadMap" :zoom="zoom"
+                                    style="width: 100%; height: 400px;"></longdo-map>
                             </v-card-text>
                         </v-card>
 
@@ -244,6 +266,7 @@ const toggleCamera = () => {
                                     color="success" 
                                     @click="completeOrder" 
                                     class="mr-2 mb-2"
+                                    :disabled="!localSelectedOrder.image"
                                 >
                                     ส่งสินค้าแล้ว
                                 </v-btn>
@@ -256,7 +279,14 @@ const toggleCamera = () => {
                         <v-card v-if="showCamera">
                             <v-card-title>ถ่ายรูปหลักฐานการส่ง</v-card-title>
                             <v-card-text>
-                                <CameraCapture />
+                                <CameraCapture @capture="handleCapture" />
+                            </v-card-text>
+                        </v-card>
+
+                        <v-card v-if="capturedImage">
+                            <v-card-title>ภาพหลักฐานการส่ง</v-card-title>
+                            <v-card-text>
+                                <v-img :src="capturedImage" max-height="400" contain class="rotate-image"></v-img>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -273,5 +303,12 @@ const toggleCamera = () => {
 
 .v-card:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rotate-image {
+    transform: rotate(90deg);
+    transform-origin: center center;
+    max-width: 300px;
+    margin: auto;
 }
 </style>
