@@ -7,16 +7,14 @@ WORKDIR /app
 # คัดลอกไฟล์ package.json และ package-lock.json (ถ้ามี)
 COPY package*.json ./
 
-COPY src/@iconify src/@iconify/
-
 # ติดตั้ง dependencies
-RUN npm install
+RUN npm ci
 
 # คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
 COPY . .
 
-# เพิ่มหน่วยความจำสำหรับ Node.js และสร้าง production build
-RUN export NODE_OPTIONS="--max-old-space-size=4096" && npm run build
+# สร้าง production build
+RUN npm run build
 
 # Production stage
 FROM nginx:stable-alpine as production-stage
