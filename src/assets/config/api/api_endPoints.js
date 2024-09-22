@@ -51,4 +51,8 @@ export const FactoryMaintenance_ENDPOINTS = {
   getFilterChanges: backend_url+"/api/v1/filter-reports/change", // GET auth admin
   addFilterCleaning: backend_url+"/api/v1/filter-reports/cleaning", // POST auth admin
   getFilterCleanings: backend_url+"/api/v1/filter-reports/cleaning", // GET auth admin
+
+  getReportRefillsPDF: backend_url+"/api/v1/reports/generate-pdf-refill", // GET
+  getReportChangesPDF: backend_url+"/api/v1/reports/generate-pdf-change", // GET
+  getReportCleaningsPDF: backend_url+"/api/v1/reports/generate-pdf-cleaning", // GET
 }
