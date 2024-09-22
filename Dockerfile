@@ -5,12 +5,10 @@ FROM node:latest as build-stage
 WORKDIR /app
 
 # คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
-COPY package.json package-lock.json ./
+COPY . .
 
 # ติดตั้ง dependencies
 RUN npm ci
-
-COPY . .
 
 # สร้าง production build
 RUN npm run build
