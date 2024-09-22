@@ -4,14 +4,11 @@ FROM node:latest as build-stage
 # ตั้งค่าไดเรกทอรีทำงาน
 WORKDIR /app
 
-# คัดลอกไฟล์ package.json และ package-lock.json (ถ้ามี)
-COPY package*.json ./
+# คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
+COPY . .
 
 # ติดตั้ง dependencies
 RUN npm ci
-
-# คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
-COPY . .
 
 # สร้าง production build
 RUN npm run build
