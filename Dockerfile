@@ -15,8 +15,8 @@ RUN npm install
 # คัดลอกโค้ดทั้งหมดไปยังไดเรกทอรีทำงาน
 COPY . .
 
-# สร้าง production build
-RUN npm run build
+# เพิ่มหน่วยความจำสำหรับ Node.js และสร้าง production build
+RUN export NODE_OPTIONS="--max-old-space-size=4096" && npm run build
 
 # Production stage
 FROM nginx:stable-alpine as production-stage

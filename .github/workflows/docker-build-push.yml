@@ -29,6 +29,8 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/orderdrinks-vuejs:${{ github.ref_name }}-${{ github.sha }}
+          build-args: |
+            NODE_OPTIONS=--max-old-space-size=4096
 
   deploy:
     needs: build-and-push
