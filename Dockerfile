@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # ติดตั้ง dependencies
-RUN npm install
+RUN npm ci
 
 COPY . .
 
