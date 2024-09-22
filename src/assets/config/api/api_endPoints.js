@@ -56,3 +56,16 @@ export const FactoryMaintenance_ENDPOINTS = {
   getReportChangesPDF: backend_url+"/api/v1/reports/generate-pdf-change", // GET
   getReportCleaningsPDF: backend_url+"/api/v1/reports/generate-pdf-cleaning", // GET
 }
+
+export const Report_Statistics_ENDPOINTS = {
+  /*
+  all params:
+    - startDate: string (2024-02-20)
+    - endDate: string (2024-02-20)
+  */
+  getReportStatisticsSales: backend_url+"/api/v1/reports/sales-stats", // GET
+  getReportStatisticsUsers: backend_url+"/api/v1/reports/user-stats", // GET
+  getReportStatisticsFilter: backend_url+"/api/v1/reports/filter-stats", // GET
+  getReportStatisticsOrder: backend_url+"/api/v1/reports/order-stats", // GET
+  getReportStatisticsRevenue: backend_url+"/api/v1/reports/revenue-stats", // GET
+}
