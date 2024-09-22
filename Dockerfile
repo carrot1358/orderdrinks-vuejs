@@ -1,5 +1,5 @@
 # ใช้ Node.js เวอร์ชันล่าสุดเป็นฐาน
-FROM node:latest
+FROM node:latest as build-stage
 
 # ตั้งค่าไดเรกทอรีทำงาน
 WORKDIR /app
