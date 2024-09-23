@@ -333,21 +333,15 @@ const deliverStatusItems = [
                         <v-card>
                             <v-card-title>การดำเนินการ</v-card-title>
                             <v-card-text>
-                                <v-btn 
+                                <v-btn
                                     v-if="localSelectedOrder.deliverStatus !== 'delivered' && localSelectedOrder.deliverStatus !== 'cancel'"
-                                    color="success" 
-                                    @click="completeOrder" 
-                                    class="mr-2 mb-2"
-                                    :disabled="!localSelectedOrder.image"
-                                >
+                                    color="success" @click="completeOrder" class="mr-2 mb-2"
+                                    :disabled="!localSelectedOrder.image">
                                     ส่งสินค้าแล้ว
                                 </v-btn>
-                                <v-btn 
+                                <v-btn
                                     v-if="localSelectedOrder.deliverStatus !== 'delivered' && localSelectedOrder.deliverStatus !== 'cancel'"
-                                    color="error" 
-                                    @click="cancelOrder" 
-                                    class="mr-2 mb-2"
-                                >
+                                    color="error" @click="cancelOrder" class="mr-2 mb-2">
                                     ยกเลิกคำสั่งซื้อ
                                 </v-btn>
                                 <v-btn color="primary" @click="toggleCamera" class="mb-2">
@@ -373,7 +367,8 @@ const deliverStatusItems = [
                         <v-card v-if="localSelectedOrder.slipImage">
                             <v-card-title>ภาพหลักฐานการชำระเงิน</v-card-title>
                             <v-card-text>
-                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400" contain></v-img>
+                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400"
+                                    contain></v-img>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -398,5 +393,4 @@ const deliverStatusItems = [
     max-width: 300px;
     margin: auto;
 }
-</style>
 </style>
