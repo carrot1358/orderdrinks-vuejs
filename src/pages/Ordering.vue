@@ -256,6 +256,10 @@ const startPulse = () => {
   isPulsing.value = true;
 };
 
+watch(userInfo, (newValue) => {
+  console.log('userInfo changed:', newValue);
+});
+
 </script>
 
 <template>
