@@ -197,6 +197,7 @@ const updateUserInfo = async (updatedInfo) => {
       }).then((response) => {
         sessionStorage.removeItem('userinfo')
         sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
+        userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
       }).catch((error) => {
         console.log(error)
       })
