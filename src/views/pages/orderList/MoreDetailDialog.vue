@@ -25,6 +25,8 @@ const zoom = ref(15);
 const showCamera = ref(false);
 const capturedImage = ref(null);
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 watch(() => props.selectedOrder, (newValue) => {
     localSelectedOrder.value = { ...newValue };
 }, { deep: true });
@@ -367,6 +369,13 @@ const deliverStatusItems = [
                                 <v-img :src="capturedImage" max-height="400" contain class="rotate-image"></v-img>
                             </v-card-text>
                         </v-card>
+
+                        <v-card v-if="localSelectedOrder.slipImage">
+                            <v-card-title>ภาพหลักฐานการชำระเงิน</v-card-title>
+                            <v-card-text>
+                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400" contain></v-img>
+                            </v-card-text>
+                        </v-card>
                     </v-col>
                 </v-row>
             </v-container>
@@ -389,4 +398,5 @@ const deliverStatusItems = [
     max-width: 300px;
     margin: auto;
 }
+</style>
 </style>
