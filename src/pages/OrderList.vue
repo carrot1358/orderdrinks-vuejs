@@ -157,6 +157,8 @@ const headers = computed(() => [
   { title: 'การจัดส่ง', key: 'deliverStatus', align: 'center', sortable: true },
   { title: ' ', key: 'actions', align: 'center', sortable: false }
 ]);
+
+const sortBy = ref([{ key: 'createdAt', order: 'desc' }]);
 </script>
 
 <template>
@@ -185,7 +187,8 @@ const headers = computed(() => [
           {{ error }}
         </v-alert>
 
-        <v-data-table v-else :headers="headers" :items="filteredOrders" :items-per-page="10" class="elevation-1">
+        <v-data-table v-else :headers="headers" :items="filteredOrders" :items-per-page="10" class="elevation-1"
+          :sort-by.sync="sortBy">
           <template v-slot:item.userId.name="{ item }">
             <v-avatar size="32" class="mr-2 mt-2">
               <v-img
