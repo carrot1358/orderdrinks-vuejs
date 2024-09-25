@@ -180,13 +180,10 @@ const loginWithLine = () => {
                 :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible" />
 
-              <!-- remember me checkbox -->
               <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
-                <!-- <VCheckbox v-model="remember" label="จำฉัน" /> -->
-
-                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)" @click="forgetPassword">
+                <div class="text-primary ms-2 mb-1" @click="forgetPassword">
                   ลืมรหัสผ่าน?
-                </RouterLink>
+                </div>
               </div>
 
               <!-- login button -->
@@ -205,12 +202,7 @@ const loginWithLine = () => {
 
             <!-- เพิ่มปุ่มล็อกอินด้วย Line -->
             <VCol cols="12" class="text-center">
-              <VBtn
-                block
-                color="success"
-                @click="loginWithLine"
-                class="mt-2"
-              >
+              <VBtn block color="success" @click="loginWithLine" class="mt-2">
                 <i class="bx bxl-line me-2"></i>
                 เข้าสู่ระบบด้วย Line
               </VBtn>
