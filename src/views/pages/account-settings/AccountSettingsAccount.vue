@@ -99,7 +99,7 @@ const getAvatarUrl = () => {
             </VCol>
             <VCol cols="12" md="8">
                 <VTextField
-                    class="mb-4"
+                    class="mb-4 mt-2"
                     v-model="localUserProfile.name"
                     label="ชื่อ"
                 />

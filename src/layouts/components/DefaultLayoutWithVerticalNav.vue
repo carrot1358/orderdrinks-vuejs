@@ -95,14 +95,14 @@ const openLoginDialog = () => {
                 </IconBtn>
                 <VSpacer />
 
-                <IconBtn class="me-2" href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
+                <!-- <IconBtn class="me-2" href="https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free"
                     target="_blank" rel="noopener noreferrer">
                     <VIcon icon="bxl-github" />
-                </IconBtn>
+                </IconBtn> -->
 
-                <IconBtn class="me-2">
+                <!-- <IconBtn class="me-2">
                     <VIcon icon="bx-bell" />
-                </IconBtn>
+                </IconBtn> -->
 
                 <NavbarThemeSwitcher class="me-2" />
                 <div v-if="isLogin">
@@ -177,9 +177,9 @@ const openLoginDialog = () => {
                 to: '/user-manage-driver',
             }" />
 
-            <!-- 👉 Pages -->
+            <!-- 👉 อื่นๆ -->
             <VerticalNavSectionTitle :item="{
-                heading: 'Pages',
+                heading: 'อื่นๆ',
             }" />
             <VerticalNavLink v-if="isAdmin" :item="{
                 title: 'สถิติการขาย',
@@ -198,7 +198,9 @@ const openLoginDialog = () => {
 
         <!-- 👉 Footer -->
         <template #footer>
-            <!--      <Footer />-->
+            <div class="footer-container">
+                <Footer />
+            </div>
         </template>
     </VerticalNavLayout>
 
@@ -213,5 +215,21 @@ const openLoginDialog = () => {
     line-height: 1.3125rem;
     padding-block: 0.125rem;
     padding-inline: 0.25rem;
+}
+
+.footer-container {
+    border: 2px solid white; // เพิ่มกรอบสีขาว
+    padding: 10px 1rem 0px 1rem;
+    margin: 0;
+    background-color: white; // ระบายสีขาวลงไปเต็มๆ
+    border-radius: 20px;
+}
+
+footer.layout-footer {
+    border: 2px solid white; // เพิ่มกรอบสีขาว
+    padding: 0px 0px 0px 0px;
+    margin: 1px;
+    background-color: white; // ระบายสีขาวลงไปเต็มๆ
+
 }
 </style>

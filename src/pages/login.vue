@@ -108,7 +108,18 @@ const handleJwtLogin = async (jwtToken) => {
   })
 }
 
-
+const forgetPassword = () => {
+  $swal({
+    title: 'ลืมรหัสผ่าน',
+    text: 'ระบบจะนำคุณไปติดต่อผู้ดูแลระบบ',
+    icon: 'warning',
+    confirmButtonText: 'ตกลง'
+  }).then((confirm) => {
+    if (confirm.isConfirmed) {
+      window.location.href = 'https://line.me/ti/p/stZ9C78x7-';
+    }
+  })
+}
 
 
 const checkJwtToken = () => {
@@ -173,7 +184,7 @@ const loginWithLine = () => {
               <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
                 <!-- <VCheckbox v-model="remember" label="จำฉัน" /> -->
 
-                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)">
+                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)" @click="forgetPassword">
                   ลืมรหัสผ่าน?
                 </RouterLink>
               </div>
