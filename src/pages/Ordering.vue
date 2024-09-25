@@ -288,7 +288,7 @@ watch(userInfo, (newValue) => {
           <VCol>
             <VCard class="ma-1 pa-3">
               <VCardTitle>{{ product.name }}</VCardTitle>
-              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" min-width="200" min-height="200" contain
+              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" width="250" height="250" contain
                 class="rounded mb-1"></VImg>
               <VBtn color="primary" @click="clickOrder(product)">ดูรายละเอียด</VBtn>
             </VCard>
