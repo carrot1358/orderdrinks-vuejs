@@ -3,6 +3,7 @@ import { ref, onMounted, nextTick, inject } from 'vue';
 import axios from 'axios';
 import { Product_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { VChip, VDivider, VTooltip } from 'vuetify/components'
+import VuePictureCropper, { cropper } from 'vue-picture-cropper';
 
 const VITE_API_URL = import.meta.env.VITE_API_URL;
 
@@ -12,9 +13,12 @@ const showEditDialog = ref(false);
 const imagePreview = ref(null);
 const $swal = inject('$swal');
 const isLoading = ref(true);
+const isShowModal = ref(false);
+const pic = ref('');
 
 const props = defineProps({
-    fetchProducts: Function
+    fetchProducts: Function,
+    onProductEdited: Function
 });
 
 onMounted(async () => {
@@ -48,8 +52,23 @@ const openEditDialog = (product) => {
 
 const handleFileChange = (event) => {
     const file = event.target.files[0];
-    editingProduct.value.image = file;
-    imagePreview.value = URL.createObjectURL(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+        pic.value = reader.result;
+        isShowModal.value = true;
+    };
+};
+
+const getResult = async () => {
+    if (!cropper) return;
+    const base64 = cropper.getDataURL();
+    const blob = await cropper.getBlob();
+    if (!blob) return;
+
+    editingProduct.value.image = await cropper.getFile({ fileName: 'cropped_image' });
+    imagePreview.value = base64;
+    isShowModal.value = false;
 };
 
 const updateProduct = async () => {
@@ -81,10 +100,9 @@ const updateProduct = async () => {
                 timer: 1500,
                 timerProgressBar: true,
             }).then(() => {
-                window.location.reload();
+                props.onProductEdited();
+                // window.location.reload();
             });
-
-
         } else {
             $swal.fire({
                 icon: 'error',
@@ -257,6 +275,27 @@ const getStockColor = (stock) => {
                     </VRow>
                 </VForm>
             </VCardText>
+        </VCard>
+    </VDialog>
+
+    <VDialog v-model="isShowModal" max-width="600px">
+        <VCard>
+            <VCardTitle>
+                <span class="title">ครอบรูปภาพ</span>
+                <VSpacer />
+            </VCardTitle>
+            <VCardText>
+                <VuePictureCropper
+                    :boxStyle="{ width: '100%', height: '400px', backgroundColor: '#f8f8f8', margin: 'auto' }"
+                    :img="pic"
+                    :options="{ viewMode: 1, dragMode: 'move', aspectRatio: 1, cropBoxResizable: true }"
+                />
+            </VCardText>
+            <VCardActions>
+                <VSpacer />
+                <VBtn color="error" @click="isShowModal = false">ยกเลิก</VBtn>
+                <VBtn color="primary" @click="getResult">ครอบ</VBtn>
+            </VCardActions>
         </VCard>
     </VDialog>
 </template>
