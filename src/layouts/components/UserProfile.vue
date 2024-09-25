@@ -22,6 +22,17 @@ const props = defineProps({
   isLogin: Boolean,
 });
 
+const openOrder = () => {
+  router.push('/Ordering')
+}
+
+const openHistory = () => {
+  router.push('/history')
+}
+
+const openSettings = () => {
+  router.push('/account-settings')
+}
 const logout = () => {
   if(localStorage.getItem('jwtToken')){
     localStorage.removeItem('jwtToken');
@@ -130,34 +141,8 @@ const displayAvatar = computed(() => {
           </VListItem>
           <VDivider class="my-2" />
 
-          <!-- 👉 Profile -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="bx-user"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Profile</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 Settings -->
-          <VListItem link>
-            <template #prepend>
-              <VIcon
-                class="me-2"
-                icon="bx-cog"
-                size="22"
-              />
-            </template>
-
-            <VListItemTitle>Settings</VListItemTitle>
-          </VListItem>
-
-          <!-- 👉 Pricing -->
-          <VListItem link>
+          <!-- 👉 Order -->
+          <VListItem link to="/Ordering" @click="openOrder">
             <template #prepend>
               <VIcon
                 class="me-2"
@@ -166,20 +151,33 @@ const displayAvatar = computed(() => {
               />
             </template>
 
-            <VListItemTitle>Pricing</VListItemTitle>
+            <VListItemTitle>ดูสินค้า</VListItemTitle>
           </VListItem>
 
-          <!-- 👉 FAQ -->
-          <VListItem link>
+          <!-- 👉 History -->
+          <VListItem link to="/history" @click="openHistory">
             <template #prepend>
               <VIcon
                 class="me-2"
-                icon="bx-help-circle"
+                icon="bx-history"
                 size="22"
               />
             </template>
 
-            <VListItemTitle>FAQ</VListItemTitle>
+            <VListItemTitle>ดูประวัติการสั่งซื้อ</VListItemTitle>
+          </VListItem>
+
+          <!-- 👉 Settings -->
+          <VListItem link to="/account-settings" @click="openSettings">
+            <template #prepend>
+              <VIcon
+                class="me-2"
+                icon="bx-cog"
+                size="22"
+              />
+            </template>
+
+            <VListItemTitle>ตั้งค่าบัญชี</VListItemTitle>
           </VListItem>
 
           <!-- Divider -->
