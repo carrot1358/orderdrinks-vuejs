@@ -8,6 +8,7 @@ import { useProductStore } from '@/stores/productStore';
 import { usePaymentStore } from '@/stores/paymentStore';
 import { useOrderStore } from '@/stores/orderStore';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import LoginDialog from '@/components/LoginDialog.vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import 'animate.css';
@@ -44,6 +45,8 @@ const VITE_API_URL = import.meta.env.VITE_API_URL;
 // เพิ่มบรรทัดนี้
 const isLoading = ref(true);
 
+const showLoginDialog = ref(false);
+
 onMounted(async () => {
   isLoading.value = true;
   await Promise.all([
@@ -57,6 +60,21 @@ onMounted(async () => {
 const totalPrice = computed(() => orderStore.getTotalPrice);
 
 const clickOrder = (product) => {
+  if (!jwtToken) {
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน',
+      showConfirmButton: true,
+      confirmButtonText: 'เข้าสู่ระบบ',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        showLoginDialog.value = true;
+      }
+    });
+    return;
+  }
+
   lookingOrdering.value = true;
   lookingProduct.value = { ...product, quantity: 1, id: product.productId };
 };
@@ -311,6 +329,7 @@ watch(userInfo, (newValue) => {
       <v-badge :content="cartItemCount" color="error" floating offset-x="0" offset-y="-15"></v-badge>
     </v-btn>
   </Transition>
+  <LoginDialog v-model="showLoginDialog" />
 </template>
 
 <style scoped>
