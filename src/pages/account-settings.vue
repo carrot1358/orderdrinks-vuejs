@@ -14,8 +14,8 @@ const userProfile = ref(null)
 
 const tabs = [
   { title: 'บัญชี', icon: 'mdi-account-outline', tab: 'account' },
-  { title: 'ความปลอดภัย', icon: 'mdi-lock-outline', tab: 'security' },
-  { title: 'การแจ้งเตือน', icon: 'mdi-bell-outline', tab: 'notification' },
+  /* { title: 'ความปลอดภัย', icon: 'mdi-lock-outline', tab: 'security' },
+  { title: 'การแจ้งเตือน', icon: 'mdi-bell-outline', tab: 'notification' }, */
 ]
 
 onMounted(async () => {
@@ -88,7 +88,7 @@ const updateUserProfile = async (updatedData) => {
           />
         </VWindowItem>
 
-        <VWindowItem value="security">
+        <!-- <VWindowItem value="security">
           <AccountSettingsSecurity
             :user-profile="userProfile"
             @update-profile="updateUserProfile"
@@ -100,7 +100,7 @@ const updateUserProfile = async (updatedData) => {
             :user-profile="userProfile"
             @update-profile="updateUserProfile"
           />
-        </VWindowItem>
+        </VWindowItem> -->
       </VWindow>
     </VCardText>
   </VCard>
