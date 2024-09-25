@@ -37,6 +37,14 @@ watch(locationData, (newValue) => {
     newUser.value.lng = newValue.lng;
 }, { deep: true });
 
+watch(() => newUser.value.role, (newRole) => {
+    if (newRole === 'admin') {
+        newUser.value.isAdmin = true;
+    } else {
+        newUser.value.isAdmin = false;
+    }
+});
+
 const createUser = async () => {
     try {
         const formData = new FormData();
@@ -93,10 +101,9 @@ const createUser = async () => {
         <v-card-text>
             <v-text-field class="mb-4" prepend-icon="mdi-account" v-model="newUser.name" label="ชื่อ" required></v-text-field>
             <v-text-field class="mb-4" prepend-icon="mdi-phone" v-model="newUser.phone" label="เบอร์โทร" required></v-text-field>
-            <v-text-field class="mb-2" prepend-icon="mdi-lock" v-model="newUser.password" label="รหัสผ่าน" type="password" required></v-text-field>
-            <v-text-field class="mb-2" prepend-icon="mdi-lock" v-model="newUser.passwordConfirmExisted" label="รหัสเชื่อมโยงบัญชีผู้ใช้" required></v-text-field>
-            <v-checkbox class="mb-4" v-if="isAdmin" v-model="newUser.isAdmin" label="เป็นผู้ดูแลระบบ"></v-checkbox>
-            <v-select class="mb-4" v-if="isAdmin" v-model="newUser.role" :items="['user', 'admin', 'driver', 'manager']" label="บทบาท"
+            <v-text-field class="mb-4" prepend-icon="mdi-lock" v-model="newUser.password" label="รหัสผ่าน" type="password" required></v-text-field>
+            <v-text-field class="mb-4" prepend-icon="mdi-lock" v-model="newUser.passwordConfirmExisted" label="รหัสเชื่อมโยงบัญชีผู้ใช้" required></v-text-field>
+            <v-select prepend-icon="mdi-account-multiple" class="mb-4" v-if="isAdmin" v-model="newUser.role" :items="['user', 'admin', 'driver', 'manager']" label="บทบาท"
                 required></v-select>
             <LocationPicker v-model="locationData" />
         </v-card-text>
