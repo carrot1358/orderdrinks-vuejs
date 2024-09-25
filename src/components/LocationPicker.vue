@@ -110,16 +110,13 @@ watch([() => localValue.value.lat, () => localValue.value.lng], ([newLat, newLng
 
 <template>
     <div>
-        <v-text-field v-model="localValue.address" label="ที่อยู่" prepend-icon="mdi-home" outlined dense
+        <v-text-field class="mb-4" v-model="localValue.address" label="ที่อยู่" prepend-icon="mdi-home" outlined dense
             @input="updateModelValue"></v-text-field>
         <v-alert v-if="alert.show" :type="alert.type" dismissible elevation="2" class="mb-4"
             @click:close="alert.show = false">
             {{ alert.message }}
         </v-alert>
-        <v-btn @click="getLocation" color="secondary" block class="mb-4">
-            <v-icon left>{{ mdiCrosshairsGps }}</v-icon>
-            รับตำแหน่งจาก GPS
-        </v-btn>
+        
 
         <v-row>
             <v-col cols="12" sm="6">
@@ -131,9 +128,13 @@ watch([() => localValue.value.lat, () => localValue.value.lng], ([newLat, newLng
                     @input="updateModelValue"></v-text-field>
             </v-col>
         </v-row>
-        <v-btn @click="markCurrentLocation" color="primary" block class="mb-4">
+        <v-btn @click="markCurrentLocation" color="primary" block class="mb-4 mt-2">
             <v-icon left>{{ mdiMapMarker }}</v-icon>
             ทำเครื่องหมายตำแหน่งปัจจุบัน
+        </v-btn>
+        <v-btn @click="getLocation" color="secondary" block class="mb-4">
+            <v-icon left>{{ mdiCrosshairsGps }}</v-icon>
+            รับตำแหน่งจาก GPS
         </v-btn>
 
         <v-card outlined class="mt-4">
