@@ -289,6 +289,13 @@ watch(() => localSelectedOrder.value.image, (newValue) => {
                                 <v-img :src="capturedImage" max-height="400" contain class="rotate-image"></v-img>
                             </v-card-text>
                         </v-card>
+
+                        <v-card v-if="localSelectedOrder.slipImage">
+                            <v-card-title>ภาพหลักฐานการชำระเงิน</v-card-title>
+                            <v-card-text>
+                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400" contain></v-img>
+                            </v-card-text>
+                        </v-card>
                     </v-col>
                 </v-row>
             </v-container>

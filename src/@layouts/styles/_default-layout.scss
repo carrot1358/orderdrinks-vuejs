@@ -20,6 +20,11 @@ body {
 }
 
 .layout-footer {
+  padding: 0; // ลบ padding ออก
+  margin: 2rem 0 0 0;
+  border: 2px solid white; // เพิ่มกรอบสีขาว
+  background-color: white; // ระบายสีขาวลงไปเต็มๆ
+
   .footer-content-container {
     block-size: variables.$layout-vertical-nav-footer-height;
   }

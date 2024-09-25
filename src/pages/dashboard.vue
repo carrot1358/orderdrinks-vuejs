@@ -7,7 +7,7 @@ import UserStatistics from '@/views/pages/dashboard/UserStatistics.vue'
 import FilterStatistics from '@/views/pages/dashboard/FilterStatistics.vue'
 import OrderStatistics from '@/views/pages/dashboard/OrderStatistics.vue'
 import RevenueStatistics from '@/views/pages/dashboard/RevenueStatistics.vue'
-import BottleCount from '@/views/pages/dashboard/BottleCount.vue'  // เพิ่มบรรทัดนี้
+import BottleCount from '@/views/pages/dashboard/BottleCount.vue'
 
 const jwtToken = ref(localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken'))
 
@@ -54,119 +54,85 @@ onMounted(fetchAllData)
 </script>
 
 <template>
-  <v-container fluid class="dashboard-container">
+  <v-container fluid class="dashboard-container pa-4">
+    <!-- ส่วนหัวและตัวเลือกวันที่ -->
     <v-row>
-      <v-col cols="12">
-        <h1 class="text-h3 font-weight-bold mb-6">แดชบอร์ดสถิติ</h1>
+      <v-col cols="12" md="8">
+        <h1 class="text-h4 font-weight-bold mb-4">แดชบอร์ดสถิติ</h1>
       </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col cols="12" md="6" lg="4">
-        <v-card class="mb-4 date-range-card">
-          <v-card-title class="headline">
-            <v-icon large left>mdi-calendar-range</v-icon>
-            ช่วงเวลา
-          </v-card-title>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" sm="6">
-                <v-menu
-                  v-model="startDateMenu"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="startDate"
-                      label="วันที่เริ่มต้น"
-                      prepend-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker v-model="startDate" no-title @input="startDateMenu = false"></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="12" sm="6">
-                <v-menu
-                  v-model="endDateMenu"
-                  :close-on-content-click="false"
-                  transition="scale-transition"
-                  offset-y
-                  max-width="290px"
-                  min-width="290px"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="endDate"
-                      label="วันที่สิ้นสุด"
-                      prepend-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker v-model="endDate" no-title @input="endDateMenu = false"></v-date-picker>
-                </v-menu>
-              </v-col>
-            </v-row>
-            <v-btn color="primary" block @click="fetchAllData" :loading="isLoading">
-              อัปเดตข้อมูล
-            </v-btn>
-          </v-card-text>
+      <v-col cols="12" md="4">
+        <v-card class="date-range-card pa-4">
+          <v-row>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="startDate"
+                label="วันที่เริ่มต้น"
+                type="date"
+                outlined
+                dense
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6">
+              <v-text-field
+                v-model="endDate"
+                label="วันที่สิ้นสุด"
+                type="date"
+                outlined
+                dense
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-btn class="mt-2" color="primary" block @click="fetchAllData">อัปเดตข้อมูล</v-btn>
         </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-if="!isLoading">
-      <v-col cols="12" md="6" lg="4">
-        <v-slide-y-transition>
+    <!-- แถวแรกของการ์ด -->
+    <v-row class="mt-4">
+      <v-col cols="12" md="4">
+        <v-card class="dashboard-card">
           <UserStatistics :data="userData" />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
-      <v-col cols="12" md="6" lg="4">
-        <v-slide-y-transition>
+      <v-col cols="12" md="4">
+        <v-card class="dashboard-card">
           <OrderStatistics :data="orderData" />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
-      <v-col cols="12" md="6" lg="4">
-        <v-slide-y-transition>
+      <v-col cols="12" md="4">
+        <v-card class="dashboard-card">
           <FilterStatistics :data="filterData" />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-if="!isLoading">
+    <!-- แถวที่สองของการ์ด -->
+    <v-row class="mt-4">
       <v-col cols="12" md="6">
-        <v-slide-y-transition>
+        <v-card class="dashboard-card">
           <SalesStatistics :data="salesData" />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
       <v-col cols="12" md="6">
-        <v-slide-y-transition>
+        <v-card class="dashboard-card">
           <RevenueStatistics :data="revenueData" />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-if="!isLoading">
+    <!-- แถวที่สามของการ์ด -->
+    <v-row class="mt-4">
       <v-col cols="12" md="6">
-        <v-slide-y-transition>
+        <v-card class="dashboard-card">
           <BottleCount />
-        </v-slide-y-transition>
+        </v-card>
       </v-col>
     </v-row>
 
-    <v-row v-if="isLoading">
-      <v-col cols="12" class="text-center">
-        <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
-      </v-col>
-    </v-row>
+    <!-- ส่วนแสดงการโหลด -->
+    <v-overlay :model-value="isLoading">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
   </v-container>
 </template>
 
@@ -174,29 +140,19 @@ onMounted(fetchAllData)
 .dashboard-container {
   background-color: #f5f5f5;
   min-height: 100vh;
-  padding-top: 2rem;
+}
+
+.dashboard-card {
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .date-range-card {
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.date-range-card:hover {
-  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-  transform: translateY(-5px);
-}
-
-.v-slide-y-transition-enter-active,
-.v-slide-y-transition-leave-active {
-  transition: all 0.3s ease;
-}
-
-.v-slide-y-transition-enter,
-.v-slide-y-transition-leave-to {
-  opacity: 0;
-  transform: translateY(20px);
+  height: 100%;
 }
 </style>

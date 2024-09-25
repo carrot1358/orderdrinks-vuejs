@@ -107,6 +107,11 @@ watch([() => userDetail.value.lat, () => userDetail.value.lng], ([newLat, newLng
   }
 });
 
+watch(userDetail, (newValue) => {
+  console.log('userDetail changed:', newValue);
+  userDetail.value = newValue;
+});
+
 onMounted(() => {
   Promise.all([
     getUserAddress()

@@ -106,16 +106,24 @@ const resetForm = () => {
 const loginWithLine = () => {
     window.location.href = 'https://backend.nattapad.me/line/login';
 };
+
+const forgetPassword = () => {
+    $swal({
+        title: 'ลืมรหัสผ่าน',
+        text: 'ระบบจะนำคุณไปติดต่อผู้ดูแลระบบ',
+        icon: 'warning',
+        confirmButtonText: 'ตกลง'
+    }).then((confirm) => {
+        if (confirm.isConfirmed) {
+            window.location.href = 'https://line.me/ti/p/stZ9C78x7-';
+        }
+    })
+}
 </script>
 
 <template>
-    <VDialog 
-        :model-value="modelValue" 
-        @update:model-value="(val) => emit('update:modelValue', val)"
-        max-width="448px" 
-        @before-leave="resetForm"
-        content-class="login-dialog"
-    >
+    <VDialog :model-value="modelValue" @update:model-value="(val) => emit('update:modelValue', val)" max-width="448px"
+        @before-leave="resetForm" content-class="login-dialog">
         <VCard class="auth-card pa-4 pt-7">
             <VCardItem class="justify-center">
                 <template #prepend>
@@ -153,7 +161,7 @@ const loginWithLine = () => {
                                 @click:append-inner="isPasswordVisible = !isPasswordVisible" />
 
                             <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
-                                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)">
+                                <RouterLink class="text-primary ms-2 mb-1" to="javascript:void(0)" @click="forgetPassword">
                                     ลืมรหัสผ่าน?
                                 </RouterLink>
                             </div>

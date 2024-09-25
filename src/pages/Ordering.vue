@@ -187,16 +187,17 @@ const updateUserInfo = async (updatedInfo) => {
       // Show success message
       Swal.fire({
         icon: 'success',
-        title: 'อัพเดทข้อมูลสำเร็จ',
+        title: 'อัพเดทข้อมูลสำเร็จ กรุณาล็อกอินใหม่',
         text: response.data.message,
-      });
-      axios.get(User_ENDPOINTS.getProfile, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`
+        showConfirmButton: true,
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          sessionStorage.removeItem('userinfo')
+          sessionStorage.removeItem('jwtToken')
+          const backendUrl = import.meta.env.VITE_API_URL;
+          window.location.href = `${backendUrl}/line/login`;
         }
-      }).then((response) => {
-        sessionStorage.removeItem('userinfo')
-        sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
       }).catch((error) => {
         console.log(error)
       })
@@ -254,6 +255,10 @@ const isPulsing = ref(false);
 const startPulse = () => {
   isPulsing.value = true;
 };
+
+watch(userInfo, (newValue) => {
+  console.log('userInfo changed:', newValue);
+});
 
 </script>
 
