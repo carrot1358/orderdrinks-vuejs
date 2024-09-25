@@ -9,6 +9,8 @@ const localUserProfile = ref({ ...props.userProfile });
 const avatarPreview = ref(null);
 const loading = ref(false);
 
+const userDetail = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
+
 watch(
     () => props.userProfile,
     (newValue) => {
@@ -33,7 +35,9 @@ const updateProfile = async () => {
             if (
                 localUserProfile.value[key] !== null &&
                 localUserProfile.value[key] !== undefined &&
-                key !== "avatar"
+                key !== "avatar" &&
+                key !== "role" &&
+                key !== "isAdmin"
             ) {
                 formData.append(key, localUserProfile.value[key]);
             }
@@ -42,6 +46,11 @@ const updateProfile = async () => {
         // เพิ่ม avatar เฉพาะเมื่อมีการอัปเดต
         if (localUserProfile.value.avatar instanceof File) {
             formData.append("avatar", localUserProfile.value.avatar);
+        }
+
+        if (userDetail.value.role !== "user") {
+            formData.append("role", localUserProfile.value.role);
+            formData.append("isAdmin", localUserProfile.value.isAdmin);
         }
 
         emit("update-profile", formData);
