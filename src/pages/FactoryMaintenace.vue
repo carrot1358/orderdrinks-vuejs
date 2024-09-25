@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <v-card>
-            <v-card-title class="text-h4 font-weight-bold">
+            <v-card-title class="text-h5 font-weight-bold">
                 รายงานการบำรุงรักษาโรงงาน
             </v-card-title>
 
