@@ -26,6 +26,13 @@ const handleProductAdded = () => {
   }
 };
 
+const handleProductEdited = () => {
+  closeAddProductDialog();
+  if (productListRef.value) {
+    productListRef.value.fetchProducts();
+  }
+};
+
 const fetchProducts = async () => {
   if (productListRef.value) {
     await productListRef.value.fetchProducts();
@@ -79,6 +86,7 @@ onMounted(async () => {
           v-else
           ref="productListRef"
           :fetchProducts="fetchProducts"
+          :onProductEdited="handleProductEdited"
         />
       </VContainer>
     </VCardText>
@@ -98,5 +106,9 @@ onMounted(async () => {
 .v-skeleton-loader {
   border-radius: 8px;
   overflow: hidden;
+}
+
+.v-dialog {
+  z-index: 1000 !important;
 }
 </style>

@@ -1,10 +1,11 @@
+fork from [sneat-vuetify-vuejs-admin-template-free](https://github.com/themeselection/sneat-vuetify-vuejs-admin-template-free)
 # ส่วนประกอบของโครงการ
 
 ### Git FrontEnd VueJS : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-vuejs) [Github](https://github.com/carrot1358/orderdrinks-vuejs) (คุณอยู่ที่นี่)
 
 ### Git BackEnd Elysia : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-elysia) [Github](https://github.com/carrot1358/orderdrinks-elysia)
 
-### Git สำหรับ Hardware(Raspberry Pi) : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git) 
+### Git สำหรับ Hardware(Raspberry Pi) : [Gitlab](https://gitlab.eng.rmuti.ac.th/nattapad.sa/orderdrinks-hw.git) [Github](https://github.com/carrot1358/orderdrinks-hw)
 
 # วิธีการติดตั้งและรันโปรแกรม
 

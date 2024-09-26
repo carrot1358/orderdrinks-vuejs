@@ -47,8 +47,12 @@ const handleCloseDialog = () => {
       <v-card-title>
         <h3>สั่งซื้อ : {{ props.lookingProduct.name }}</h3>
       </v-card-title>
+
       <v-img :src="VITE_API_URL + props.lookingProduct.imagePath" :alt="props.lookingProduct.name" class="mb-4"
         height="200" max-width="100%"></v-img>
+      <v-card-text>
+        {{ props.lookingProduct.description }}
+      </v-card-text>
       <v-row class="mt-4 justify-center align-center">
         <v-col cols="12" sm="8" md="6">
           <v-card-text class="quantity-control pa-2">

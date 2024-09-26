@@ -142,8 +142,8 @@ watch(() => editingUser.value.role, (newRole) => {
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" text @click="props.onClose">ยกเลิก</v-btn>
-            <v-btn color="blue darken-1" text @click="updateUser">บันทึก</v-btn>
+            <v-btn color="error" text @click="props.onClose">ยกเลิก</v-btn>
+            <v-btn color="success" text @click="updateUser">บันทึก</v-btn>
         </v-card-actions>
     </v-card>
 </template>

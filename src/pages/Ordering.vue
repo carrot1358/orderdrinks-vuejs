@@ -8,6 +8,7 @@ import { useProductStore } from '@/stores/productStore';
 import { usePaymentStore } from '@/stores/paymentStore';
 import { useOrderStore } from '@/stores/orderStore';
 import { User_ENDPOINTS } from '@/assets/config/api/api_endPoints';
+import LoginDialog from '@/components/LoginDialog.vue';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import 'animate.css';
@@ -44,6 +45,8 @@ const VITE_API_URL = import.meta.env.VITE_API_URL;
 // เพิ่มบรรทัดนี้
 const isLoading = ref(true);
 
+const showLoginDialog = ref(false);
+
 onMounted(async () => {
   isLoading.value = true;
   await Promise.all([
@@ -57,6 +60,21 @@ onMounted(async () => {
 const totalPrice = computed(() => orderStore.getTotalPrice);
 
 const clickOrder = (product) => {
+  if (!jwtToken) {
+    Swal.fire({
+      icon: 'error',
+      title: 'เกิดข้อผิดพลาด',
+      text: 'คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อน',
+      showConfirmButton: true,
+      confirmButtonText: 'เข้าสู่ระบบ',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        showLoginDialog.value = true;
+      }
+    });
+    return;
+  }
+
   lookingOrdering.value = true;
   lookingProduct.value = { ...product, quantity: 1, id: product.productId };
 };
@@ -187,16 +205,17 @@ const updateUserInfo = async (updatedInfo) => {
       // Show success message
       Swal.fire({
         icon: 'success',
-        title: 'อัพเดทข้อมูลสำเร็จ',
+        title: 'อัพเดทข้อมูลสำเร็จ กรุณาล็อกอินใหม่',
         text: response.data.message,
-      });
-      axios.get(User_ENDPOINTS.getProfile, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`
+        showConfirmButton: true,
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          sessionStorage.removeItem('userinfo')
+          sessionStorage.removeItem('jwtToken')
+          const backendUrl = import.meta.env.VITE_API_URL;
+          window.location.href = `${backendUrl}/line/login`;
         }
-      }).then((response) => {
-        sessionStorage.removeItem('userinfo')
-        sessionStorage.setItem('userinfo', JSON.stringify(response.data.data))
       }).catch((error) => {
         console.log(error)
       })
@@ -255,6 +274,10 @@ const startPulse = () => {
   isPulsing.value = true;
 };
 
+watch(userInfo, (newValue) => {
+  console.log('userInfo changed:', newValue);
+});
+
 </script>
 
 <template>
@@ -283,7 +306,7 @@ const startPulse = () => {
           <VCol>
             <VCard class="ma-1 pa-3">
               <VCardTitle>{{ product.name }}</VCardTitle>
-              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" min-width="200" min-height="200" contain
+              <VImg :src="VITE_API_URL + product.imagePath" :alt="product.name" width="250" height="250" contain
                 class="rounded mb-1"></VImg>
               <VBtn color="primary" @click="clickOrder(product)">ดูรายละเอียด</VBtn>
             </VCard>
@@ -306,6 +329,7 @@ const startPulse = () => {
       <v-badge :content="cartItemCount" color="error" floating offset-x="0" offset-y="-15"></v-badge>
     </v-btn>
   </Transition>
+  <LoginDialog v-model="showLoginDialog" />
 </template>
 
 <style scoped>
