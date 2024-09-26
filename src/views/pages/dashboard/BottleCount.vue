@@ -18,11 +18,15 @@ const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_
 })
 
 watch(lastMessage, (newMessage) => {
-    if (newMessage && newMessage.sendto === 'both' && newMessage.body.bottle_count) {
-        bottleCount.value = newMessage.body.bottle_count
+    if (newMessage && newMessage.sendto === 'both') {
+        if (newMessage.body.bottle_count !== undefined) {
+            bottleCount.value = newMessage.body.bottle_count
+        }
         lastUpdated.value = newMessage.body.time_completed || new Date().toISOString()
         if (newMessage.body.image) {
             bottleImage.value = `data:image/jpeg;base64,${newMessage.body.image}`
+        } else {
+            bottleImage.value = null
         }
         isLoading.value = false
     }
