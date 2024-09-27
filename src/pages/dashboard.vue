@@ -8,6 +8,7 @@ import FilterStatistics from '@/views/pages/dashboard/FilterStatistics.vue'
 import OrderStatistics from '@/views/pages/dashboard/OrderStatistics.vue'
 import RevenueStatistics from '@/views/pages/dashboard/RevenueStatistics.vue'
 import BottleCount from '@/views/pages/dashboard/BottleCount.vue'
+import DriverLocation from '@/views/pages/dashboard/DriverLocation.vue'
 
 const jwtToken = ref(localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken'))
 
@@ -30,19 +31,21 @@ const fetchAllData = async () => {
       headers: { 'Authorization': `Bearer ${jwtToken.value}` }
     }
 
-    const [salesRes, userRes, filterRes, orderRes, revenueRes] = await Promise.all([
-      axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsSales, config),
-      axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsUsers, config),
-      axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsFilter, config),
-      axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsOrder, config),
-      axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsRevenue, config)
-    ])
-
+    const salesRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsSales, config)
     salesData.value = salesRes.data.data
+
+    const userRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsUsers, config)
     userData.value = userRes.data.data
+
+    const filterRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsFilter, config)
     filterData.value = filterRes.data.data
+
+    const orderRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsOrder, config)
     orderData.value = orderRes.data.data
+
+    const revenueRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsRevenue, config)
     revenueData.value = revenueRes.data.data
+
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลสถิติ:', error)
   } finally {
@@ -60,10 +63,13 @@ onMounted(fetchAllData)
       <v-col cols="12" md="8">
         <h1 class="text-h4 font-weight-bold mb-4">แดชบอร์ดสถิติ</h1>
       </v-col>
+    </v-row>
+
+    <v-row>
       <v-col cols="12" md="4">
-        <v-card class="date-range-card pa-4">
-          <v-row>
-            <v-col cols="12" sm="6">
+        <v-card class="dashboard-card date-range-card pa-4 d-flex flex-column align-center justify-center ">
+          <v-row class="justify-center align-center">
+            <v-col cols="12" sm="6" class="d-flex justify-center">
               <v-text-field
                 v-model="startDate"
                 label="วันที่เริ่มต้น"
@@ -72,7 +78,7 @@ onMounted(fetchAllData)
                 dense
               ></v-text-field>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" class="d-flex justify-center">
               <v-text-field
                 v-model="endDate"
                 label="วันที่สิ้นสุด"
@@ -82,7 +88,16 @@ onMounted(fetchAllData)
               ></v-text-field>
             </v-col>
           </v-row>
-          <v-btn class="mt-2" color="primary" block @click="fetchAllData">อัปเดตข้อมูล</v-btn>
+          <v-row class="justify-center">
+            <v-col cols="12" class="d-flex justify-center">
+              <v-btn class="mt-2" color="primary" @click="fetchAllData">อัปเดตข้อมูล</v-btn>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-col>
+      <v-col cols="12" md="8">
+        <v-card class="dashboard-card">
+          <BottleCount />
         </v-card>
       </v-col>
     </v-row>
@@ -121,10 +136,10 @@ onMounted(fetchAllData)
     </v-row>
 
     <!-- แถวที่สามของการ์ด -->
-    <v-row class="mt-4">
-      <v-col cols="12" md="6">
+        <v-row class="mt-4">
+      <v-col cols="12" md="12">
         <v-card class="dashboard-card">
-          <BottleCount />
+          <DriverLocation />
         </v-card>
       </v-col>
     </v-row>
@@ -154,5 +169,9 @@ onMounted(fetchAllData)
 
 .date-range-card {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>
