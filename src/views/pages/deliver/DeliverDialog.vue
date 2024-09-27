@@ -5,8 +5,11 @@ import { Order_ENDPOINTS } from '@/assets/config/api/api_endPoints';
 import { LongdoMap, LongdoMapLoad } from "longdo-map-vue";
 import CameraCapture from '@/components/CameraCapture.vue';
 import Camera from 'simple-vue-camera';
+import Swal from 'sweetalert2';
 
 const apiKey = import.meta.env.VITE_LONGDO_MAP_API_KEY;
+const backendUrl = import.meta.env.VITE_API_URL;
+
 
 LongdoMapLoad({
     apiKey: apiKey,
@@ -98,26 +101,58 @@ const handleCapture = (imageData) => {
 
 const completeOrder = async () => {
     const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
-    try {
-        const formData = new FormData();
-        formData.append('orderId', localSelectedOrder.value.orderId);
-        if (localSelectedOrder.value.image) {
-            // แปลง base64 เป็น Blob
-            const base64Response = await fetch(localSelectedOrder.value.image);
-            const blob = await base64Response.blob();
-            formData.append('deliverImage', blob, 'delivery_proof.jpg');
-        }
-        await axios.put(Order_ENDPOINTS.completeOrder, formData, {
-            headers: {
-                'Authorization': `Bearer ${jwtToken}`,
-                'Content-Type': 'multipart/form-data',
+    //ยืนยันการส่งสินค้า
+    Swal.fire({
+        title: 'ยืนยันการส่งสินค้า',
+        text: 'คุณต้องการส่งสินค้าออเดอร์นี้หรือไม่',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ตกลง',
+        cancelButtonText: 'ยกเลิก',
+        customClass: {
+            popup: 'swal-on-top',
+        },
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                const formData = new FormData();
+                formData.append('orderId', localSelectedOrder.value.orderId);
+                if (localSelectedOrder.value.image) {
+                    // แปลง base64 เป็น Blob
+                    const base64Response = await fetch(localSelectedOrder.value.image);
+                    const blob = await base64Response.blob();
+                    formData.append('deliverImage', blob, 'delivery_proof.jpg');
+                }
+                await axios.put(Order_ENDPOINTS.completeOrder, formData, {
+                    headers: {
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'Content-Type': 'multipart/form-data',
+                    }
+                });
+                Swal.fire({
+                    title: 'ส่งสินค้าแล้ว',
+                    text: 'คุณได้ส่งสินค้าสำเร็จ',
+                    icon: 'success',
+                    timer: 1000,
+                    showConfirmButton: false,
+                    customClass: {
+                        popup: 'swal-on-top',
+                    },
+                });
+                localSelectedOrder.value.deliverStatus = 'delivered';
+                showCamera.value = false;
+                localSelectedOrder.value.image = null;
+                capturedImage.value = null;
+                emit('orderUpdated');
+                emit('refresh');
+                emit('update:showDialog', false); // ปิด dialog
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการอัพเดทสถานะการจัดส่ง:', error);
             }
-        });
-        localSelectedOrder.value.deliverStatus = 'delivered';
-        emit('orderUpdated');
-    } catch (error) {
-        console.error('เกิดข้อผิดพลาดในการอัพเดทสถานะการจัดส่ง:', error);
-    }
+        }
+    });
 };
 
 const getStatusColor = (status) => {
@@ -151,7 +186,7 @@ watch(() => localSelectedOrder.value.image, (newValue) => {
 </script>
 
 <template>
-    <v-dialog v-model="props.showDialog" fullscreen @update:modelValue="$emit('update:showDialog', $event)">
+    <v-dialog class="dialog-on-bottom" v-model="props.showDialog" fullscreen @update:modelValue="$emit('update:showDialog', $event)">
         <v-card>
             <v-toolbar color="white">
                 <v-btn icon @click="$emit('update:showDialog', false)">
@@ -261,13 +296,8 @@ watch(() => localSelectedOrder.value.image, (newValue) => {
                         <v-card>
                             <v-card-title>การดำเนินการ</v-card-title>
                             <v-card-text>
-                                <v-btn 
-                                    v-if="localSelectedOrder.deliverStatus !== 'delivered'"
-                                    color="success" 
-                                    @click="completeOrder" 
-                                    class="mr-2 mb-2"
-                                    :disabled="!localSelectedOrder.image"
-                                >
+                                <v-btn v-if="localSelectedOrder.deliverStatus !== 'delivered'" color="success"
+                                    @click="completeOrder" class="mr-2 mb-2" :disabled="!localSelectedOrder.image">
                                     ส่งสินค้าแล้ว
                                 </v-btn>
                                 <v-btn color="primary" @click="toggleCamera" class="mb-2">
@@ -293,7 +323,8 @@ watch(() => localSelectedOrder.value.image, (newValue) => {
                         <v-card v-if="localSelectedOrder.slipImage">
                             <v-card-title>ภาพหลักฐานการชำระเงิน</v-card-title>
                             <v-card-text>
-                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400" contain></v-img>
+                                <v-img :src="`${backendUrl}${localSelectedOrder.slipImage}`" max-height="400"
+                                    contain></v-img>
                             </v-card-text>
                         </v-card>
                     </v-col>
@@ -317,5 +348,13 @@ watch(() => localSelectedOrder.value.image, (newValue) => {
     transform-origin: center center;
     max-width: 300px;
     margin: auto;
+}
+
+.swal-on-top {
+    z-index: 1100 !important;
+}
+
+.dialog-on-bottom {
+    z-index: 1000 !important;
 }
 </style>
