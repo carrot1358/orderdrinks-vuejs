@@ -79,13 +79,4 @@ setTimeout(() => { showChart.value = true }, 300)
 </template>
 
 <style scoped>
-.revenue-card {
-    transition: all 0.3s ease-in-out;
-    border-radius: 12px;
-}
-
-.revenue-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
-}
 </style>

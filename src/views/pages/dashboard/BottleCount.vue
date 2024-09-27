@@ -46,7 +46,7 @@ const requestBottleCount = () => {
 </script>
 
 <template>
-    <v-card class="bottle-count-card">
+    <div class="bottle-count-card">
         <v-card-title class="headline d-flex align-center">
             <v-icon large color="rgb(33, 150, 243)" class="mr-2">mdi-bottle-wine</v-icon>
             จำนวนขวด
@@ -71,17 +71,8 @@ const requestBottleCount = () => {
                 ขอข้อมูลจำนวนขวด
             </v-btn>
         </v-card-actions>
-    </v-card>
+    </div>
 </template>
 
 <style scoped>
-.bottle-count-card {
-    transition: all 0.3s ease-in-out;
-    border-radius: 12px;
-}
-
-.bottle-count-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
-}
 </style>

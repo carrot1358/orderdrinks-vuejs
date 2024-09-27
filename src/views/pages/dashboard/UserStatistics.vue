@@ -60,8 +60,8 @@ const chartOptions = computed(() => ({
 
 const series = computed(() => [props.data.newUsers, props.data.totalUsers])
 
-const totalNewUsers = computed(() => props.data.newUsers)
-const totalUsers = computed(() => props.data.totalUsers)
+const totalNewUsers = computed(() => props.data?.newUsers ?? 0)
+const totalUsers = computed(() => props.data?.totalUsers ?? 0)
 
 const showChart = ref(false)
 
@@ -71,7 +71,7 @@ setTimeout(() => {
 </script>
 
 <template>
-    <v-card class="user-statistics-card elevation-3 rounded-lg">
+    <div class="user-statistics-card rounded-lg">
         <v-card-title class="text-h5 font-weight-bold pa-4">
             <v-icon large left color="rgb(76, 175, 80)" class="mr-2">mdi-account-group</v-icon>
             สถิติผู้ใช้
@@ -102,16 +102,8 @@ setTimeout(() => {
                 <v-alert v-else type="info" outlined>ไม่มีข้อมูลผู้ใช้</v-alert>
             </v-fade-transition>
         </v-card-text>
-    </v-card>
+    </div>
 </template>
 
 <style scoped>
-.user-statistics-card {
-    transition: all 0.3s ease-in-out;
-}
-
-.user-statistics-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
-}
 </style>

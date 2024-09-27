@@ -22,8 +22,8 @@ const chartOptions = computed(() => ({
     legend: { position: 'bottom' }
 }))
 
-const series = computed(() => [props.data.filterChanges, props.data.filterRefills])
-const totalFilterOperations = computed(() => props.data.filterChanges + props.data.filterRefills)
+const series = computed(() => [props.data?.filterChanges ?? 0, props.data?.filterRefills ?? 0])
+const totalFilterOperations = computed(() => (props.data?.filterChanges ?? 0) + (props.data?.filterRefills ?? 0))
 
 const showChart = ref(false)
 setTimeout(() => { showChart.value = true }, 300)
@@ -41,13 +41,13 @@ setTimeout(() => { showChart.value = true }, 300)
                     <VueApexCharts type="donut" height="350" :options="chartOptions" :series="series" />
                     <v-row class="mt-4">
                         <v-col cols="6" class="text-center">
-                            <div class="text-h6">{{ props.data.filterChanges }}</div>
+                            <div class="text-h6">{{ props.data?.filterChanges ?? 0 }}</div>
                             <v-chip color="rgb(255, 152, 0)" text-color="white" class="pa-2">
                                 <div class="text-caption">การเปลี่ยนไส้กรอง</div>
                             </v-chip>
                         </v-col>
                         <v-col cols="6" class="text-center">
-                            <div class="text-h6">{{ props.data.filterRefills }}</div>
+                            <div class="text-h6">{{ props.data?.filterRefills ?? 0 }}</div>
                             <v-chip color="rgb(33, 150, 243)" text-color="white" class="pa-2">
                                 <div class="text-caption">การเติมสารกรอง</div>
                             </v-chip>
@@ -70,13 +70,4 @@ setTimeout(() => { showChart.value = true }, 300)
 </template>
 
 <style scoped>
-.filter-card {
-    transition: all 0.3s ease-in-out;
-    border-radius: 12px;
-}
-
-.filter-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
-}
 </style>

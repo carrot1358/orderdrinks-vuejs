@@ -39,7 +39,7 @@ setTimeout(() => { showChart.value = true }, 300)
 </script>
 
 <template>
-    <v-card class="order-card">
+    <div class="order-card">
         <v-card-title class="headline d-flex align-center">
             <v-icon large color="blue darken-2" class="mr-2">mdi-cart</v-icon>
             สถิติคำสั่งซื้อ
@@ -70,16 +70,8 @@ setTimeout(() => { showChart.value = true }, 300)
                 <v-alert v-else type="info" outlined>ไม่มีข้อมูลคำสั่งซื้อ</v-alert>
             </v-fade-transition>
         </v-card-text>
-    </v-card>
+    </div>
 </template>
 
 <style scoped>
-.order-card {
-    transition: all 0.3s ease-in-out;
-    border-radius: 12px;
-}
-.order-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 25px 0 rgba(0, 0, 0, 0.1);
-}
 </style>
