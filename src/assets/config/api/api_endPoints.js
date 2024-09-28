@@ -40,8 +40,10 @@ export const Payment_ENDPOINTS = {
 };
 
 export const Notification_ENDPOINTS = {
-  getNotifications: backend_url + "/api/v1/notifications/", // GET
-  updateNotification: backend_url + "/api/v1/notifications/", // PUT
+  getNotifications: backend_url + "/api/v1/distance-notifications", // GET auth admin
+  updateNotification: backend_url + "/api/v1/distance-notifications", // PUT auth admin, {distance_old, distance_new}
+  addNotification: backend_url + "/api/v1/distance-notifications", // POST auth admin, {distance}
+  deleteNotification: backend_url + "/api/v1/distance-notifications/", // DELETE auth admin, {distance}
 };
 
 export const FactoryMaintenance_ENDPOINTS = {
