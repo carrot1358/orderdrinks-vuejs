@@ -54,9 +54,19 @@ const Login = async () => {
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
-          router.push('/').then(() => {
-            window.location.reload();
-          });
+          if (response.data.data.role === "user") {
+            router.push('/').then(() => {
+              window.location.reload();
+            });
+          } else if (response.data.data.role === "driver") {
+            router.push('/ordering').then(() => {
+              window.location.reload();
+            });
+          } else if (response.data.data.role === "admin") {
+            router.push('/OrderList').then(() => {
+              window.location.reload();
+            });
+          }
         });
       } else {
         $swal({
