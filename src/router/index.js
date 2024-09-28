@@ -56,6 +56,10 @@ const router = createRouter({
           path: "FactoryMaintenace",
           component: () => import("../pages/FactoryMaintenace.vue"),
         },
+        {
+          path: "notification-manage",
+          component: () => import("../pages/NotificationManage.vue"),
+        },
       ],
     },
     {

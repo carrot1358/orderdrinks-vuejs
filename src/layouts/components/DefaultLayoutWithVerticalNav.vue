@@ -118,12 +118,12 @@ const openLoginDialog = () => {
         </template>
 
         <template #vertical-nav-content>
-            <VerticalNavLink :item="{
+            <VerticalNavLink v-if="!isAdmin && !isDriver" :item="{
                 title: 'สั่งซื้อสินค้า',
                 icon: 'bx-cart',
                 to: '/Ordering',
             }" />
-            <VerticalNavLink v-if="isUser || isEmployee || isAdmin" :item="{
+            <VerticalNavLink v-if="!isAdmin && !isDriver" :item="{
                 title: 'ประวัติการสั่งซื้อ',
                 icon: 'bx-history',
                 to: '/history',
@@ -160,6 +160,11 @@ const openLoginDialog = () => {
                 title: 'การบำรุงรักษาโรงงาน',
                 icon: 'bx:bxs-report',
                 to: '/FactoryMaintenace',
+            }" />
+            <VerticalNavLink v-if="isAdmin" :item="{
+                title: 'จัดการการแจ้งเตือน',
+                icon: 'bx:bxs-bell',
+                to: '/notification-manage',
             }" />
 
             <!-- 👉 คนขับรถ -->
