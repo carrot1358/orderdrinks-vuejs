@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from "vue";
 import axios from "axios";
+import LocationPicker from "@/components/LocationPicker.vue"; // เพิ่มการนำเข้า LocationPicker
 
 const props = defineProps(["userProfile"]);
 const emit = defineEmits(["update-profile"]);
@@ -11,6 +12,12 @@ const loading = ref(false);
 
 const userDetail = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
 
+const location = ref({
+    lat: localUserProfile.value.lat,
+    lng: localUserProfile.value.lng,
+    address: localUserProfile.value.address
+});
+
 watch(
     () => props.userProfile,
     (newValue) => {
@@ -18,6 +25,12 @@ watch(
     },
     { deep: true }
 );
+
+watch(location, (newValue) => {
+    localUserProfile.value.lat = newValue.lat;
+    localUserProfile.value.lng = newValue.lng;
+    localUserProfile.value.address = newValue.address;
+}, { deep: true });
 
 const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -101,44 +114,23 @@ const getAvatarUrl = () => {
                 <VTextField
                     class="mb-4 mt-2"
                     v-model="localUserProfile.name"
+                    prepend-icon="mdi-account"
                     label="ชื่อ"
                 />
                 <VTextField
                     class="mb-4"
                     v-model="localUserProfile.email"
+                    prepend-icon="mdi-email"
                     label="อีเมล"
                     type="email"
                 />
                 <VTextField
                     class="mb-4"
                     v-model="localUserProfile.phone"
+                    prepend-icon="mdi-phone"
                     label="เบอร์โทรศัพท์"
                 />
-                <VTextField
-                    class="mb-4"
-                    v-model="localUserProfile.address"
-                    label="ที่อยู่"
-                />
-                <VRow>
-                    <VCol cols="6">
-                        <VTextField
-                            class="mb-4"
-                            v-model="localUserProfile.lng"
-                            label="ลองจิจูด"
-                            type="number"
-                            step="0.000001"
-                        />
-                    </VCol>
-                    <VCol cols="6">
-                        <VTextField
-                            class="mb-4"
-                            v-model="localUserProfile.lat"
-                            label="ละติจูด"
-                            type="number"
-                            step="0.000001"
-                        />
-                    </VCol>
-                </VRow>
+                <LocationPicker v-model="location" />
             </VCol>
         </VRow>
         <VBtn type="submit" color="primary" class="mt-4"
