@@ -54,15 +54,18 @@ const Login = async () => {
           timer: 2000,
           showConfirmButton: false
         }).then(() => {
-          if (response.data.data.role === "user") {
+          const userInfo = JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}');
+          console.log(userInfo)
+          console.log(userInfo.role)
+          if (userInfo.role == "user") {
             router.push('/').then(() => {
               window.location.reload();
             });
-          } else if (response.data.data.role === "driver") {
+          } else if (userInfo.role == "driver") {
             router.push('/ordering').then(() => {
               window.location.reload();
             });
-          } else if (response.data.data.role === "admin") {
+          } else if (userInfo.role == "admin") {
             router.push('/OrderList').then(() => {
               window.location.reload();
             });
