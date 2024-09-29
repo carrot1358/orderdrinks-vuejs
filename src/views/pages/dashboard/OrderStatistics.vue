@@ -13,13 +13,15 @@ const props = defineProps({
 const statusTranslation = {
     'delivered': 'จัดส่งแล้ว',
     'cancel': 'ยกเลิก',
-    'delivering': 'กำลังจัดส่ง'
+    'delivering': 'กำลังจัดส่ง',
+    'pending': 'รอดำเนินการ'
 }
 
 const statusColors = {
     'delivered': 'rgb(76, 175, 80)',  // สีเขียว
     'cancel': 'rgb(244, 67, 54)',     // สีแดง
-    'delivering': 'rgb(33, 150, 243)' // สีฟ้า
+    'delivering': 'rgb(33, 150, 243)', // สีฟ้า
+    'pending': 'rgb(255, 193, 7)' // สีส้ม
 }
 
 const chartOptions = computed(() => ({
