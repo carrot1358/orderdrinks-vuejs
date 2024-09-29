@@ -64,15 +64,15 @@ const Login = async () => {
                     console.log(userInfo.role)
                     if (userInfo.role == "user") {
                         router.push('/').then(() => {
-                            window.location.reload();
+                            // window.location.reload();
                         });
                     } else if (userInfo.role == "driver") {
-                        router.push('/ordering').then(() => {
-                            window.location.reload();
+                        router.push('/deliver').then(() => {
+                            // window.location.reload();
                         });
                     } else if (userInfo.role == "admin") {
                         router.push('/OrderList').then(() => {
-                            window.location.reload();
+                            // window.location.reload();
                         });
                     }
                 });
