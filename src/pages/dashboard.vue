@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import axios from 'axios'
 import { Report_Statistics_ENDPOINTS } from '@/assets/config/api/api_endPoints.js'
 import SalesStatistics from '@/views/pages/dashboard/SalesStatistics.vue'
@@ -9,8 +9,20 @@ import OrderStatistics from '@/views/pages/dashboard/OrderStatistics.vue'
 import RevenueStatistics from '@/views/pages/dashboard/RevenueStatistics.vue'
 import BottleCount from '@/views/pages/dashboard/BottleCount.vue'
 import DriverLocation from '@/views/pages/dashboard/DriverLocation.vue'
+import { useWebSocket } from '@/assets/config/websocket/websocket'
+import { Websocket_URL_Frontend } from '@/assets/config/api/websocket_endPoints'
 
 const jwtToken = ref(localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken'))
+const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'))
+
+const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_Frontend}${userInfo.value.userId}`, {
+  reconnectInterval: 3000,
+  maxReconnectAttempts: 10,
+  heartbeatInterval: 20000,
+  heartbeatMessage: JSON.stringify({ type: 'ping' })
+})
+
+console.log('WebSocket URL:', `${Websocket_URL_Frontend}${userInfo.value.userId}`)
 
 const startDate = ref(new Date(new Date().getFullYear(), 0, 1).toISOString().split('T')[0])
 const endDate = ref(new Date().toISOString().split('T')[0])
@@ -20,6 +32,8 @@ const userData = ref(null)
 const filterData = ref(null)
 const orderData = ref([])
 const revenueData = ref([])
+const bottleData = ref(null)
+const driverLocationData = ref(null)
 
 const isLoading = ref(true)
 
@@ -45,6 +59,7 @@ const fetchAllData = async () => {
 
     const revenueRes = await axios.get(Report_Statistics_ENDPOINTS.getReportStatisticsRevenue, config)
     revenueData.value = revenueRes.data.data
+    console.log("revenueData",revenueData.value)
 
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลสถิติ:', error)
@@ -52,6 +67,37 @@ const fetchAllData = async () => {
     isLoading.value = false
   }
 }
+
+watch(lastMessage, (newMessage) => {
+  if (newMessage && newMessage.sendto === 'both') {
+    if (newMessage.body.bottle_count !== undefined) {
+      bottleData.value = newMessage.body
+    }
+    if (newMessage.body.latitude !== undefined && newMessage.body.longitude !== undefined) {
+      driverLocationData.value = newMessage.body
+    }
+  }
+})
+
+const requestBottleCount = () => {
+  console.log('requestBottleCount called in dashboard')
+  if (isConnected.value) {
+    const message = {
+      sendto: 'device',
+      body: {
+        topic: 'need_bottle_image'
+      }
+    }
+    console.log('Sending message:', message)
+    send(message)
+  } else {
+    console.log('WebSocket not connected')
+  }
+}
+
+watch(isConnected, (newValue) => {
+  console.log('WebSocket connection status:', newValue)
+})
 
 onMounted(fetchAllData)
 </script>
@@ -97,7 +143,7 @@ onMounted(fetchAllData)
       </v-col>
       <v-col cols="12" md="8">
         <v-card class="dashboard-card">
-          <BottleCount />
+          <BottleCount :data="bottleData" :isConnected="isConnected" @request-bottle-count="requestBottleCount" />
         </v-card>
       </v-col>
     </v-row>
@@ -136,10 +182,10 @@ onMounted(fetchAllData)
     </v-row>
 
     <!-- แถวที่สามของการ์ด -->
-        <v-row class="mt-4">
+    <v-row class="mt-4">
       <v-col cols="12" md="12">
         <v-card class="dashboard-card">
-          <DriverLocation />
+          <DriverLocation :data="driverLocationData" />
         </v-card>
       </v-col>
     </v-row>

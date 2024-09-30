@@ -1,51 +1,31 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useWebSocket } from '@/assets/config/websocket/websocket'
-import { Websocket_URL_Frontend } from '@/assets/config/api/websocket_endPoints'
+
+const props = defineProps(['data', 'isConnected'])
+const emit = defineEmits(['request-bottle-count'])
 
 const bottleCount = ref(0)
 const lastUpdated = ref(null)
 const bottleImage = ref(null)
 const isLoading = ref(false)
 
-const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'))
+watch(() => props.data, (newData) => {
+  if (newData) {
+    bottleCount.value = newData.bottle_count
+    lastUpdated.value = newData.time_completed
+    bottleImage.value = `data:image/jpeg;base64,${newData.image}`
+    isLoading.value = false
+  }
+}, { deep: true })
 
-const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_Frontend}${userInfo.value.userId}`, {
-    reconnectInterval: 3000,
-    maxReconnectAttempts: 10,
-    heartbeatInterval: 20000,
-    heartbeatMessage: JSON.stringify({ type: 'ping' })
-})
-
-watch(lastMessage, (newMessage) => {
-    if (newMessage && newMessage.sendto === 'both') {
-        if (newMessage.body.bottle_count !== undefined) {
-            bottleCount.value = newMessage.body.bottle_count
-        }
-        lastUpdated.value = newMessage.body.time_completed || new Date().toISOString()
-        if (newMessage.body.image) {
-            bottleImage.value = `data:image/jpeg;base64,${newMessage.body.image}`
-        } else {
-            bottleImage.value = null
-        }
-        isLoading.value = false
-    }
-})
+watch(() => props.isConnected, (newValue) => {
+  console.log('isConnected changed:', newValue)
+}, { immediate: true })
 
 const requestBottleCount = () => {
-    if (isConnected.value) {
-        isLoading.value = true
-        const message = {
-            sendto: 'device',
-            body: {
-                topic: 'need_bottle_image'
-            }
-        }
-        console.log('Sending message:', message)
-        send(message)
-    } else {
-        console.log('WebSocket not connected')
-    }
+  console.log('requestBottleCount called in BottleCount')
+  isLoading.value = true
+  emit('request-bottle-count')
 }
 </script>
 

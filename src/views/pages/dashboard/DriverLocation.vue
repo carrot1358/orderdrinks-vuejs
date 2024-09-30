@@ -1,22 +1,14 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useWebSocket } from '@/assets/config/websocket/websocket'
-import { Websocket_URL_Frontend } from '@/assets/config/api/websocket_endPoints'
 import { LongdoMap, LongdoMapLoad } from 'longdo-map-vue'
 import truckIcon from '@/assets/images/icons/marker/truck.png' // นำเข้ารูปภาพ
+
+const props = defineProps(['data'])
 
 const apiKey = import.meta.env.VITE_LONGDO_MAP_API_KEY
 
 LongdoMapLoad({
     apiKey: apiKey,
-})
-
-const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'))
-const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_Frontend}${userInfo.value.userId}`, {
-    reconnectInterval: 3000,
-    maxReconnectAttempts: 10,
-    heartbeatInterval: 20000,
-    heartbeatMessage: JSON.stringify({ type: 'ping' })
 })
 
 const vehicleLocation = ref([0, 0])
@@ -28,12 +20,12 @@ function loadMap(map) {
     map.Layers.setBase(longdo.Layers.NORMAL)
 }
 
-watch(lastMessage, (newMessage) => {
-    if (newMessage && newMessage.sendto === 'both' && newMessage.body.latitude && newMessage.body.longitude) {
-        vehicleLocation.value = [newMessage.body.latitude, newMessage.body.longitude]
+watch(() => props.data, (newData) => {
+    if (newData && newData.latitude !== 0 && newData.longitude !== 0) {
+        vehicleLocation.value = [newData.latitude, newData.longitude]
         updateMarker()
     }
-})
+}, { deep: true })
 
 function updateMarker() {
     if (mapInstance.value) {
