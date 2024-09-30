@@ -38,7 +38,7 @@
                 <v-window v-model="tab">
                     <v-window-item value="refill">
                         <v-data-table :headers="refillHeaders" :items="filterRefills" :items-per-page="itemsPerPage"
-                            :page.sync="currentPage" class="elevation-1">
+                            :page.sync="currentPage" class="elevation-1" @touchstart.stop @touchmove.stop>
                             <template v-slot:item.iodine="{ item }">
                                 <v-icon :color="item.iodine ? 'success' : 'error'">
                                     {{ item.iodine ? 'mdi-check' : 'mdi-close' }}
@@ -75,7 +75,7 @@
 
                     <v-window-item value="change">
                         <v-data-table :headers="changeHeaders" :items="filterChangeData" :items-per-page="itemsPerPage"
-                            :page.sync="currentPage" class="elevation-1">
+                            :page.sync="currentPage" class="elevation-1" @touchstart.stop @touchmove.stop>
                             <template v-slot:item.smallFilter="{ item }">
                                 <v-icon :color="item.smallFilter ? 'success' : 'error'">
                                     {{ item.smallFilter ? 'mdi-check' : 'mdi-close' }}
@@ -97,7 +97,7 @@
 
                     <v-window-item value="cleaning">
                         <v-data-table :headers="cleaningHeaders" :items="filterCleaningData"
-                            :items-per-page="itemsPerPage" :page.sync="currentPage" class="elevation-1">
+                            :items-per-page="itemsPerPage" :page.sync="currentPage" class="elevation-1" @touchstart.stop @touchmove.stop>
                             <template v-slot:item.cleaned="{ item }">
                                 <v-icon :color="item.cleaned ? 'success' : 'error'">
                                     {{ item.cleaned ? 'mdi-check' : 'mdi-close' }}
