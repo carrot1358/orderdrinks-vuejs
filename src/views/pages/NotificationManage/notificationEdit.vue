@@ -13,7 +13,7 @@
                     <v-row>
                         <v-col cols="12">
               <div class="text-subtitle-1">
-                ระยะทางเดิม: <strong>{{ editedItem.distance }} กม.</strong>
+                ระยะทางเดิม: <strong>{{ editedItem.distance }} ม.</strong>
               </div>
             </v-col>
                         <v-col cols="12">

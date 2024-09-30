@@ -11,7 +11,7 @@
                     >
                         <v-card-title class="text-h6 d-flex align-center">
                             <v-icon color="primary" class="mr-2 rotate-icon">mdi-map-marker-distance</v-icon>
-                            ระยะทาง: {{ item.distance }} กม.
+                            ระยะทาง: {{ item.distance }} ม.
                         </v-card-title>
                         <v-card-actions>
                             <v-spacer></v-spacer>
