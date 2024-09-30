@@ -97,7 +97,8 @@
 
                     <v-window-item value="cleaning">
                         <v-data-table :headers="cleaningHeaders" :items="filterCleaningData"
-                            :items-per-page="itemsPerPage" :page.sync="currentPage" class="elevation-1" @touchstart.stop @touchmove.stop>
+                            :items-per-page="itemsPerPage" :page.sync="currentPage" class="elevation-1" @touchstart.stop
+                            @touchmove.stop>
                             <template v-slot:item.cleaned="{ item }">
                                 <v-icon :color="item.cleaned ? 'success' : 'error'">
                                     {{ item.cleaned ? 'mdi-check' : 'mdi-close' }}
@@ -180,11 +181,14 @@
                         <v-btn value="cleaning" class="mb-2 flex-grow-1 text-subtitle-1"
                             height="60">การทำความสะอาดเครื่องกรอง</v-btn>
                     </v-btn-toggle>
+                    <v-text-field v-model="reportStartDate" label="วันที่เริ่มต้น" type="date"
+                        class="mt-3"></v-text-field>
+                    <v-text-field v-model="reportEndDate" label="วันที่สิ้นสุด" type="date" class="mt-3"></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด PDF</v-btn>
-                    <v-btn color="primary" @click="downloadSelectedReportExcel">ดาวน์โหลด Excel</v-btn> <!-- ปุ่มใหม่ -->
+                    <v-btn color="primary" @click="downloadSelectedReportExcel">ดาวน์โหลด Excel</v-btn>
                     <v-btn color="error" @click="showDownloadDialog = false">ยกเลิก</v-btn>
                 </v-card-actions>
             </v-card>
@@ -200,6 +204,12 @@ import axios from "axios";
 import { FactoryMaintenance_ENDPOINTS } from "@/assets/config/api/api_endPoints";
 import { saveAs } from 'file-saver';
 import Swal from 'sweetalert2';
+import moment from 'moment-timezone';
+
+const getCurrentDate = () => {
+    return moment().tz('Asia/Bangkok').format('YYYY-MM-DD');
+};
+
 
 const router = useRouter();
 const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
@@ -215,24 +225,31 @@ const showCleaningDialog = ref(false);
 const showDownloadDialog = ref(false);
 const selectedReportType = ref('refill');
 
+const reportStartDate = ref('');
+const reportEndDate = ref(getCurrentDate());
+
 const openRefillDialog = () => {
     showRefillDialog.value = true;
     console.log("showRefillDialog", showRefillDialog.value);
 };
+
 
 const openChangeDialog = () => {
     showChangeDialog.value = true;
     console.log("showChangeDialog", showChangeDialog.value);
 };
 
+
 const openCleaningDialog = () => {
     showCleaningDialog.value = true;
     console.log("showCleaningDialog", showCleaningDialog.value);
 };
 
+
 const openDownloadDialog = () => {
     showDownloadDialog.value = true;
 };
+
 
 const refillForm = ref({
     iodine: false,
@@ -241,20 +258,23 @@ const refillForm = ref({
     manganese: false,
     sodaAsh: false,
     other: "",
-    date: new Date().toISOString().split('T')[0],
+    date: getCurrentDate(),
 });
+
 
 const changeForm = ref({
     smallFilter: false,
     membraneFilter: false,
     other: "",
-    date: new Date().toISOString().split('T')[0],
+    date: getCurrentDate(),
 });
+
 
 const cleaningForm = ref({
     cleaned: false,
-    date: new Date().toISOString().split('T')[0],
+    date: getCurrentDate(),
 });
+
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -286,12 +306,7 @@ onMounted(async () => {
     await fetchAllData();
 });
 
-const getCurrentDate = () => {
-    const now = new Date();
-    const offset = now.getTimezoneOffset();
-    const thailandTime = new Date(now.getTime() - (offset * 60 * 1000) + (7 * 60 * 60 * 1000));
-    return thailandTime.toISOString().split('T')[0];
-};
+
 
 const fetchAllData = async () => {
     await Promise.all([
@@ -325,6 +340,7 @@ const fetchFilterChanges = async () => {
     }
 };
 
+
 const fetchFilterCleanings = async () => {
     try {
         const response = await axios.get(FactoryMaintenance_ENDPOINTS.getFilterCleanings, {
@@ -336,6 +352,7 @@ const fetchFilterCleanings = async () => {
         console.error("เกิดข้อผิดพลาดในการดึงข้อมูลการทำความสะอาดเครื่องกรอง:", error);
     }
 };
+
 
 const submitRefillForm = async () => {
     try {
@@ -358,6 +375,7 @@ const submitRefillForm = async () => {
     }
 };
 
+
 const submitChangeForm = async () => {
     try {
         const formData = new FormData();
@@ -378,6 +396,7 @@ const submitChangeForm = async () => {
         console.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลการเปลี่ยนไส้กรอง:", error);
     }
 };
+
 
 const submitCleaningForm = async () => {
     try {
@@ -400,6 +419,7 @@ const submitCleaningForm = async () => {
     }
 };
 
+
 const resetRefillForm = () => {
     refillForm.value = {
         iodine: false,
@@ -408,25 +428,28 @@ const resetRefillForm = () => {
         manganese: false,
         sodaAsh: false,
         other: "",
-        date: new Date().toISOString().split('T')[0],
+        date: getCurrentDate(),
     };
 };
+
 
 const resetChangeForm = () => {
     changeForm.value = {
         smallFilter: false,
         membraneFilter: false,
         other: "",
-        date: new Date().toISOString().split('T')[0],
+        date: getCurrentDate(),
     };
 };
+
 
 const resetCleaningForm = () => {
     cleaningForm.value = {
         cleaned: false,
-        date: new Date().toISOString().split('T')[0],
+        date: getCurrentDate(),
     };
 };
+
 
 const changeHeaders = ref([
     { title: 'ไส้กรองเล็ก', key: 'smallFilter', align: 'center' },
@@ -436,11 +459,13 @@ const changeHeaders = ref([
     { title: 'การดำเนินการ', key: 'actions', align: 'center' },
 ]);
 
+
 const cleaningHeaders = ref([
     { title: 'ทำความสะอาด', key: 'cleaned', align: 'center' },
     { title: 'วันที่', key: 'date', width: '200px' },
     { title: 'การดำเนินการ', key: 'actions', align: 'center' },
 ]);
+
 
 const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -454,6 +479,7 @@ const formatDate = (dateString) => {
     const year = date.getFullYear() + 543; // แปลงเป็นปีพุทธศักราช
     return `${day} ${month} ${year}`;
 };
+
 
 const downloadSelectedReport = async () => {
     try {
@@ -480,6 +506,10 @@ const downloadSelectedReport = async () => {
         const response = await axios.get(endpoint, {
             headers: { Authorization: `Bearer ${jwtToken.value}` },
             responseType: 'blob',
+            params: {
+                startDate: reportStartDate.value,
+                endDate: reportEndDate.value,
+            },
         });
 
         const blob = new Blob([response.data], { type: 'application/pdf' });
@@ -494,6 +524,7 @@ const downloadSelectedReport = async () => {
         });
     }
 };
+
 
 const downloadSelectedReportExcel = async () => {
     try {
@@ -520,6 +551,10 @@ const downloadSelectedReportExcel = async () => {
         const response = await axios.get(endpoint, {
             headers: { Authorization: `Bearer ${jwtToken.value}` },
             responseType: 'blob',
+            params: {
+                startDate: reportStartDate.value,
+                endDate: reportEndDate.value,
+            },
         });
 
         const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -535,6 +570,7 @@ const downloadSelectedReportExcel = async () => {
         });
     }
 };
+
 
 const confirmDelete = (type, id) => {
     Swal.fire({
@@ -565,6 +601,7 @@ const confirmDelete = (type, id) => {
         }
     });
 };
+
 
 const deleteItem = async (endpoint, id) => {
     try {
