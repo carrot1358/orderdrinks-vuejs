@@ -85,7 +85,6 @@ const prepareOrder = async () => {
             timer: 1500
           });
         });
-        fetchOrders();
       } catch (error) {
         console.error('เกิดข้อผิดพลาดในการเตรียมจัดส่งสินค้า:', error);
       }
