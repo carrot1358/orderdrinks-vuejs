@@ -67,6 +67,9 @@
                             <template v-slot:item.date="{ item }">
                                 {{ formatDate(item.date) }}
                             </template>
+                            <template v-slot:item.actions="{ item }">
+                                <v-btn small color="error" @click="confirmDelete('refill', item._id)">ลบ</v-btn>
+                            </template>
                         </v-data-table>
                     </v-window-item>
 
@@ -86,6 +89,9 @@
                             <template v-slot:item.date="{ item }">
                                 {{ formatDate(item.date) }}
                             </template>
+                            <template v-slot:item.actions="{ item }">
+                                <v-btn small color="error" @click="confirmDelete('change', item._id)">ลบ</v-btn>
+                            </template>
                         </v-data-table>
                     </v-window-item>
 
@@ -99,6 +105,9 @@
                             </template>
                             <template v-slot:item.date="{ item }">
                                 {{ formatDate(item.date) }}
+                            </template>
+                            <template v-slot:item.actions="{ item }">
+                                <v-btn small color="error" @click="confirmDelete('cleaning', item._id)">ลบ</v-btn>
                             </template>
                         </v-data-table>
                     </v-window-item>
@@ -159,27 +168,26 @@
         </v-dialog>
 
         <v-dialog v-model="showDownloadDialog" max-width="400px">
-    <v-card>
-        <v-card-title class="text-h5 font-weight-bold">เลือกประเภทรายงานที่ต้องการดาวน์โหลด</v-card-title>
-        <v-card-text>
-            <v-btn-toggle 
-                v-model="selectedReportType" 
-                mandatory 
-                class="d-flex flex-column align-stretch"
-                style="min-height: 200px;"
-            >
-                <v-btn value="refill" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การเติมสารกรอง</v-btn>
-                <v-btn value="change" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การเปลี่ยนไส้กรอง</v-btn>
-                <v-btn value="cleaning" class="mb-2 flex-grow-1 text-subtitle-1" height="60">การทำความสะอาดเครื่องกรอง</v-btn>
-            </v-btn-toggle>
-        </v-card-text>
-        <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด</v-btn>
-            <v-btn color="error" @click="showDownloadDialog = false">ยกเลิก</v-btn>
-        </v-card-actions>
-    </v-card>
-</v-dialog>
+            <v-card>
+                <v-card-title class="text-h5 font-weight-bold">เลือกประเภทรายงานที่ต้องการดาวน์โหลด</v-card-title>
+                <v-card-text>
+                    <v-btn-toggle v-model="selectedReportType" mandatory class="d-flex flex-column align-stretch"
+                        style="min-height: 200px;">
+                        <v-btn value="refill" class="mb-2 flex-grow-1 text-subtitle-1"
+                            height="60">การเติมสารกรอง</v-btn>
+                        <v-btn value="change" class="mb-2 flex-grow-1 text-subtitle-1"
+                            height="60">การเปลี่ยนไส้กรอง</v-btn>
+                        <v-btn value="cleaning" class="mb-2 flex-grow-1 text-subtitle-1"
+                            height="60">การทำความสะอาดเครื่องกรอง</v-btn>
+                    </v-btn-toggle>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด</v-btn>
+                    <v-btn color="error" @click="showDownloadDialog = false">ยกเลิก</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
 
     </v-container>
 </template>
@@ -190,6 +198,7 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { FactoryMaintenance_ENDPOINTS } from "@/assets/config/api/api_endPoints";
 import { saveAs } from 'file-saver';
+import Swal from 'sweetalert2';
 
 const router = useRouter();
 const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'));
@@ -259,6 +268,7 @@ const refillHeaders = ref([
     { title: 'โซดาแอช', key: 'sodaAsh', align: 'center' },
     { title: 'อื่นๆ', key: 'other' },
     { title: 'วันที่', key: 'date', width: '200px' },
+    { title: 'การดำเนินการ', key: 'actions', align: 'center' },
 ]);
 
 onMounted(async () => {
@@ -422,11 +432,13 @@ const changeHeaders = ref([
     { title: 'ไส้กรอง Membrane', key: 'membraneFilter', align: 'center' },
     { title: 'อื่นๆ', key: 'other' },
     { title: 'วันที่', key: 'date', width: '200px' },
+    { title: 'การดำเนินการ', key: 'actions', align: 'center' },
 ]);
 
 const cleaningHeaders = ref([
     { title: 'ทำความสะอาด', key: 'cleaned', align: 'center' },
     { title: 'วันที่', key: 'date', width: '200px' },
+    { title: 'การดำเนินการ', key: 'actions', align: 'center' },
 ]);
 
 const formatDate = (dateString) => {
@@ -479,6 +491,60 @@ const downloadSelectedReport = async () => {
             title: "เกิดข้อผิดพลาด",
             text: "ไม่สามารถดาวน์โหลดรายงานได้ กรุณาลองใหม่อีกครั้ง",
         });
+    }
+};
+
+const confirmDelete = (type, id) => {
+    Swal.fire({
+        title: 'คุณแน่ใจหรือไม่?',
+        text: "คุณจะไม่สามารถย้อนกลับได้!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ใช่, ลบมัน!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let endpoint;
+            switch (type) {
+                case 'refill':
+                    endpoint = FactoryMaintenance_ENDPOINTS.deleteFilterRefill;
+                    break;
+                case 'change':
+                    endpoint = FactoryMaintenance_ENDPOINTS.deleteFilterChange;
+                    break;
+                case 'cleaning':
+                    endpoint = FactoryMaintenance_ENDPOINTS.deleteFilterCleaning;
+                    break;
+                default:
+                    return;
+            }
+            deleteItem(endpoint, id);
+        }
+    });
+};
+
+const deleteItem = async (endpoint, id) => {
+    try {
+        await axios.delete(`${endpoint}${id}`, {
+            headers: { Authorization: `Bearer ${jwtToken.value}` },
+        });
+        Swal.fire(
+            {
+                title: 'ลบแล้ว!',
+                text: 'รายการของคุณถูกลบแล้ว.',
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false,
+            }
+        );
+        await fetchAllData(); // Refresh the data
+    } catch (error) {
+        Swal.fire(
+            'เกิดข้อผิดพลาด!',
+            'มีข้อผิดพลาดในการลบรายการของคุณ.',
+            'error'
+        );
     }
 };
 </script>
