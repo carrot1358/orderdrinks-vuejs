@@ -121,7 +121,7 @@
                 <v-card-title>บันทึกเติมสารกรอง</v-card-title>
                 <v-card-text>
                     <v-form @submit.prevent="submitRefillForm">
-                        <v-checkbox v-model="refillForm.iodine" label="เหลือไอโอดีน (ทุก 3 วัน)"></v-checkbox>
+                        <v-checkbox v-model="refillForm.iodine" label="เหลือไออดีน (ทุก 3 วัน)"></v-checkbox>
                         <v-checkbox v-model="refillForm.carbon" label="คาร์บอน (ทุก 1 ปี)"></v-checkbox>
                         <v-checkbox v-model="refillForm.resin" label="เรซิน (ทุก 1 ปี)"></v-checkbox>
                         <v-checkbox v-model="refillForm.manganese" label="แมงกานีส (ทุก 1 ปี)"></v-checkbox>
@@ -183,7 +183,8 @@
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด</v-btn>
+                    <v-btn color="primary" @click="downloadSelectedReport">ดาวน์โหลด PDF</v-btn>
+                    <v-btn color="primary" @click="downloadSelectedReportExcel">ดาวน์โหลด Excel</v-btn> <!-- ปุ่มใหม่ -->
                     <v-btn color="error" @click="showDownloadDialog = false">ยกเลิก</v-btn>
                 </v-card-actions>
             </v-card>
@@ -273,7 +274,7 @@ const refillHeaders = ref([
 
 onMounted(async () => {
     if (!userInfo.value.isAdmin) {
-        await swal.fire({
+        await Swal.fire({
             icon: "error",
             title: "คุณไม่มีสิทธิ์เข้าสู่ระบบ",
             text: `กรุณาตรวจสอบสิทธิ์ผู้ใช้ของคุณ (${userInfo.value.role})`,
@@ -486,7 +487,48 @@ const downloadSelectedReport = async () => {
         showDownloadDialog.value = false;
     } catch (error) {
         console.error("เกิดข้อผิดพลาดในการดาวน์โหลดรายงาน:", error);
-        await swal.fire({
+        await Swal.fire({
+            icon: "error",
+            title: "เกิดข้อผิดพลาด",
+            text: "ไม่สามารถดาวน์โหลดรายงานได้ กรุณาลองใหม่อีกครั้ง",
+        });
+    }
+};
+
+const downloadSelectedReportExcel = async () => {
+    try {
+        let endpoint;
+        let filename;
+
+        switch (selectedReportType.value) {
+            case 'refill':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportRefillsExcel;
+                filename = 'รายงานการเติมสารกรอง.xlsx';
+                break;
+            case 'change':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportChangesExcel;
+                filename = 'รายงานการเปลี่ยนไส้กรอง.xlsx';
+                break;
+            case 'cleaning':
+                endpoint = FactoryMaintenance_ENDPOINTS.getReportCleaningsExcel;
+                filename = 'รายงานการทำความสะอาดเครื่องกรอง.xlsx';
+                break;
+            default:
+                throw new Error('ไม่พบประเภทรายงานที่เลือก');
+        }
+
+        const response = await axios.get(endpoint, {
+            headers: { Authorization: `Bearer ${jwtToken.value}` },
+            responseType: 'blob',
+        });
+
+        const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, filename);
+        showDownloadDialog.value = false;
+    } catch (error) {
+        showDownloadDialog.value = false;
+        console.error("เกิดข้อผิดพลาดในการดาวน์โหลดรายงาน:", error);
+        await Swal.fire({
             icon: "error",
             title: "เกิดข้อผิดพลาด",
             text: "ไม่สามารถดาวน์โหลดรายงานได้ กรุณาลองใหม่อีกครั้ง",
@@ -549,4 +591,6 @@ const deleteItem = async (endpoint, id) => {
 };
 </script>
 
+<style scoped></style>
+<style scoped></style>
 <style scoped></style>

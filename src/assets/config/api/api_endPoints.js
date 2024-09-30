@@ -60,6 +60,10 @@ export const FactoryMaintenance_ENDPOINTS = {
   getReportRefillsPDF: backend_url + "/api/v1/reports/generate-pdf-refill", // GET
   getReportChangesPDF: backend_url + "/api/v1/reports/generate-pdf-change", // GET
   getReportCleaningsPDF: backend_url + "/api/v1/reports/generate-pdf-cleaning", // GET
+
+  getReportRefillsExcel: backend_url + "/api/v1/reports/generate-excel-refill", // GET
+  getReportChangesExcel: backend_url + "/api/v1/reports/generate-excel-change", // GET
+  getReportCleaningsExcel: backend_url + "/api/v1/reports/generate-excel-cleaning", // GET
 };
 
 export const Report_Statistics_ENDPOINTS = {
