@@ -359,8 +359,15 @@ const deliverStatusItems = [
 
                         <v-card v-if="capturedImage">
                             <v-card-title>ภาพหลักฐานการส่ง</v-card-title>
-                            <v-card-text>
+                            <v-card-text v-if="capturedImage">
                                 <v-img :src="capturedImage" max-height="400" contain class="rotate-image"></v-img>
+                            </v-card-text>
+                        </v-card>
+                        <v-card v-else-if="localSelectedOrder.deliver_image_path">
+                            <v-card-title>ภาพหลักฐานการส่ง</v-card-title>
+                            <v-card-text>
+                                <v-img :src="`${backendUrl}${localSelectedOrder.deliver_image_path}`" max-height="400"
+                                    contain></v-img>
                             </v-card-text>
                         </v-card>
 
