@@ -12,6 +12,7 @@ import DeliveryMap from '@/views/pages/deliver/DeliveryMap.vue';
 const orders = ref([]);
 const loading = ref(false);
 const showMap = ref(false);
+const lastDeliveryMetadata = ref(null);
 
 const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'))
 const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_Frontend}${userInfo.value.userId}`, {
@@ -59,7 +60,6 @@ const updateDistance = async () => {
 }
 
 const prepareOrder = async () => {
-  // ขั้นตอนที่ 1: ยืนยันการเตรียมจัดส่ง
   const confirmResult = await Swal.fire({
     title: 'ต้องการเตรียมจัดส่งสินค้าหรือไม่?',
     text: "การเตรียมจัดส่งสินค้าจะทำให้สถานะของคำสั่งซื้อของลูกค้าถูกเปลี่ยนเป็นกำลังจัดส่ง",
@@ -80,79 +80,9 @@ const prepareOrder = async () => {
       });
       
       if (response.status === 200) {
-        const metadata = response.data.data.metadata;
+        lastDeliveryMetadata.value = response.data.data.metadata;
         
-        // ขั้นตอนที่ 2: แสดงรายการเตรียมสินค้าในรูปแบบตาราง
-        Swal.fire({
-          title: 'รายการที่ต้องเตรียม',
-          html: `
-            <div class="delivery-checklist">
-              <div class="checklist-header">
-                <p class="batch-id">รหัสชุดจัดส่ง: ${metadata.batchId}</p>
-              </div>
-              
-              <table class="product-table">
-                <thead>
-                  <tr>
-                    <th style="width: 100px" class="text-center">ตรวจสอบ</th>
-                    <th style="width: 45%" class="text-center">สินค้า</th>
-                    <th style="width: 120px" class="text-center">จำนวน</th>
-                    <th style="width: 150px" class="text-center">ราคารวม</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${Object.entries(metadata.productSummary)
-                    .map(([id, product]) => `
-                      <tr>
-                        <td class="text-center">
-                          <input type="checkbox" id="product-${id}" class="product-checkbox">
-                        </td>
-                        <td>${product.name}</td>
-                        <td class="text-center">${product.totalQuantity}</td>
-                        <td class="text-right">${product.totalPrice.toLocaleString()} ฿</td>
-                      </tr>
-                    `).join('')}
-                  <tr class="total-row">
-                    <td colspan="2">รวมทั้งหมด</td>
-                    <td class="text-center">${Object.values(metadata.productSummary)
-                      .reduce((sum, product) => sum + product.totalQuantity, 0)}</td>
-                    <td class="text-right">${metadata.totalAmount.toLocaleString()} ฿</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <div class="delivery-info">
-                <div class="info-item">
-                  <strong>จำนวนออเดอร์:</strong> ${metadata.totalOrders} ออเดอร์
-                </div>
-              </div>
-
-              <div class="validation-message" style="color: red; display: none;">
-                กรุณาตรวจสอบรายการสินค้าให้ครบทุกรายการ
-              </div>
-            </div>
-          `,
-          confirmButtonText: 'เสร็จสิ้น',
-          showCancelButton: false,
-          allowOutsideClick: false,
-          width: '1000px',
-          customClass: {
-            container: 'modern-swal-container',
-            popup: 'modern-swal-popup'
-          },
-          preConfirm: () => {
-            const checkboxes = document.querySelectorAll('.product-checkbox');
-            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-            const validationMessage = document.querySelector('.validation-message');
-            
-            if (!allChecked) {
-              validationMessage.style.display = 'block';
-              return false;
-            }
-            validationMessage.style.display = 'none';
-            return true;
-          }
-        });
+        showDeliveryList(lastDeliveryMetadata.value);
         
         fetchOrders();
       }
@@ -166,7 +96,153 @@ const prepareOrder = async () => {
   }
 };
 
-onMounted(fetchOrders);
+const showDeliveryList = (metadata) => {
+  if (!metadata) {
+    Swal.fire({
+      title: 'ไม่พบข้อมูลรายการ',
+      text: 'กรุณาเตรียมจัดส่งสินค้าก่อน',
+      icon: 'warning'
+    });
+    return;
+  }
+
+  const createDeliveryListHtml = (metadata) => {
+    const escapeHtml = (unsafe) => {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    };
+
+    return `
+      <div class="delivery-checklist">
+        <div class="checklist-header">
+          <p class="batch-id">รหัสชุดจัดส่ง: ${metadata.batchId}</p>
+        </div>
+        
+        <table class="product-table">
+          <thead>
+            <tr>
+              <th style="width: 100px" class="text-center">ตรวจสอบ</th>
+              <th style="width: 45%" class="text-center">สินค้า</th>
+              <th style="width: 120px" class="text-center">จำนวน</th>
+              <th style="width: 150px" class="text-center">ราคารวม</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.entries(metadata.productSummary)
+              .map(([id, product]) => `
+                <tr>
+                  <td class="text-center">
+                    <input type="checkbox" id="product-${escapeHtml(id)}" class="product-checkbox" 
+                      data-product-name="${escapeHtml(product.name)}">
+                  </td>
+                  <td>${escapeHtml(product.name)}</td>
+                  <td class="text-center">${escapeHtml(String(product.totalQuantity))}</td>
+                  <td class="text-right">${escapeHtml(product.totalPrice.toLocaleString())} ฿</td>
+                </tr>
+              `).join('')}
+            <tr class="total-row">
+              <td colspan="2">รวมทั้งหมด</td>
+              <td class="text-center">${Object.values(metadata.productSummary)
+                .reduce((sum, product) => sum + product.totalQuantity, 0)}</td>
+              <td class="text-right">${metadata.totalAmount.toLocaleString()} ฿</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="delivery-info">
+          <div class="info-item">
+            <strong>จำนวนออเดอร์:</strong> ${metadata.totalOrders} ออเดอร์
+          </div>
+        </div>
+
+        <div class="validation-message" style="color: red; display: none;">
+          กรุณาตรวจสอบรายการสินค้าให้ครบทุกรายการ
+        </div>
+      </div>
+    `;
+  };
+
+  const showDeliveryDialog = () => {
+    Swal.fire({
+      title: 'รายการที่ต้องเตรียม',
+      html: createDeliveryListHtml(metadata),
+      confirmButtonText: 'เสร็จสิ้น',
+      allowOutsideClick: false,
+      width: '1000px',
+      customClass: {
+        container: 'modern-swal-container',
+        popup: 'modern-swal-popup'
+      },
+      preConfirm: () => {
+        const checkboxes = document.querySelectorAll('.product-checkbox');
+        const uncheckedItems = Array.from(checkboxes)
+          .filter(checkbox => !checkbox.checked)
+          .map(checkbox => checkbox.dataset.productName);
+        
+        if (uncheckedItems.length > 0) {
+          return Swal.fire({
+            title: 'ยังเช็คไม่ครบ',
+            html: `คุณยังไม่ได้เช็ครายการ:<br>${uncheckedItems.join('<br>')}
+                  <br><br>ยืนยันจะปิดหน้าต่างหรือไม่?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+          }).then((result) => {
+            if (!result.isConfirmed) {
+              setTimeout(showDeliveryDialog, 100);
+            }
+            return result.isConfirmed;
+          });
+        } else {
+          return Swal.fire({
+            title: 'เช็ครายการครบแล้ว',
+            text: 'คุณเช็ครายการทั้งหมดแล้ว ยืนยันจะปิดหน้าต่างหรือไม่?',
+            icon: 'success',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยัน',
+            cancelButtonText: 'ยกเลิก'
+          }).then((result) => {
+            if (!result.isConfirmed) {
+              setTimeout(showDeliveryDialog, 100);
+            }
+            return result.isConfirmed;
+          });
+        }
+      }
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        setTimeout(showDeliveryDialog, 100);
+      }
+    });
+  };
+
+  showDeliveryDialog();
+};
+
+const fetchLastDeliveryMetadata = async () => {
+  const jwtToken = localStorage.getItem('jwtToken') || sessionStorage.getItem('jwtToken');
+  try {
+    const response = await axios.get(Order_ENDPOINTS.getLastDeliveryMetadata, {
+      headers: {
+        'Authorization': `Bearer ${jwtToken}`
+      }
+    });
+    lastDeliveryMetadata.value = response.data.data;
+  } catch (error) {
+    console.error('ไม่สามารถดึงข้อมูลรายการล่าสุดได้:', error);
+    lastDeliveryMetadata.value = null;
+  }
+};
+
+onMounted(() => {
+  fetchOrders();
+  fetchLastDeliveryMetadata();
+});
 </script>
 
 <template>
@@ -176,9 +252,17 @@ onMounted(fetchOrders);
         <v-btn color="primary" @click="prepareOrder" :loading="loading" class="mr-2">
           เตรียมจัดส่งสินค้า
         </v-btn>
-        <v-btn color="info" @click="showMap = true">
+        <v-btn color="info" @click="showMap = true" class="mr-2">
           <v-icon left>mdi-map-marker</v-icon>
           แผนที่การจัดส่ง
+        </v-btn>
+        <v-btn 
+          color="success" 
+          @click="showDeliveryList(lastDeliveryMetadata)" 
+          :disabled="!lastDeliveryMetadata"
+        >
+          <v-icon left>mdi-format-list-checks</v-icon>
+          รายการสินค้าที่ต้องส่ง
         </v-btn>
       </v-col>
     </v-row>
