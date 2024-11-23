@@ -7,9 +7,11 @@ import { useWebSocket } from '@/assets/config/websocket/websocket'
 import { Websocket_URL_Frontend } from '@/assets/config/api/websocket_endPoints'
 import { VSkeletonLoader } from 'vuetify/components';
 import Swal from 'sweetalert2';
+import DeliveryMap from '@/views/pages/deliver/DeliveryMap.vue';
 
 const orders = ref([]);
 const loading = ref(false);
+const showMap = ref(false);
 
 const userInfo = ref(JSON.parse(localStorage.getItem('userinfo') || sessionStorage.getItem('userinfo') || '{}'))
 const { isConnected, lastMessage, error, send } = useWebSocket(`${Websocket_URL_Frontend}${userInfo.value.userId}`, {
@@ -171,11 +173,21 @@ onMounted(fetchOrders);
   <v-container>
     <v-row>
       <v-col cols="12">
-        <v-btn color="primary" @click="prepareOrder" :loading="loading">
+        <v-btn color="primary" @click="prepareOrder" :loading="loading" class="mr-2">
           เตรียมจัดส่งสินค้า
+        </v-btn>
+        <v-btn color="info" @click="showMap = true">
+          <v-icon left>mdi-map-marker</v-icon>
+          แผนที่การจัดส่ง
         </v-btn>
       </v-col>
     </v-row>
+    
+    <DeliveryMap 
+      v-model:show="showMap"
+      :orders="orders"
+    />
+    
     <v-card class="mt-5">
       <v-card-text>
         <v-alert type="info" v-if="orders.length === 0">
